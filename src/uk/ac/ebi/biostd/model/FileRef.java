@@ -1,16 +1,27 @@
 package uk.ac.ebi.biostd.model;
 
-import java.util.List;
-
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-public class FileRef
+public class FileRef extends AbstractAttributed
 {
- private Node parentNode;
+ 
+ @ManyToOne
+ @JoinColumn(name="node_fk")
+ public AbstractNode getParentNode()
+ {
+  return parentNode;
+ }
+ private AbstractNode parentNode;
+ 
+ public void setParentNode( AbstractNode pr )
+ {
+  parentNode = pr;
+ }
  
  private String name;
  
- private List<Attribute> attriburtes; 
  
 }
