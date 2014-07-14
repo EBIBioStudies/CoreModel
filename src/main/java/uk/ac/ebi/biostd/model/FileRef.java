@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class FileRef
+public class FileRef implements Annotated
 { 
  
  @Id
@@ -80,6 +80,22 @@ public class FileRef
  public void setHostSection( Section pr )
  {
   hostSection = pr;
+ }
+ 
+ @Override
+ public AbstractAttribute addAttribute(String name, String value)
+ {
+  return addAttribute(name, value, null, null);
+ }
+
+ @Override
+ public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
+ {
+  FileAttribute sa = new FileAttribute( name, value, nameQual, valQual );
+  
+  addAttribute(sa);
+  
+  return sa;
  }
  
 }

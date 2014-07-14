@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Section
+public class Section implements Annotated
 {
  @Id
  @GeneratedValue
@@ -31,6 +31,17 @@ public class Section
   this.id = id;
  }
 
+ public String getParentAcc()
+ {
+  return parentAcc;
+ }
+ private String parentAcc;
+ 
+ public void setParentAcc( String pa )
+ {
+  parentAcc = pa;
+ }
+ 
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord",insertable=true)
  public List<SectionAttribute> getAttributes()
@@ -57,17 +68,17 @@ public class Section
  }
  
  @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="study_id")
- @ForeignKey(name="study_fk")
- public Study getStudy()
+ @JoinColumn(name="submission_id")
+ @ForeignKey(name="submission_fk")
+ public Submission getSubmission()
  {
-  return study;
+  return submission;
  }
- private Study study;
+ private Submission submission;
  
- public void setStudy(Study study)
+ public void setSubmission(Submission study)
  {
-  this.study = study;
+  this.submission = study;
   
   if( sections != null )
   {
@@ -91,8 +102,10 @@ public class Section
   
   if( pr == null )
    return;
-  
-  setStudy(pr.getStudy());
+
+  parentAcc = pr.getAcc();
+
+  setSubmission(pr.getSubmission());
   
   if( sections != null )
   {
@@ -116,12 +129,18 @@ public class Section
  {
   return acc;
  }
+ private String acc;
 
  public void setAcc(String acc)
  {
   this.acc = acc;
+
+  if( sections != null )
+  {
+   for(Section s : sections )
+    s.setParentAcc(acc);
+  }
  }
- private String acc;
  
  @OneToMany(mappedBy="parentSection",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
@@ -210,5 +229,21 @@ public class Section
   for(Link s : sn )
    s.setHostSection(this);
 
+ }
+
+ @Override
+ public AbstractAttribute addAttribute(String name, String value)
+ {
+  return addAttribute(name, value, null, null);
+ }
+
+ @Override
+ public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
+ {
+  SectionAttribute sa = new SectionAttribute( name, value, nameQual, valQual );
+  
+  addAttribute(sa);
+  
+  return sa;
  }
 }

@@ -16,6 +16,15 @@ abstract public class AbstractAttribute
   setValue(value2);
  }
  
+ public AbstractAttribute(String name2, String value2, String nameQual, String valueQual )
+ {
+  setName(name2);
+  setValue(value2);
+  setNameQualifier(nameQual);
+  setValueQualifier(valueQual);
+ }
+
+ 
  @Id
  @GeneratedValue
  public long getId()
@@ -40,6 +49,17 @@ abstract public class AbstractAttribute
   this.name = name;
  }
  
+ public String getNameQualifier()
+ {
+  return nameQualifier;
+ }
+ String nameQualifier;
+
+ public void setNameQualifier(String name)
+ {
+  this.nameQualifier = name;
+ }
+
  
  public String getValue()
  {
@@ -52,6 +72,16 @@ abstract public class AbstractAttribute
   this.value = value;
  }
 
+ public String getValueQualifier()
+ {
+  return valueQualifier;
+ }
+ String valueQualifier;
+
+ public void setValueQualifier(String value)
+ {
+  this.valueQualifier = value;
+ }
 
  
  public double getNumValue()

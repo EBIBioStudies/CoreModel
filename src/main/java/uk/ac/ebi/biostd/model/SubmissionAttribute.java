@@ -9,32 +9,32 @@ import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name="link_attr")
-public class LinkAttribute extends AbstractAttribute
+@Table(name="submission_attr")
+public class SubmissionAttribute extends AbstractAttribute
 {
- public LinkAttribute()
+ public SubmissionAttribute()
  {}
  
- public LinkAttribute(String name, String value)
+ public SubmissionAttribute(String name, String value)
  {
   super(name,value);
  }
  
- public LinkAttribute(String name, String value, String nameQual, String valQual)
+ public SubmissionAttribute(String name, String value, String nameQual, String valQual)
  {
   super(name, value, nameQual, valQual);
  }
- 
+
  @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="link_id")
- @ForeignKey(name="link_fk")
- public Link getHost()
+ @JoinColumn(name="submission_id")
+ @ForeignKey(name="submission_fk")
+ public Submission getHost()
  {
   return host;
  }
- private Link host;
+ private Submission host;
  
- public void setHost( Link h )
+ public void setHost( Submission h )
  {
   host=h;
  }

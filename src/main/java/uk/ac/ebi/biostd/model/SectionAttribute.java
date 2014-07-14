@@ -20,6 +20,12 @@ public class SectionAttribute extends AbstractAttribute
   super(name,value);
  }
  
+ public SectionAttribute(String name, String value, String nameQual, String valQual)
+ {
+  super(name, value, nameQual, valQual);
+ }
+ 
+ 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="section_id")
  @ForeignKey(name="section_fk")

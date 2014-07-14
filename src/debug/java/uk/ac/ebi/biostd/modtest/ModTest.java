@@ -14,7 +14,7 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.LinkAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
-import uk.ac.ebi.biostd.model.Study;
+import uk.ac.ebi.biostd.model.Submission;
 
 public class ModTest
 {
@@ -35,7 +35,7 @@ public class ModTest
   
   EntityManager em = fact.createEntityManager();
   
-  Study st  = new Study();
+  Submission st  = new Submission();
   
   Section s1 = new Section();
   s1.setAcc("S1");

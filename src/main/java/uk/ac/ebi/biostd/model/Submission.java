@@ -8,17 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Link implements Annotated
+public class Submission implements Annotated
 {
-
  @Id
  @GeneratedValue
  public long getId()
@@ -26,74 +25,54 @@ public class Link implements Annotated
   return id;
  }
  private long id;
- 
+
  public void setId(long id)
  {
   this.id = id;
  }
- 
+
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
- public List<LinkAttribute> getAttributes()
+ public List<SubmissionAttribute> getAttributes()
  {
   return attributes;
  }
- private List<LinkAttribute> attributes;
+ private List<SubmissionAttribute> attributes;
 
- public void addAttribute( LinkAttribute nd )
+ public void addAttribute( SubmissionAttribute nd )
  {
   if( attributes == null )
-   attributes = new ArrayList<LinkAttribute>();
+   attributes = new ArrayList<SubmissionAttribute>();
   
   attributes.add(nd);
   nd.setHost(this);
  }
  
- public void setAttributes( List<LinkAttribute> sn )
+ public void setAttributes( List<SubmissionAttribute> sn )
  {
   attributes = sn;
   
-  for(LinkAttribute sa : sn )
+  for(SubmissionAttribute sa : sn )
    sa.setHost(this);
  }
+ 
+ 
+ @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+ @ForeignKey(name="sec_fk")
+ @NotNull
+ public Section getRootSection()
+ {
+  return rootSection;
+ }
+ private Section rootSection;
+ 
+ public void setRootSection(Section rootSection)
+ {
+  this.rootSection = rootSection;
+  
+  rootSection.setSubmission(this);
+ }
 
- 
- public String getUrl()
- {
-  return url;
- }
- private String url;
-
- public void setUrl(String url)
- {
-  this.url = url;
- }
- 
- public boolean isLocal()
- {
-  return local;
- }
- private boolean local;
-
- public void setLocal(boolean local)
- {
-  this.local = local;
- }
- 
- @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
- @JoinColumn(name="section_id")
- @ForeignKey(name="section_fk")
- public Section getHostSection()
- {
-  return hostSection;
- }
- private Section hostSection;
- 
- public void setHostSection( Section pr )
- {
-  hostSection = pr;
- }
- 
  @Override
  public AbstractAttribute addAttribute(String name, String value)
  {
@@ -103,10 +82,12 @@ public class Link implements Annotated
  @Override
  public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
  {
-  LinkAttribute sa = new LinkAttribute( name, value, nameQual, valQual );
+  SubmissionAttribute sa = new SubmissionAttribute( name, value, nameQual, valQual );
   
   addAttribute(sa);
   
   return sa;
  }
+ 
+ 
 }

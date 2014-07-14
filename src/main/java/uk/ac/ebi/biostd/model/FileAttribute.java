@@ -20,7 +20,12 @@ public class FileAttribute extends AbstractAttribute
   super(name,value);
  }
  
-  
+ public FileAttribute(String name, String value, String nameQual, String valQual)
+ {
+  super(name, value, nameQual, valQual);
+ }
+ 
+ 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="file_id")
  @ForeignKey(name="file_fk")
