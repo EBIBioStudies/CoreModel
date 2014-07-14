@@ -3,21 +3,15 @@ package uk.ac.ebi.biostd.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 
-@Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(
-    name="nodetype",
-    discriminatorType=DiscriminatorType.STRING
-)public abstract class AbstractNode extends AbstractAttributed
+@MappedSuperclass
+public abstract class AbstractNode<T extends AbstractAttribute> extends AbstractAnnotated<T>
 {
+
+ 
  public String getAcc()
  {
   return acc;
@@ -29,7 +23,7 @@ import javax.persistence.OrderColumn;
  }
  private String acc;
  
- @OneToMany
+ @OneToMany(mappedBy="parentSection")
  @OrderColumn(name="index")
  public List<Section> getSections()
  {
@@ -51,7 +45,7 @@ import javax.persistence.OrderColumn;
  }
  
  
- @OneToMany(mappedBy="node")
+ @OneToMany(mappedBy="hostNode")
  @OrderColumn(name="index")
  public List<FileRef> getFileRefs()
  {
@@ -72,7 +66,7 @@ import javax.persistence.OrderColumn;
   fileRefs = sn;
  }
  
- @OneToMany
+ @OneToMany(mappedBy="hostNode")
  @OrderColumn(name="index")
  public List<Link> getLinks()
  {
