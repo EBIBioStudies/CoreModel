@@ -213,8 +213,10 @@ public class PageTabSyntaxParser
  
   BlockSupplier block;
   
-  Submission subm = new Submission();
+  Submission subm = null;
   Map<String,Section> secMap = new HashMap<>();
+  
+  Section lastSection = null;
   
   while( reader.readRow(parts) != null )
   {
@@ -276,7 +278,24 @@ public class PageTabSyntaxParser
     if( subm != null )
      throw new ParserException(cell0.getRow(), cell0.getCol(), "Repeating block: '"+SubmissionTag+"'");
     
+    subm = new Submission();
     blockObj = subm;
+    
+    if( cells2.size() > 0 )
+    {
+     String acc = cells2.get(0).getValue();
+     
+     if( acc.length() > 0 )
+      subm.setAcc( cells2.get(0).getValue() );
+     else
+      throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
+ 
+     if( cells3.size() > 0 && cells3.get(0).getValue().length() > 0 )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank");
+    }
+    else
+     throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
+
    }
    else if( subm == null )
     throw new ParserException(reader.getLineNumber(), 1, "First block should be '"+SubmissionTag+"'");
@@ -284,24 +303,49 @@ public class PageTabSyntaxParser
    {
     FileRef fr = new FileRef();
     
+    if( cells2.size() > 0 )
+    {
+     String nm = cells2.get(0).getValue();
+     
+     if( nm.length() > 0 )
+      fr.setName( cells2.get(0).getValue() );
+ 
+     if( cells3.size() > 0 )
+      s.setParentAcc( cells3.get(0).getValue() );
+    }
+    
     blockObj = fr;
    }
    else if( cell0.getValue().equals(LinkTag) )
    {
     Link l = new Link();
     
+    
+    
     blockObj = l;
    }
    else
    {
     Section s = new Section();
+    lastSection = s;
     
     s.setType(cell0.getValue());
+    
+    if( cells2.size() > 0 )
+    {
+     String acc = cells2.get(0).getValue();
+     
+     if( acc.length() > 0 )
+      s.setAcc( cells2.get(0).getValue() );
+ 
+     if( cells3.size() > 0 )
+      s.setParentAcc( cells3.get(0).getValue() );
+    }
+    
     
     blockObj = s;
    }
    
-   if( subm == null && ! cells1.get(0).getValue().equals(SubmissionTag))
 
    
    

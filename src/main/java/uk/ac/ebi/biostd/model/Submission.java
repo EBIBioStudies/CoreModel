@@ -30,6 +30,17 @@ public class Submission implements Annotated
  {
   this.id = id;
  }
+ 
+ public String getAcc()
+ {
+  return acc;
+ }
+ private String acc;
+
+ public void setAcc(String acc)
+ {
+  this.acc = acc;
+ }
 
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")

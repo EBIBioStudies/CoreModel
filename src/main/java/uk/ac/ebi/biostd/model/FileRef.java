@@ -82,6 +82,7 @@ public class FileRef implements Annotated
   hostSection = pr;
  }
  
+ 
  @Override
  public AbstractAttribute addAttribute(String name, String value)
  {
