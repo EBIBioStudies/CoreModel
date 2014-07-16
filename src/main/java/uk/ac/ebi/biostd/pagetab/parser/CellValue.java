@@ -68,9 +68,9 @@ public class CellValue
   }
   
   if( sb != null )
-   value = sb.toString();
+   value = sb.toString().trim();
   else
-   value = val;
+   value = val.trim();
 
  }
  

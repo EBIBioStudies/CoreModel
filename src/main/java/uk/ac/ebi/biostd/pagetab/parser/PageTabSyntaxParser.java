@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.pagetab.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -23,7 +22,7 @@ public class PageTabSyntaxParser
  public static final String LinkTag = "Link";
  
  
- public PageTabSyntaxParser(SyntaxProfile sp)
+ public PageTabSyntaxParser()
  {
  }
 
@@ -107,8 +106,6 @@ public class PageTabSyntaxParser
  
  class VerticalBlockSupplier implements BlockSupplier
  {
-//  private List<List<String>> matrix = new ArrayList<List<String>>( 100 );
-  
   private int ptr = 0;
   private final List<List<String>> lines = new ArrayList<List<String>>( 50 );
   private int maxDim = 0;
@@ -204,10 +201,12 @@ public class PageTabSyntaxParser
  {
   
   List<String> parts = new ArrayList<String>(100);
+
   List<CellValue> cells1 = new ArrayList<CellValue>(100);
   List<CellValue> cells2 = new ArrayList<CellValue>(100);
   List<CellValue> cells3 = new ArrayList<CellValue>(100);
   List<CellValue> cells4 = new ArrayList<CellValue>(100);
+  List<CellValue> cells5 = new ArrayList<CellValue>(100);
 
   SpreadsheetReader reader = new SpreadsheetReader(txt);
  
@@ -215,6 +214,7 @@ public class PageTabSyntaxParser
   
   Submission subm = null;
   Map<String,Section> secMap = new HashMap<>();
+  List<SecCellCoupling> sections = new ArrayList<>();
   
   Section lastSection = null;
   
@@ -260,15 +260,34 @@ public class PageTabSyntaxParser
      {
       cells4.clear();
       
-      block.getRecord(cells4);
+      if( block.getRecord(cells4) != null )
+      {
+       cells5.clear();
+       
+       if( block.getRecord( cells5 ) != null )
+       {
+        for( CellValue cv : cells5 )
+        {
+         if( cv.getValue().length() != 0 )
+          throw new ParserException(cv.getRow(), cv.getCol(), "Unexpected value. Expecting blank cell");
+        }
+       }
+      }
+      
      }
     }
    }
    
    Annotated blockObj = null;
    
+   int sz1 = cells1.size();
+   int sz2 = cells2.size();
+   int sz3 = cells3.size();
+   int sz4 = cells4.size();
    
-   if( cells1.size() == 0 )
+   
+   
+   if( sz1 == 0 )
     throw new ParserException(reader.getLineNumber(), 1, "No data in block");
 
    CellValue cell0 = cells1.get(0);
@@ -281,7 +300,7 @@ public class PageTabSyntaxParser
     subm = new Submission();
     blockObj = subm;
     
-    if( cells2.size() > 0 )
+    if( sz2 > 0 )
     {
      String acc = cells2.get(0).getValue();
      
@@ -290,8 +309,8 @@ public class PageTabSyntaxParser
      else
       throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
  
-     if( cells3.size() > 0 && cells3.get(0).getValue().length() > 0 )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank");
+     if( sz3 > 0 && cells3.get(0).getValue().length() > 0 )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
     }
     else
      throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
@@ -303,16 +322,24 @@ public class PageTabSyntaxParser
    {
     FileRef fr = new FileRef();
     
-    if( cells2.size() > 0 )
+    if( sz2 > 0 )
     {
      String nm = cells2.get(0).getValue();
      
      if( nm.length() > 0 )
       fr.setName( cells2.get(0).getValue() );
  
-     if( cells3.size() > 0 )
-      s.setParentAcc( cells3.get(0).getValue() );
+     if( sz3 > 0 )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
+     
+     if( lastSection == null )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), FileTag+ " block should follow any section block");
+     
+     lastSection.addFileRef(fr);
     }
+
+    if( fr.getName() == null )
+     throw new ParserException(cell0.getRow(), cell0.getCol(), "File name missing");
     
     blockObj = fr;
    }
@@ -320,235 +347,151 @@ public class PageTabSyntaxParser
    {
     Link l = new Link();
     
-    
+    if( sz2 > 0 )
+    {
+     String nm = cells2.get(0).getValue();
+     
+     if( nm.length() > 0 )
+      l.setUrl( cells2.get(0).getValue() );
+ 
+     if( sz3 > 0 )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
+     
+     if( lastSection == null )
+      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), LinkTag+ " block should follow any section block");
+     
+     lastSection.addLink(l);
+    }
+
+    if( l.getUrl() == null )
+     throw new ParserException(cell0.getRow(), cell0.getCol(), "Link URL missing");
     
     blockObj = l;
    }
    else
    {
     Section s = new Section();
-    lastSection = s;
+    
+    if( lastSection == null )
+     subm.setRootSection(s);
+    
     
     s.setType(cell0.getValue());
     
-    if( cells2.size() > 0 )
+    if( sz2 > 0 )
     {
      String acc = cells2.get(0).getValue();
      
      if( acc.length() > 0 )
-      s.setAcc( cells2.get(0).getValue() );
- 
-     if( cells3.size() > 0 )
+     {
+      if( secMap.containsKey(acc) )
+       throw new ParserException(cell0.getRow(), cell0.getCol(), "Section ID '"+acc+"' is not unique");
+       
+      s.setAcc( acc );
+     }
+     
+     if( sz3 > 0 && cells3.get(0).getValue().length() > 0 )
       s.setParentAcc( cells3.get(0).getValue() );
+     else
+      s.setParentSection(lastSection);
     }
     
+    SecCellCoupling cpl = new SecCellCoupling(cell0,s);
     
+    sections.add(cpl);
+    
+    if( s.getAcc() != null )
+     secMap.put(s.getAcc(), s );
+    
+    lastSection = s;
     blockObj = s;
    }
    
-
    
-   
-   while( block.getRecord(cells) != null )
+   for( int i=1; i < sz1; i++ )
    {
-    Iterator<CellValue> cellIter = cells.iterator();
+    String nm = cells1.get(i).getValue();
     
-    CellValue cell = cellIter.next();
+    String val = sz2 > i?cells2.get(i).getValue():"";
+   
+    if( val.length() == 0 )
+     val = null;
+
+    String nameQ = sz3 > i?cells3.get(i).getValue():"";
     
-    cell.trim();
+    if( nameQ.length() == 0 )
+     nameQ = null;
     
-    if( cell.getValue().length() != 0 )
+    String valQ = sz4 > i?cells4.get(i).getValue():"";
+
+    if( valQ.length() == 0 )
+     valQ = null;
+    
+    if( nm.length() > 0 )
     {
-     if( cell.matchString(profileDef.getAnonymousObjectId()) )
-     { 
-      String id = "??"+IdGenerator.getInstance().getStringId("tempObjectId");
-      cObj = data.createObject( id, header, block.getOrder(cell) );
-      cObj.setIdDefined(false);
-      cObj.setIdScope(IdScope.MODULE);
+     if( val == null )
+     {
+      if( valQ != null )
+       throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Qualifiers of empty value are not allowed");
      }
      else
-     {
-      boolean defined = ! cell.matchSubstring(profileDef.getAnonymousObjectId(), 0);
-      
-      IdScope scope = defined? profileDef.getDefaultIdScope() : IdScope.MODULE;
-
-      String pfx = profileDef.getGlobalIdPrefix();
-      
-      String id = cell.getValue();
-      
-      if( cell.matchSubstring(pfx,0) )
-      {
-       id = cell.getValue().substring(pfx.length());
-       scope = IdScope.GLOBAL;
-      }
-      else
-      {
-       pfx = profileDef.getClusterIdPrefix();
-       
-       if( cell.matchSubstring(pfx,0) )
-       {
-        id = cell.getValue().substring(pfx.length());
-        scope = IdScope.CLUSTER;
-       }
-       else
-       {
-        pfx = profileDef.getModuleIdPrefix();
-        
-        if( cell.matchSubstring(pfx,0) )
-        {
-         id = cell.getValue().substring(pfx.length());
-         scope = IdScope.MODULE;
-        }
-        else
-        {
-         pfx = profileDef.getDefaultScopeIdPrefix();
-         
-         if( cell.matchSubstring(pfx,0) )
-         {
-          id = cell.getValue().substring(pfx.length());
-          scope = profileDef.getDefaultIdScope();
-         }
-        }
-       }
-      }
-      
-   
-
-      cObj = data.getOrCreateObject(id,header,block.getOrder(cell) );
-      
-      cObj.setIdScope(scope);
-      cObj.setIdDefined( defined );
-      cObj.setPrototype( cell.matchString( profileDef.getPrototypeObjectId() ) );
-     }
+      blockObj.addAttribute(nm, val, nameQ, valQ);
     }
-    else if( cObj == null )
-     throw new ParserException(cell.getRow(), cell.getCol(), "Object identifier is expected");
-   
-    for( ClassReference prop : header.getColumnHeaders() )
+    else
     {
-     
-     if(!cellIter.hasNext())
-      break;
-     
-     cell = cellIter.next();
+     if( val != null )
+      throw new ParserException(cells2.get(i).getRow(), cells2.get(i).getCol(), "Unexpected value. Expecting blank cell");
 
-     if( prop != null )
-     {
-//      if( cell.getValue().length() > 0 )
-      cObj.addValue( new AgeTabValue(cell.getRow(), cell.getCol() , prop, cell)  );
-     }
-     else if( cell.getValue().trim().length() > 0 )
-     {
-      throw new ParserException(cell.getRow(), cell.getCol(),"Not empty value in the empty-headed column");
-     }
-     
+     if( nameQ != null )
+      throw new ParserException(cells3.get(i).getRow(), cells3.get(i).getCol(), "Unexpected value. Expecting blank cell");
+
+     if( valQ != null )
+      throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Unexpected value. Expecting blank cell");
     }
+    
    }
    
   }
 
-  return data;
+  if( sections.size() == 0 )
+   throw new ParserException(0, 0, "No sections defined");
+   
+  
+  if( sections.get(0).sec.getParentAcc() != null  )
+   throw new ParserException(sections.get(0).cell.getRow(), sections.get(0).cell.getCol(), "Root section can't have a parent");
+  
+  for( int i=1; i < sections.size(); i++ )
+  {
+   Section sec = sections.get(i).sec;
+   
+   if( sec.getParentSection() == null )
+   {
+    Section pSec = secMap.get( sec.getParentAcc() );
+    
+    if( pSec == null )
+     throw new ParserException(sections.get(i).cell.getRow(), sections.get(i).cell.getCol(), "No parent section with ID: "+sec.getParentAcc() );
+    
+    sec.setParentSection(pSec);
+   }
+    
+  }
+
+  
+  return subm;
  }
 
- private ClassReference createClassReference( CellValue cell, SyntaxProfileDefinition profDef ) throws ParserException
+ private static class SecCellCoupling
  {
-  int embedSepLen = profDef.getDefaultEmbeddedObjectAttributeSeparator().length(); 
-  
-   String rawVal = cell.getRawValue();
-   
-   ClassReference embeddedProperty=null;
-   
-   int offs=0;
-   while( true )
-   {
-    int pos = rawVal.indexOf( profDef.getDefaultEmbeddedObjectAttributeSeparator(), offs );
-    
-    if( pos == -1 )
-     break;
-    
-    offs = pos+embedSepLen;
+  public SecCellCoupling(CellValue cell, Section sec)
+  {
+   super();
+   this.cell = cell;
+   this.sec = sec;
+  }
 
-    if( ! cell.hasRed(pos, offs) )
-    {
-     embeddedProperty = createClassReference( new CellValue(cell.getRawValue().substring(offs), profDef.getEscapeSequence(),cell.getRow(),cell.getCol()), profDef );
-     cell =  new CellValue(cell.getRawValue().substring(0,pos), profDef.getEscapeSequence(), cell.getRow(), cell.getCol() );
-     break;
-    }
-    
-   }
-  
-   if( cell.getValue().trim().length() == 0 )
-    return null;
-   
-   ClassReference partName = null;
-   
-   try
-   {
-    partName = string2ClassReference(cell);
-    partName.setRawReference(rawVal);
-
-    partName.setRow(cell.getRow());
-    partName.setCol(cell.getCol());
-
-    if( partName.getQualifiers() != null )
-    {
-     for( ClassReference qref : partName.getQualifiers() )
-     {
-      qref.setRow(cell.getRow());
-      qref.setCol(cell.getCol());
-     }
-    }
-    
-    if( embeddedProperty != null )
-     partName.setEmbeddedClassRef(embeddedProperty);
-   }
-   catch(ParserException e)
-   {
-    e.setLineNumber(cell.getRow());
-    e.setColumn(cell.getCol());
-
-    throw e;
-   }
-
-   return partName;
+  public CellValue cell;
+  public Section sec;
  }
- 
- private void analyzeHeader(BlockHeader hdr, List<CellValue> parts) throws ParserException
- {
-  Iterator<CellValue> itr = parts.iterator();
-  
-  CellValue cell = itr.next();
-  
-  
-  ClassReference partName;
-  try
-  {
-   partName = string2ClassReference( cell );
-   partName.setHorizontal(hdr.isHorizontal());
-   partName.setRow(cell.getRow());
-   partName.setCol(cell.getCol());
-   partName.setRawReference(cell.getRawValue());
-  }
-  catch(ParserException e)
-  {
-   e.setLineNumber(cell.getRow());
-   e.setColumn(cell.getCol());
-   throw e;
-  }
-  
-  
-  hdr.setClassColumnHeader(partName);
-  
-  SyntaxProfileDefinition profDef = partName.isCustom()?getSyntaxProfile().getCommonSyntaxProfile():getSyntaxProfile().getClassSpecificSyntaxProfile(partName.getName());
-  
-  while( itr.hasNext() )
-  {
-   cell = itr.next();
-
-   hdr.addColumnHeader( createClassReference(cell, profDef) );
-  }
- }
-
  
  private static boolean isEmptyLine( List<String> parts )
  {
