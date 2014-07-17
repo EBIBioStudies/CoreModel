@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class FileRef implements Annotated
+public class FileRef implements Annotated, Classified
 { 
  
  @Id
@@ -99,4 +99,16 @@ public class FileRef implements Annotated
   return sa;
  }
  
+ @Override
+ public String getEntityClass()
+ {
+  return entityClass;
+ }
+ private String entityClass;
+ 
+ @Override
+ public void setEntityClass( String cls )
+ {
+  entityClass = cls;
+ }
 }

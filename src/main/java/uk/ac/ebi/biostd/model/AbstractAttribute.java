@@ -5,7 +5,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-abstract public class AbstractAttribute
+abstract public class AbstractAttribute implements Classified
 {
  public AbstractAttribute()
  {}
@@ -107,4 +107,18 @@ abstract public class AbstractAttribute
  {
   this.attrClass = attrClass;
  }
+ 
+ @Override
+ public String getEntityClass()
+ {
+  return entityClass;
+ }
+ private String entityClass;
+ 
+ @Override
+ public void setEntityClass( String cls )
+ {
+  entityClass = cls;
+ }
+
 }

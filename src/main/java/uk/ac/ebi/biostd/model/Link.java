@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Link implements Annotated
+public class Link implements Annotated, Classified
 {
 
  @Id
@@ -108,5 +108,18 @@ public class Link implements Annotated
   addAttribute(sa);
   
   return sa;
+ }
+ 
+ @Override
+ public String getEntityClass()
+ {
+  return entityClass;
+ }
+ private String entityClass;
+ 
+ @Override
+ public void setEntityClass( String cls )
+ {
+  entityClass = cls;
  }
 }

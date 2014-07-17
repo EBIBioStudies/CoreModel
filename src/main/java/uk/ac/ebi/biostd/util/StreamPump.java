@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
-package uk.ac.ebi.biostd.pagetab.parser;
+package uk.ac.ebi.biostd.util;
 
 import java.io.IOException;
 import java.io.InputStream;

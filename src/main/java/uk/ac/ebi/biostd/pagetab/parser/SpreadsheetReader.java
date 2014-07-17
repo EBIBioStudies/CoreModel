@@ -3,6 +3,8 @@ package uk.ac.ebi.biostd.pagetab.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.ebi.biostd.util.StringUtils;
+
 public class SpreadsheetReader
 {
  String text;

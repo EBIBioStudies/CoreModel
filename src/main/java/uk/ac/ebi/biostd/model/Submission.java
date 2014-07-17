@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Submission implements Annotated
+public class Submission implements Annotated, Classified
 {
  @Id
  @GeneratedValue
@@ -100,5 +100,16 @@ public class Submission implements Annotated
   return sa;
  }
  
+ @Override
+ public String getEntityClass()
+ {
+  return entityClass;
+ }
+ private String entityClass;
  
+ @Override
+ public void setEntityClass( String cls )
+ {
+  entityClass = cls;
+ }
 }
