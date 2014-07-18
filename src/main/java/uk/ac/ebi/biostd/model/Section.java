@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Section implements Annotated, Classified
+public class Section implements Annotated, Classified, SecurityObject
 {
  @Id
  @GeneratedValue
@@ -42,6 +42,7 @@ public class Section implements Annotated, Classified
   parentAcc = pa;
  }
  
+ @Override
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord",insertable=true)
  public List<SectionAttribute> getAttributes()
@@ -258,5 +259,19 @@ public class Section implements Annotated, Classified
  public void setEntityClass( String cls )
  {
   entityClass = cls;
+ }
+ 
+
+ @Override
+ public String getAccessTags()
+ {
+  return accessTags;
+ }
+ private String accessTags;
+ 
+ @Override
+ public void setAccessTags(String tags)
+ {
+  accessTags = tags;
  }
 }

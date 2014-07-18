@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pagetab.parser;
+package uk.ac.ebi.biostd.pagetab;
 
 import java.util.ArrayList;
 import java.util.List;

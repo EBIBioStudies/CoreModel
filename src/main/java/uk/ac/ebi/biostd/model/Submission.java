@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Submission implements Annotated, Classified
+public class Submission implements Annotated, Classified, SecurityObject
 {
  @Id
  @GeneratedValue
@@ -42,6 +42,7 @@ public class Submission implements Annotated, Classified
   this.acc = acc;
  }
 
+ @Override
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
  public List<SubmissionAttribute> getAttributes()
@@ -111,5 +112,18 @@ public class Submission implements Annotated, Classified
  public void setEntityClass( String cls )
  {
   entityClass = cls;
+ }
+
+ @Override
+ public String getAccessTags()
+ {
+  return accessTags;
+ }
+ private String accessTags;
+ 
+ @Override
+ public void setAccessTags(String tags)
+ {
+  accessTags = tags;
  }
 }

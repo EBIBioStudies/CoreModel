@@ -16,7 +16,7 @@ import javax.persistence.OrderColumn;
 import org.hibernate.annotations.ForeignKey;
 
 @Entity
-public class Link implements Annotated, Classified
+public class Link implements Annotated, Classified, SecurityObject
 {
 
  @Id
@@ -32,6 +32,7 @@ public class Link implements Annotated, Classified
   this.id = id;
  }
  
+ @Override
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
  public List<LinkAttribute> getAttributes()
@@ -121,5 +122,19 @@ public class Link implements Annotated, Classified
  public void setEntityClass( String cls )
  {
   entityClass = cls;
+ }
+ 
+
+ @Override
+ public String getAccessTags()
+ {
+  return accessTags;
+ }
+ private String accessTags;
+ 
+ @Override
+ public void setAccessTags(String tags)
+ {
+  accessTags = tags;
  }
 }
