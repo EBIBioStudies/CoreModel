@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -11,12 +12,15 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ForeignKey;
 
+import uk.ac.ebi.biostd.authz.Tag;
+
 @Entity
-public class Submission implements Annotated, Classified, SecurityObject
+public class Submission implements Annotated, Classified, Tagged, SecurityObject
 {
  @Id
  @GeneratedValue
@@ -114,16 +118,25 @@ public class Submission implements Annotated, Classified, SecurityObject
   entityClass = cls;
  }
 
+ 
  @Override
+ public Collection<Tag> getTags()
+ {
+  return tags;
+ }
+ private Collection<Tag> tags;
+
+ @Override
+ public void setTags(Collection<Tag> tags)
+ {
+  this.tags = tags;
+ }
+
+ @Override
+ @Transient
  public String getAccessTags()
  {
   return accessTags;
  }
- private String accessTags;
  
- @Override
- public void setAccessTags(String tags)
- {
-  accessTags = tags;
- }
 }

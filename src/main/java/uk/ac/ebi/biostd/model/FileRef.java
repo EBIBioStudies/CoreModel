@@ -13,8 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 
-import org.hibernate.annotations.ForeignKey;
-
 @Entity
 public class FileRef implements Annotated, Classified, SecurityObject
 { 
@@ -35,7 +33,6 @@ public class FileRef implements Annotated, Classified, SecurityObject
  @Override
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
- @ForeignKey(name="section_fk")
  public List<FileAttribute> getAttributes()
  {
   return attributes;
