@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -9,11 +10,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+
+import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
 public class Section implements Annotated, Classified, SecurityObject
@@ -248,30 +254,71 @@ public class Section implements Annotated, Classified, SecurityObject
   return sa;
  }
  
+ 
  @Override
+ @Transient
  public String getEntityClass()
  {
-  return entityClass;
+  if( getTagRefs() == null )
+   return null;
+  
+  StringBuilder sb = new StringBuilder();
+  
+  for( TagRef t : getTagRefs() )
+  {
+   sb.append(t.getTag().getClassifier().getName()).append(":").append(t.getTag().getName());
+   
+   if( t.getParameter() != null && t.getParameter().length() != 0 )
+    sb.append("=").append( t.getParameter() );
+   
+   sb.append(",");
+  }
+  
+  if( sb.length() > 0 )
+   sb.setLength( sb.length()-1 );
+  
+  return sb.toString();
  }
- private String entityClass;
  
  @Override
- public void setEntityClass( String cls )
+ @OneToMany(mappedBy="section",cascade=CascadeType.ALL)
+ public Collection<SectionTagRef> getTagRefs()
  {
-  entityClass = cls;
+  return tagRefs;
+ }
+ private Collection<SectionTagRef> tagRefs;
+
+ public void setTagRefs(Collection<SectionTagRef> tags)
+ {
+  this.tagRefs = tags;
  }
  
+ public void addTagRef( SectionTagRef tr )
+ {
+  if( tagRefs == null )
+   tagRefs = new ArrayList<>();
+   
+  tagRefs.add(tr);
+ }
 
  @Override
- public String getAccessTags()
+ @ManyToMany
+ public Collection<AccessTag> getAccessTags()
  {
   return accessTags;
  }
- private String accessTags;
- 
- @Override
- public void setAccessTags(String tags)
+ private Collection<AccessTag> accessTags;
+
+ public void setAccessTags(Collection<AccessTag> accessTags)
  {
-  accessTags = tags;
+  this.accessTags = accessTags;
+ }
+ 
+ public void addAccessTags( AccessTag t )
+ {
+  if( accessTags == null )
+   accessTags = new ArrayList<>();
+   
+  accessTags.add(t);
  }
 }

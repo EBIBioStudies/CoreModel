@@ -1,11 +1,17 @@
 package uk.ac.ebi.biostd.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 
+import uk.ac.ebi.biostd.authz.AccessTag;
+
 @MappedSuperclass
-abstract public class AbstractAttribute implements Classified
+abstract public class AbstractAttribute implements SecurityObject
 {
  public AbstractAttribute()
  {}
@@ -108,17 +114,26 @@ abstract public class AbstractAttribute implements Classified
   this.attrClass = attrClass;
  }
  
- @Override
- public String getEntityClass()
- {
-  return entityClass;
- }
- private String entityClass;
  
  @Override
- public void setEntityClass( String cls )
+ @ManyToMany
+ public Collection<AccessTag> getAccessTags()
  {
-  entityClass = cls;
+  return accessTags;
+ }
+ private Collection<AccessTag> accessTags;
+
+ public void setAccessTags(Collection<AccessTag> accessTags)
+ {
+  this.accessTags = accessTags;
+ }
+ 
+ public void addAccessTags( AccessTag t )
+ {
+  if( accessTags == null )
+   accessTags = new ArrayList<>();
+   
+  accessTags.add(t);
  }
 
 }

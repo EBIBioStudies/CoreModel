@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
@@ -17,10 +18,11 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ForeignKey;
 
-import uk.ac.ebi.biostd.authz.Tag;
+import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class Submission implements Annotated, Classified, Tagged, SecurityObject
+public class Submission implements Annotated, SecurityObject, Classified
 {
  @Id
  @GeneratedValue
@@ -106,37 +108,70 @@ public class Submission implements Annotated, Classified, Tagged, SecurityObject
  }
  
  @Override
+ @Transient
  public String getEntityClass()
  {
-  return entityClass;
+  if( getTagRefs() == null )
+   return null;
+  
+  StringBuilder sb = new StringBuilder();
+  
+  for( TagRef t : getTagRefs() )
+  {
+   sb.append(t.getTag().getClassifier().getName()).append(":").append(t.getTag().getName());
+   
+   if( t.getParameter() != null && t.getParameter().length() != 0 )
+    sb.append("=").append( t.getParameter() );
+   
+   sb.append(",");
+  }
+  
+  if( sb.length() > 0 )
+   sb.setLength( sb.length()-1 );
+  
+  return sb.toString();
  }
- private String entityClass;
+ 
  
  @Override
- public void setEntityClass( String cls )
+ @OneToMany(mappedBy="submission",cascade=CascadeType.ALL)
+ public Collection<SubmissionTagRef> getTagRefs()
  {
-  entityClass = cls;
+  return tagRefs;
  }
+ private Collection<SubmissionTagRef> tagRefs;
 
+ public void setTagRefs(Collection<SubmissionTagRef> tags)
+ {
+  this.tagRefs = tags;
+ }
  
- @Override
- public Collection<Tag> getTags()
+ public void addTagRef( SubmissionTagRef tr )
  {
-  return tags;
- }
- private Collection<Tag> tags;
-
- @Override
- public void setTags(Collection<Tag> tags)
- {
-  this.tags = tags;
+  if( tagRefs == null )
+   tagRefs = new ArrayList<>();
+   
+  tagRefs.add(tr);
  }
 
  @Override
- @Transient
- public String getAccessTags()
+ @ManyToMany
+ public Collection<AccessTag> getAccessTags()
  {
   return accessTags;
  }
+ private Collection<AccessTag> accessTags;
+
+ public void setAccessTags(Collection<AccessTag> accessTags)
+ {
+  this.accessTags = accessTags;
+ }
  
+ public void addAccessTags( AccessTag t )
+ {
+  if( accessTags == null )
+   accessTags = new ArrayList<>();
+   
+  accessTags.add(t);
+ }
 }

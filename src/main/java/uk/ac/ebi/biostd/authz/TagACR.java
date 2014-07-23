@@ -26,13 +26,13 @@ public class TagACR
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="tag_id")
  @ForeignKey(name="tag_fk")
- public Tag getTag()
+ public AccessTag getTag()
  {
   return tag;
  }
- private Tag tag;
+ private AccessTag tag;
 
- public void setTag(Tag tag)
+ public void setTag(AccessTag tag)
  {
   this.tag = tag;
  }
