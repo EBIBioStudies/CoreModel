@@ -21,6 +21,7 @@ import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 import java.io.IOException;
 import java.util.List;
 
+import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -58,12 +59,22 @@ public class PageMLFormatter implements Formatter
    xmlEscaped(sec.getEntityClass(),out);
   }
   
-  if( sec.getAccessTags() != null && sec.getAccessTags().length() > 0 )
+  if( sec.getAccessTags() != null && sec.getAccessTags().size() > 0 )
   {
    out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
-   xmlEscaped(sec.getAccessTags());
+   
+   boolean first = true;
+   for( AccessTag at : sec.getAccessTags() )
+   {
+    if( first )
+     first = false;
+    else
+     out.append(';');
+    
+    xmlEscaped(at.getName());
+   }
+   
   }
-
   
   out.append("\">\n\n");
 
@@ -129,12 +140,22 @@ public class PageMLFormatter implements Formatter
     xmlEscaped(ln.getEntityClass());
    }
    
-   if( ln.getAccessTags() != null && ln.getAccessTags().length() > 0 )
+   if( ln.getAccessTags() != null && ln.getAccessTags().size() > 0 )
    {
     out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
-    xmlEscaped(ln.getAccessTags());
+    
+    boolean first = true;
+    for( AccessTag at : ln.getAccessTags() )
+    {
+     if( first )
+      first = false;
+     else
+      out.append(';');
+     
+     xmlEscaped(at.getName());
+    }
    }
-
+   
    if( ln.getAttributes() == null && ln.getAttributes().size() == 0 )
     out.append("\"/>\n");
    else

@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import uk.ac.ebi.biostd.export.TagResolver;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -30,8 +31,9 @@ public class PageMLParser extends DefaultHandler
  private XMLReader xmlReader;
  
  private Submission sub;
+ private final TagResolver reslv;
  
- public PageMLParser() throws ParserConfigurationException, SAXException
+ public PageMLParser(TagResolver tr) throws ParserConfigurationException, SAXException
  {
   SAXParserFactory spf = SAXParserFactory.newInstance();
   spf.setNamespaceAware(false);
@@ -41,6 +43,8 @@ public class PageMLParser extends DefaultHandler
   
   XMLReader xmlReader = saxParser.getXMLReader();
   xmlReader.setContentHandler( this );
+  
+  reslv = tr;
  }
  
  public Submission parse( Reader src ) throws IOException, SAXException
@@ -82,8 +86,10 @@ public class PageMLParser extends DefaultHandler
    
    sub = new Submission();
    sub.setAcc(atts.getValue(PageMLAttributes.ID.getAttrName()));
-   sub.setEntityClass(atts.getValue(PageMLAttributes.CLASS.getAttrName()));
-   sub.setAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName()) );
+   
+   sub.setTagRefs( reslv.getSubmissionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+   sub.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
+   
    
    context.push( PageMLElements.SUBMISSION );
    contextObjStk.push( sub );
@@ -109,8 +115,9 @@ public class PageMLParser extends DefaultHandler
     ( (Section)contextObj ).addSection(sec);
    
    sec.setAcc(atts.getValue(PageMLAttributes.ID.getAttrName()));
-   sec.setEntityClass(atts.getValue(PageMLAttributes.CLASS.getAttrName()));
-   sec.setAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName()) );
+   
+   sec.setTagRefs( reslv.getSectionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+   sec.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
    
    context.push( PageMLElements.SECTION );
    contextObjStk.push( sec );
@@ -162,8 +169,9 @@ public class PageMLParser extends DefaultHandler
    FileRef fr = new FileRef();
    
    fr.setName(atts.getValue(PageMLAttributes.NAME.getAttrName()));
-   fr.setEntityClass(atts.getValue(PageMLAttributes.CLASS.getAttrName()));
-   fr.setAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName()) );
+  
+   fr.setTagRefs( reslv.getFileTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+   fr.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
 
    ((Section)contextObj).addFileRef(fr);
    
@@ -179,8 +187,9 @@ public class PageMLParser extends DefaultHandler
    Link lnk = new Link();
    
    lnk.setUrl(atts.getValue(PageMLAttributes.URL.getAttrName()));
-   lnk.setEntityClass(atts.getValue(PageMLAttributes.CLASS.getAttrName()));
-   lnk.setAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName()) );
+   
+   lnk.setTagRefs( reslv.getLinkTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+   lnk.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
 
    ((Section)contextObj).addLink(lnk);
    
