@@ -53,10 +53,11 @@ public class PageMLFormatter implements Formatter
    xmlEscaped(sec.getAcc(),out);
   }
   
-  if( sec.getEntityClass() != null )
+  String str = sec.getEntityClass();
+  if( str != null && str.length() > 0 )
   {
    out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-   xmlEscaped(sec.getEntityClass(),out);
+   xmlEscaped(str,out);
   }
   
   if( sec.getAccessTags() != null && sec.getAccessTags().size() > 0 )
@@ -134,10 +135,11 @@ public class PageMLFormatter implements Formatter
    out.append('<').append(LINK.getElementName()).append(' ').append(URL.getAttrName()).append("=\"");
    xmlEscaped(ln.getUrl());
    
-   if( ln.getEntityClass() != null && ln.getEntityClass().length() > 0 )
+   String str = ln.getEntityClass();
+   if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(ln.getEntityClass());
+    xmlEscaped(str);
    }
    
    if( ln.getAccessTags() != null && ln.getAccessTags().size() > 0 )
@@ -189,16 +191,28 @@ public class PageMLFormatter implements Formatter
    out.append('<').append(FILE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
    xmlEscaped(fr.getName());
    
-   if( fr.getEntityClass() != null && fr.getEntityClass().length() > 0 )
+   String str = fr.getEntityClass();
+   if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(fr.getEntityClass());
+    xmlEscaped(str);
    }
    
-   if( fr.getAccessTags() != null && fr.getAccessTags().length() > 0 )
+   if( fr.getAccessTags() != null && fr.getAccessTags().size() > 0 )
    {
     out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
-    xmlEscaped(fr.getAccessTags());
+    
+    boolean first = true;
+    for( AccessTag at : fr.getAccessTags() )
+    {
+     if( first )
+      first = false;
+     else
+      out.append(';');
+     
+     xmlEscaped(at.getName());
+    }
+
    }
 
    if( fr.getAttributes() == null && fr.getAttributes().size() == 0 )
@@ -243,11 +257,13 @@ public class PageMLFormatter implements Formatter
 //   out.append("\" value=\"");
 //   xmlEscaped(at.getValue());
    
-   if( at.getEntityClass() != null && at.getEntityClass().length() > 0 )
+   String str = at.getEntityClass();
+   if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(at.getEntityClass());
+    xmlEscaped(str);
    }
+
    
    if( at.getNameQualifier() != null && at.getNameQualifier().length() > 0 )
    {

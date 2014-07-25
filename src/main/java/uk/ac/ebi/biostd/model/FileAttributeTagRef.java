@@ -10,20 +10,20 @@ import org.hibernate.annotations.ForeignKey;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class SectionTagRef extends TagRef
+public class FileAttributeTagRef extends TagRef
 {
 
  @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="section_id")
- @ForeignKey(name="section_fk")
- public Section getSection()
+ @JoinColumn(name="attribute_id")
+ @ForeignKey(name="attribute_fk")
+ public FileAttribute getAttribute()
  {
-  return section;
+  return attribute;
  }
- private Section section;
+ private FileAttribute attribute;
 
- public void setSection(Section section)
+ public void setAttribute(FileAttribute fileRef)
  {
-  this.section = section;
+  this.attribute = fileRef;
  }
 }

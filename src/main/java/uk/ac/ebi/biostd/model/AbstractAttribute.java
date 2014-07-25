@@ -1,17 +1,16 @@
 package uk.ac.ebi.biostd.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
-import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.TagRef;
 
 @MappedSuperclass
-abstract public class AbstractAttribute implements SecurityObject
+abstract public class AbstractAttribute
 {
  public AbstractAttribute()
  {}
@@ -100,40 +99,30 @@ abstract public class AbstractAttribute implements SecurityObject
  {
   this.numValue = numValue;
  }
- 
- 
 
- public String getAttrClass()
- {
-  return attrClass;
- }
- String attrClass;
-
- public void setAttrClass(String attrClass)
- {
-  this.attrClass = attrClass;
- }
+ public abstract Collection<? extends TagRef> getTagRefs();
  
- 
- @Override
- @ManyToMany
- public Collection<AccessTag> getAccessTags()
+ @Transient
+ public String getEntityClass()
  {
-  return accessTags;
- }
- private Collection<AccessTag> accessTags;
-
- public void setAccessTags(Collection<AccessTag> accessTags)
- {
-  this.accessTags = accessTags;
- }
- 
- public void addAccessTags( AccessTag t )
- {
-  if( accessTags == null )
-   accessTags = new ArrayList<>();
+  if( getTagRefs() == null )
+   return null;
+  
+  StringBuilder sb = new StringBuilder();
+  
+  for( TagRef t : getTagRefs() )
+  {
+   sb.append(t.getTag().getClassifier().getName()).append(":").append(t.getTag().getName());
    
-  accessTags.add(t);
+   if( t.getParameter() != null && t.getParameter().length() != 0 )
+    sb.append("=").append( t.getParameter() );
+   
+   sb.append(",");
+  }
+  
+  if( sb.length() > 0 )
+   sb.setLength( sb.length()-1 );
+  
+  return sb.toString();
  }
-
 }

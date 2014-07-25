@@ -1,9 +1,14 @@
 package uk.ac.ebi.biostd.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
@@ -37,5 +42,25 @@ public class SubmissionAttribute extends AbstractAttribute
  public void setHost( Submission h )
  {
   host=h;
+ }
+ 
+ @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
+ public Collection<SubmissionAttributeTagRef> getTagRefs()
+ {
+  return tagRefs;
+ }
+ private Collection<SubmissionAttributeTagRef> tagRefs;
+
+ public void setTagRefs(Collection<SubmissionAttributeTagRef> tags)
+ {
+  this.tagRefs = tags;
+ }
+ 
+ public void addTagRef( SubmissionAttributeTagRef tr )
+ {
+  if( tagRefs == null )
+   tagRefs = new ArrayList<>();
+   
+  tagRefs.add(tr);
  }
 }

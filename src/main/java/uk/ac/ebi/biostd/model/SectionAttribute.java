@@ -1,9 +1,14 @@
 package uk.ac.ebi.biostd.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.ForeignKey;
@@ -38,5 +43,26 @@ public class SectionAttribute extends AbstractAttribute
  public void setHost( Section h )
  {
   host=h;
+ }
+ 
+ 
+ @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
+ public Collection<SectionAttributeTagRef> getTagRefs()
+ {
+  return tagRefs;
+ }
+ private Collection<SectionAttributeTagRef> tagRefs;
+
+ public void setTagRefs(Collection<SectionAttributeTagRef> tags)
+ {
+  this.tagRefs = tags;
+ }
+ 
+ public void addTagRef( SectionAttributeTagRef tr )
+ {
+  if( tagRefs == null )
+   tagRefs = new ArrayList<>();
+   
+  tagRefs.add(tr);
  }
 }
