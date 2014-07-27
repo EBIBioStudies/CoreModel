@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.authz;
 
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -8,9 +9,8 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.ForeignKey;
 
 @MappedSuperclass
-abstract public class TagRef
+public class GenACR<T>
 {
-
  @Id
  public long getId()
  {
@@ -23,28 +23,18 @@ abstract public class TagRef
   this.id = id;
  }
 
- @ManyToOne
- @JoinColumn(name="tag_id")
- @ForeignKey(name="tag_fk")
- public Tag getTag()
+ @ManyToOne(fetch=FetchType.LAZY)
+ @JoinColumn(name="host_id")
+ @ForeignKey(name="host_fk")
+ public T getHost()
  {
   return tag;
  }
- private Tag    tag;
+ private T tag;
 
- public void setTag(Tag tag)
+ public void setHost(T tag)
  {
   this.tag = tag;
  }
-
- public String getParameter()
- {
-  return parameter;
- }
- private String parameter;
-
- public void setParameter(String parameter)
- {
-  this.parameter = parameter;
- }
+ 
 }

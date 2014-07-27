@@ -144,7 +144,7 @@ public class Link implements Annotated, Classified, SecurityObject
  
  
  @Override
- @OneToMany(mappedBy="submission",cascade=CascadeType.ALL)
+ @OneToMany(mappedBy="link",cascade=CascadeType.ALL)
  public Collection<LinkTagRef> getTagRefs()
  {
   return tagRefs;

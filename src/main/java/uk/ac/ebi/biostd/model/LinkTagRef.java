@@ -22,6 +22,11 @@ public class LinkTagRef extends TagRef
  }
  private Link link;
 
+ public void setLink(Link link)
+ {
+  this.link = link;
+ }
+
  public void setSubmission(Link l)
  {
   this.link = l;

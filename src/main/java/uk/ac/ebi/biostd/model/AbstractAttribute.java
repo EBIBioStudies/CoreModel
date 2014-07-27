@@ -100,6 +100,7 @@ abstract public class AbstractAttribute
   this.numValue = numValue;
  }
 
+ @Transient
  public abstract Collection<? extends TagRef> getTagRefs();
  
  @Transient

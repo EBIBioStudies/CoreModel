@@ -2,7 +2,7 @@ package uk.ac.ebi.biostd.authz;
 
 
 
-public class PermissionForGroupACR extends TagACR implements ACR
+public class PermissionForGroupACR extends GenACR<Tag> implements ACR
 {
 
  PermissionForGroupACR()

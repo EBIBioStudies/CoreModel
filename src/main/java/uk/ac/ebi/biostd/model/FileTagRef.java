@@ -22,6 +22,11 @@ public class FileTagRef extends TagRef
  }
  private FileRef fileRef;
 
+ public void setFileRef(FileRef fileRef)
+ {
+  this.fileRef = fileRef;
+ }
+
  public void setSubmission(FileRef fileRef)
  {
   this.fileRef = fileRef;

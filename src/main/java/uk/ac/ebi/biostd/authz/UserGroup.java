@@ -2,9 +2,11 @@ package uk.ac.ebi.biostd.authz;
 
 import java.util.Collection;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
+@Entity
 public class UserGroup implements AuthzSubject
 {
  @Id
@@ -77,6 +79,7 @@ public class UserGroup implements AuthzSubject
 // UserGroup getGroup(String partId);
 
 
+ @ManyToMany
  public Collection<User> getUsers()
  {
   return users;

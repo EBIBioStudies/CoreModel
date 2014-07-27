@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -15,6 +16,7 @@ public class Classifier
  Classifier()
  {}
  
+ @Id
  public long getId()
  {
   return id;

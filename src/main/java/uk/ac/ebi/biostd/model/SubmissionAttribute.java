@@ -44,7 +44,8 @@ public class SubmissionAttribute extends AbstractAttribute
   host=h;
  }
  
- @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
+ @Override
+ @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL, targetEntity=SubmissionAttributeTagRef.class)
  public Collection<SubmissionAttributeTagRef> getTagRefs()
  {
   return tagRefs;

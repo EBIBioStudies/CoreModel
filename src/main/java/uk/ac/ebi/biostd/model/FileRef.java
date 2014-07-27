@@ -129,7 +129,7 @@ public class FileRef implements Annotated, Classified, SecurityObject
  }
  
  @Override
- @OneToMany(mappedBy="section",cascade=CascadeType.ALL)
+ @OneToMany(mappedBy="fileRef",cascade=CascadeType.ALL)
  public Collection<FileTagRef> getTagRefs()
  {
   return tagRefs;
