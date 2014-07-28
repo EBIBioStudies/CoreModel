@@ -16,8 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.ForeignKey;
-
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
@@ -89,7 +87,6 @@ public class Link implements Annotated, Classified, SecurityObject
  
  @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
  @JoinColumn(name="section_id")
- @ForeignKey(name="section_fk")
  public Section getHostSection()
  {
   return hostSection;

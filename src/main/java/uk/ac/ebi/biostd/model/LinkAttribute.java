@@ -9,12 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name="link_attr")
 public class LinkAttribute extends AbstractAttribute
 {
  public LinkAttribute()
@@ -32,7 +28,6 @@ public class LinkAttribute extends AbstractAttribute
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="link_id")
- @ForeignKey(name="link_fk")
  public Link getHost()
  {
   return host;
@@ -45,6 +40,7 @@ public class LinkAttribute extends AbstractAttribute
  }
  
  
+ @Override
  @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
  public Collection<FileAttributeTagRef> getTagRefs()
  {

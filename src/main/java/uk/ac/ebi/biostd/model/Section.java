@@ -16,8 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.ForeignKey;
-
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
@@ -76,7 +74,6 @@ public class Section implements Annotated, Classified, SecurityObject
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="submission_id")
- @ForeignKey(name="submission_fk")
  public Submission getSubmission()
  {
   return submission;
@@ -96,7 +93,6 @@ public class Section implements Annotated, Classified, SecurityObject
 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="parent_id")
- @ForeignKey(name="section_fk")
  public Section getParentSection()
  {
   return parentNode;

@@ -2,9 +2,11 @@ package uk.ac.ebi.biostd.authz;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 
@@ -35,7 +37,7 @@ public class PermissionProfile implements PermissionUnit
   this.description = description;
  }
 
- @ManyToMany
+ @OneToMany( cascade=CascadeType.ALL )
  public Collection<Permission> getPermissions()
  {
   return permissions;

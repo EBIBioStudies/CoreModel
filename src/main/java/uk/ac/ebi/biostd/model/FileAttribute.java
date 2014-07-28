@@ -9,12 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.ForeignKey;
 
 @Entity
-@Table(name="file_attr")
 public class FileAttribute extends AbstractAttribute
 {
  public FileAttribute()
@@ -33,7 +29,6 @@ public class FileAttribute extends AbstractAttribute
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="file_id")
- @ForeignKey(name="file_fk")
  public FileRef getHost()
  {
   return host;
@@ -45,6 +40,7 @@ public class FileAttribute extends AbstractAttribute
   host=h;
  }
  
+ @Override
  @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
  public Collection<FileAttributeTagRef> getTagRefs()
  {

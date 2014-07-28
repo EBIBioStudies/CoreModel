@@ -10,10 +10,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
-import org.hibernate.annotations.ForeignKey;
+import uk.ac.ebi.biostd.authz.ACR.Permit;
 
 @Entity
-public class AccessTag extends ACL
+public class AccessTag implements ACL
 {
 
  @Id
@@ -52,34 +52,106 @@ public class AccessTag extends ACL
  {
   this.description = description;
  }
+ 
+ @ManyToOne
+ @JoinColumn(name="owner_id")
+ public User getOwner()
+ {
+  return owner;
+ }
+ private User owner;
+
+ public void setOwner(User owner)
+ {
+  this.owner = owner;
+ }
 
  @OneToMany(mappedBy = "parentTag", cascade = CascadeType.ALL)
- public Collection<Tag> getSubTags()
+ public Collection<AccessTag> getSubTags()
  {
   return subTags;
  }
 
- private Collection<Tag> subTags;
+ private Collection<AccessTag> subTags;
 
- public void setSubTags(Collection<Tag> subTags)
+ public void setSubTags(Collection<AccessTag> subTags)
  {
   this.subTags = subTags;
  }
 
  @ManyToOne(fetch = FetchType.LAZY)
  @JoinColumn(name = "parent_tag_id")
- @ForeignKey(name = "parent_tag_fk")
- public Tag getParentTag()
+ public AccessTag getParentTag()
  {
   return parentTag;
  }
 
- private Tag parentTag;
+ private AccessTag parentTag;
 
- public void setParentTag(Tag patentTag)
+ public void setParentTag(AccessTag patentTag)
  {
   this.parentTag = patentTag;
  }
 
+ 
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<TagProfGrpACR> getProfileForGroupACRs()
+ {
+  return profileForGroupACRs;
+ }
+
+ private Collection<TagProfGrpACR> profileForGroupACRs;
+
+ public void setProfileForGroupACRs(Collection<TagProfGrpACR> profileForGroupACRs)
+ {
+  this.profileForGroupACRs = profileForGroupACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<TagProfUsrACR> getProfileForUserACRs()
+ {
+  return profileForUserACRs;
+ }
+
+ private Collection<TagProfUsrACR> profileForUserACRs;
+
+ public void setProfileForUserACRs(Collection<TagProfUsrACR> profileForUserACRs)
+ {
+  this.profileForUserACRs = profileForUserACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<TagPermUsrACR> getPermissionForUserACRs()
+ {
+  return permissionForUserACRs;
+ }
+
+ private Collection<TagPermUsrACR> permissionForUserACRs;
+
+ public void setPermissionForUserACRs(Collection<TagPermUsrACR> permissionForUserACRs)
+ {
+  this.permissionForUserACRs = permissionForUserACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<TagPermGrpACR> getPermissionForGroupACRs()
+ {
+  return permissionForGroupACRs;
+ }
+ private Collection<TagPermGrpACR> permissionForGroupACRs;
+
+ public void setPermissionForGroupACRs(Collection<TagPermGrpACR> permissionForGroupACRs)
+ {
+  this.permissionForGroupACRs = permissionForGroupACRs;
+ }
+
+ public Permit checkPermission(SystemAction act, User user)
+ {
+  return Permit.checkPermission(act, user, this);
+ }
 }
 

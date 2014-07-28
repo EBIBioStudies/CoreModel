@@ -30,6 +30,7 @@ public class ModTest
   conf.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
   conf.put("hibernate.hbm2ddl.auto", "update");
   conf.put("hibernate.show_sql", "true");
+  conf.put("hibernate.archive.autodetection", "class, hbm");
   
   EntityManagerFactory fact = Persistence.createEntityManagerFactory ( "BioStd", conf );
   
@@ -75,14 +76,6 @@ public class ModTest
   
   em.close();
   
-  
-//  <Parameter name='biosddb[dev].hibernate.connection.driver_class' value='oracle.jdbc.driver.OracleDriver'/>
-//  <Parameter name='biosddb[dev].hibernate.connection.username' value='biosddev'/>
-//  <Parameter name='biosddb[dev].hibernate.connection.password' value='b10sdd3v'/>
-//  <Parameter name='biosddb[dev].hibernate.connection.url' value='jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst'/>
-//  <Parameter name='biosddb[dev].hibernate.dialect' value='org.hibernate.dialect.Oracle10gDialect'/>
-//  <Parameter name='biosddb[dev].hibernate.hbm2ddl.auto' value='validate'/>
-
   
  }
 }

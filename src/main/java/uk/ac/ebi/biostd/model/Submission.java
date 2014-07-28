@@ -9,17 +9,18 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.ForeignKey;
-
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.authz.User;
 
 @Entity
 public class Submission implements Annotated, SecurityObject, Classified
@@ -46,6 +47,19 @@ public class Submission implements Annotated, SecurityObject, Classified
  public void setAcc(String acc)
  {
   this.acc = acc;
+ }
+
+ @ManyToOne
+ @JoinColumn(name="owner_id")
+ public User getOwner()
+ {
+  return owner;
+ }
+ private User owner;
+
+ public void setOwner(User owner)
+ {
+  this.owner = owner;
  }
 
  @Override
@@ -76,7 +90,6 @@ public class Submission implements Annotated, SecurityObject, Classified
  
  
  @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
- @ForeignKey(name="sec_fk")
  @NotNull
  public Section getRootSection()
  {

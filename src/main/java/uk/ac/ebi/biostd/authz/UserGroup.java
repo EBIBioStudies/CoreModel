@@ -4,7 +4,9 @@ import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class UserGroup implements AuthzSubject
@@ -32,6 +34,19 @@ public class UserGroup implements AuthzSubject
   this.description = description;
  }
 
+ @ManyToOne
+ @JoinColumn(name="owner_id")
+ public User getOwner()
+ {
+  return owner;
+ }
+ private User owner;
+
+ public void setOwner(User owner)
+ {
+  this.owner = owner;
+ }
+ 
  @ManyToMany
  public Collection<UserGroup> getGroups()
  {
