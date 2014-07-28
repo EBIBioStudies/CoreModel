@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 
 @Entity
-public class AccessTag implements ACL
+public class AccessTag implements AuthzObject
 {
 
  @Id
@@ -149,9 +149,61 @@ public class AccessTag implements ACL
   this.permissionForGroupACRs = permissionForGroupACRs;
  }
 
+ @Override
  public Permit checkPermission(SystemAction act, User user)
  {
   return Permit.checkPermission(act, user, this);
+ }
+ 
+ 
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<DelegateProfGrpACR> getDelegateProfileForGroupACRs()
+ {
+  return dlgProfileForGroupACRs;
+ }
+
+ private Collection<DelegateProfGrpACR> dlgProfileForGroupACRs;
+
+ public void setDelegateProfileForGroupACRs(Collection<DelegateProfGrpACR> profileForGroupACRs)
+ {
+  this.dlgProfileForGroupACRs = profileForGroupACRs;
+ }
+
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<DelegateProfUsrACR> getDelegateProfileForUserACRs()
+ {
+  return dlgProfileForUserACRs;
+ }
+
+ private Collection<DelegateProfUsrACR> dlgProfileForUserACRs;
+
+ public void setDelegateProfileForUserACRs(Collection<DelegateProfUsrACR> profileForUserACRs)
+ {
+  this.dlgProfileForUserACRs = profileForUserACRs;
+ }
+
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<DelegatePermUsrACR> getDelegatePermissionForUserACRs()
+ {
+  return dlgPermissionForUserACRs;
+ }
+ private Collection<DelegatePermUsrACR> dlgPermissionForUserACRs;
+
+ public void setDelegatePermissionForUserACRs(Collection<DelegatePermUsrACR> permissionForUserACRs)
+ {
+  this.dlgPermissionForUserACRs = permissionForUserACRs;
+ }
+
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<DelegatePermGrpACR> getDelegatePermissionForGroupACRs()
+ {
+  return dlgPermissionForGroupACRs;
+ }
+ private Collection<DelegatePermGrpACR> dlgPermissionForGroupACRs;
+
+ public void setDelegatePermissionForGroupACRs(Collection<DelegatePermGrpACR> permissionForGroupACRs)
+ {
+  this.dlgPermissionForGroupACRs = permissionForGroupACRs;
  }
 }
 

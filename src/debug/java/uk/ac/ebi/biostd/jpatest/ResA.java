@@ -1,11 +1,10 @@
 package uk.ac.ebi.biostd.jpatest;
 
 import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-@Entity
+//@Entity
 @DiscriminatorValue("ResA")
 public class ResA extends Res
 {

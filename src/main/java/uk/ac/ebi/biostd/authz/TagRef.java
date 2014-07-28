@@ -5,8 +5,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
-import org.hibernate.annotations.ForeignKey;
-
 @MappedSuperclass
 abstract public class TagRef
 {
@@ -25,7 +23,6 @@ abstract public class TagRef
 
  @ManyToOne
  @JoinColumn(name="tag_id")
- @ForeignKey(name="tag_fk")
  public Tag getTag()
  {
   return tag;

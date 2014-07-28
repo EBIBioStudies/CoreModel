@@ -7,8 +7,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.ForeignKey;
-
 @MappedSuperclass
 public class GenPermACR<ObjT,SubjT extends AuthzSubject> implements ACR, PermissionUnit
 {
@@ -26,7 +24,6 @@ public class GenPermACR<ObjT,SubjT extends AuthzSubject> implements ACR, Permiss
 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="host_id")
- @ForeignKey(name="host_fk")
  public ObjT getHost()
  {
   return tag;
@@ -59,7 +56,6 @@ public class GenPermACR<ObjT,SubjT extends AuthzSubject> implements ACR, Permiss
  @Override
  @ManyToOne
  @JoinColumn(name="subject_id")
- @ForeignKey(name="subject_fk")
  public SubjT getSubject()
  {
   return subject;

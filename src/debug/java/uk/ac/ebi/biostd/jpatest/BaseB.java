@@ -3,11 +3,10 @@ package uk.ac.ebi.biostd.jpatest;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-@Entity
+//@Entity
 public class BaseB implements Base
 {
  private long id;

@@ -30,7 +30,7 @@ public class ModTest
   conf.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
   conf.put("hibernate.hbm2ddl.auto", "update");
   conf.put("hibernate.show_sql", "true");
-  conf.put("hibernate.archive.autodetection", "class, hbm");
+//  conf.put("hibernate.archive.autodetection", "class, hbm");
   
   EntityManagerFactory fact = Persistence.createEntityManagerFactory ( "BioStd", conf );
   

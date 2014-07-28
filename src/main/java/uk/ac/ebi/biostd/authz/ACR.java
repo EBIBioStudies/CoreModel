@@ -9,7 +9,7 @@ public interface ACR
   DENY,
   UNDEFINED;
   
-  static public Permit checkPermission(SystemAction act, User user, ACL acl)
+  static public Permit checkPermission(SystemAction act, User user, AuthzObject acl)
   {
    boolean allow = false;
 

@@ -2,14 +2,18 @@ package uk.ac.ebi.biostd.authz;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import uk.ac.ebi.biostd.authz.ACR.Permit;
 
 @Entity
-public class UserGroup implements AuthzSubject
+public class UserGroup implements AuthzSubject, AuthzObject
 {
  @Id
  public long getId()
@@ -106,4 +110,64 @@ public class UserGroup implements AuthzSubject
   this.users = users;
  }
 
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<GroupProfGrpACR> getProfileForGroupACRs()
+ {
+  return profileForGroupACRs;
+ }
+
+ private Collection<GroupProfGrpACR> profileForGroupACRs;
+
+ public void setProfileForGroupACRs(Collection<GroupProfGrpACR> profileForGroupACRs)
+ {
+  this.profileForGroupACRs = profileForGroupACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<GroupProfUsrACR> getProfileForUserACRs()
+ {
+  return profileForUserACRs;
+ }
+
+ private Collection<GroupProfUsrACR> profileForUserACRs;
+
+ public void setProfileForUserACRs(Collection<GroupProfUsrACR> profileForUserACRs)
+ {
+  this.profileForUserACRs = profileForUserACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<GroupPermUsrACR> getPermissionForUserACRs()
+ {
+  return permissionForUserACRs;
+ }
+
+ private Collection<GroupPermUsrACR> permissionForUserACRs;
+
+ public void setPermissionForUserACRs(Collection<GroupPermUsrACR> permissionForUserACRs)
+ {
+  this.permissionForUserACRs = permissionForUserACRs;
+ }
+
+ @Override
+ @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+ public Collection<GroupPermGrpACR> getPermissionForGroupACRs()
+ {
+  return permissionForGroupACRs;
+ }
+ private Collection<GroupPermGrpACR> permissionForGroupACRs;
+
+ public void setPermissionForGroupACRs(Collection<GroupPermGrpACR> permissionForGroupACRs)
+ {
+  this.permissionForGroupACRs = permissionForGroupACRs;
+ }
+ 
+ @Override
+ public Permit checkPermission(SystemAction act, User user)
+ {
+  return Permit.checkPermission(act, user, this);
+ }
 }

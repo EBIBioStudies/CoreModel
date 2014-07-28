@@ -8,8 +8,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.ForeignKey;
-
 @MappedSuperclass
 public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
 {
@@ -27,7 +25,6 @@ public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="host_id")
- @ForeignKey(name="host_fk")
  public ObjT getHost()
  {
   return tag;
