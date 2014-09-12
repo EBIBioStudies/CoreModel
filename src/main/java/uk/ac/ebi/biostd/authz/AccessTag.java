@@ -11,6 +11,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
+import uk.ac.ebi.biostd.authz.acr.DelegatePermGrpACR;
+import uk.ac.ebi.biostd.authz.acr.DelegatePermUsrACR;
+import uk.ac.ebi.biostd.authz.acr.DelegateProfGrpACR;
+import uk.ac.ebi.biostd.authz.acr.DelegateProfUsrACR;
+import uk.ac.ebi.biostd.authz.acr.TagPermGrpACR;
+import uk.ac.ebi.biostd.authz.acr.TagPermUsrACR;
+import uk.ac.ebi.biostd.authz.acr.TagProfGrpACR;
+import uk.ac.ebi.biostd.authz.acr.TagProfUsrACR;
 
 @Entity
 public class AccessTag implements AuthzObject

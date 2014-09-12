@@ -1,6 +1,9 @@
-package uk.ac.ebi.biostd.authz;
+package uk.ac.ebi.biostd.authz.acr;
 
 import javax.persistence.Entity;
+
+import uk.ac.ebi.biostd.authz.GenPermACR;
+import uk.ac.ebi.biostd.authz.UserGroup;
 
 
 @Entity

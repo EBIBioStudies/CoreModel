@@ -11,6 +11,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
+import uk.ac.ebi.biostd.authz.acr.GroupPermGrpACR;
+import uk.ac.ebi.biostd.authz.acr.GroupPermUsrACR;
+import uk.ac.ebi.biostd.authz.acr.GroupProfGrpACR;
+import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 
 @Entity
 public class UserGroup implements AuthzSubject, AuthzObject

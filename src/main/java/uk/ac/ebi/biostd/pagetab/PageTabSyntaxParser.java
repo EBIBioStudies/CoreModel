@@ -6,24 +6,37 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
+import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.model.SubmissionTagRef;
+import uk.ac.ebi.biostd.treelog.LogNode;
+import uk.ac.ebi.biostd.treelog.LogNode.Level;
+import uk.ac.ebi.biostd.util.StringUtils;
 
 public class PageTabSyntaxParser
 {
  public static final String HorizontalBlockPrefix = "-";
  public static final String VerticalBlockPrefix = "|";
+
+ public static final String TagSeparatorRX = "[,;]";
+ public static final String ClassifierSeparatorRX = ":";
+ public static final String ValueTagSeparatorRX = "=";
  
  public static final String SubmissionTag = "Submission";
  public static final String FileTag = "File";
  public static final String LinkTag = "Link";
  
+ private final TagResolver tagRslv;
  
- public PageTabSyntaxParser()
+ public PageTabSyntaxParser( TagResolver tr )
  {
+  tagRslv = tr;
  }
 
 
@@ -197,7 +210,7 @@ public class PageTabSyntaxParser
  
 
 
- public Submission parse( String txt ) throws ParserException
+ public Submission parse( String txt, ParserConfig pConf, LogNode ln ) //throws ParserException
  {
   
   List<String> parts = new ArrayList<String>(100);
@@ -217,6 +230,10 @@ public class PageTabSyntaxParser
   List<SecCellCoupling> sections = new ArrayList<>();
   
   Section lastSection = null;
+  
+  ln.success();
+  ln.log(Level.INFO, "Processing submission");
+  
   
   while( reader.readRow(parts) != null )
   {
@@ -243,7 +260,7 @@ public class PageTabSyntaxParser
    }
    
    if( subm == null && ! classRef.getValue().equals(SubmissionTag))
-    throw new ParserException(reader.getLineNumber(), 1, "First block should be '"+SubmissionTag+"'");
+    ln.log(Level.ERROR, "(R"+reader.getLineNumber()+",C1) First block should be '"+SubmissionTag+"'");
    
    parts.clear();
    
@@ -266,10 +283,13 @@ public class PageTabSyntaxParser
        
        if( block.getRecord( cells5 ) != null )
        {
+        int r=0;
         for( CellValue cv : cells5 )
         {
+         r++;
+         
          if( cv.getValue().length() != 0 )
-          throw new ParserException(cv.getRow(), cv.getCol(), "Unexpected value. Expecting blank cell");
+          ln.log(Level.WARN, "(R"+r+",C5) Unexpected value. Expecting blank cell");
         }
        }
       }
@@ -288,14 +308,15 @@ public class PageTabSyntaxParser
    
    
    if( sz1 == 0 )
-    throw new ParserException(reader.getLineNumber(), 1, "No data in block");
+    ln.log(Level.WARN, "(R"+reader.getLineNumber()+",C1) No data in block");
 
-   CellValue cell0 = cells1.get(0);
+
+   CellValue cell = cells1.get(0);
    
-   if( cell0.getValue().equals(SubmissionTag) )
+   if( cell.getValue().equals(SubmissionTag) )
    {
     if( subm != null )
-     throw new ParserException(cell0.getRow(), cell0.getCol(), "Repeating block: '"+SubmissionTag+"'");
+     ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Repeating block: '"+SubmissionTag+"'");
     
     subm = new Submission();
     blockObj = subm;
@@ -307,14 +328,49 @@ public class PageTabSyntaxParser
      if( acc.length() > 0 )
       subm.setAcc( cells2.get(0).getValue() );
      else
-      throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
+      ln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Missing submission ID");
  
-     if( sz3 > 0 && cells3.get(0).getValue().length() > 0 )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
-    }
-    else
-     throw new ParserException(cells2.get(0).getRow(), cells2.get(0).getCol(), "Missing submission ID");
+     cell = sz3 > 0?cells3.get(0):null;
+     if( cell != null && cell.getValue().length() > 0 )
+     {
+      if( tagRslv == null )
+       ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Access tags will be ignored");
+      else
+      {
+       LogNode acNode = ln.branch("Resolving access tags");
+       List<AccessTag> tags = resolveAccessTags(cell.getValue(),acNode, pConf.missedAccessTagLL(), cell.getRow(), cell.getCol() );
+       
+       subm.setAccessTags(tags);
+       acNode.success();
+      }
+      
+     }
 
+     cell = sz4 > 0?cells4.get(0):null;
+     if( cell != null && cell.getValue().length() > 0 )
+     {
+      if( tagRslv == null )
+       ln.log(Level.WARN, "(R"+cell.getRow()+","+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
+      else
+      {
+       LogNode acNode = ln.branch("Resolving tags");
+       List<SubmissionTagRef> tags = resolveTags(cell.getValue(),acNode, pConf.missedTagLL(), new TagRefFact<SubmissionTagRef>()
+       {
+        @Override
+        public SubmissionTagRef createTagRef()
+        {
+         return new SubmissionTagRef();
+        }
+       }, cell.getRow(), cell.getCol() );
+       
+       subm.setTagRefs(tags);
+
+       acNode.success();
+      }
+     }
+    }
+
+    
    }
    else if( subm == null )
     throw new ParserException(reader.getLineNumber(), 1, "First block should be '"+SubmissionTag+"'");
@@ -393,7 +449,12 @@ public class PageTabSyntaxParser
      if( sz3 > 0 && cells3.get(0).getValue().length() > 0 )
       s.setParentAcc( cells3.get(0).getValue() );
      else
+     {
       s.setParentSection(lastSection);
+      
+      if( lastSection != null )
+       lastSection.addSection(s);
+     }
     }
     
     SecCellCoupling cpl = new SecCellCoupling(cell0,s);
@@ -457,28 +518,117 @@ public class PageTabSyntaxParser
    throw new ParserException(0, 0, "No sections defined");
    
   
-  if( sections.get(0).sec.getParentAcc() != null  )
-   throw new ParserException(sections.get(0).cell.getRow(), sections.get(0).cell.getCol(), "Root section can't have a parent");
-  
-  for( int i=1; i < sections.size(); i++ )
-  {
-   Section sec = sections.get(i).sec;
-   
-   if( sec.getParentSection() == null )
-   {
-    Section pSec = secMap.get( sec.getParentAcc() );
-    
-    if( pSec == null )
-     throw new ParserException(sections.get(i).cell.getRow(), sections.get(i).cell.getCol(), "No parent section with ID: "+sec.getParentAcc() );
-    
-    sec.setParentSection(pSec);
-   }
-    
-  }
+//  if( sections.get(0).sec.getParentAcc() != null  )
+//   throw new ParserException(sections.get(0).cell.getRow(), sections.get(0).cell.getCol(), "Root section can't have a parent");
+//  
+//  for( int i=1; i < sections.size(); i++ )
+//  {
+//   Section sec = sections.get(i).sec;
+//   
+//   if( sec.getParentSection() == null )
+//   {
+//    Section pSec = secMap.get( sec.getParentAcc() );
+//    
+//    if( pSec == null )
+//     throw new ParserException(sections.get(i).cell.getRow(), sections.get(i).cell.getCol(), "No parent section with ID: "+sec.getParentAcc() );
+//    
+//    sec.setParentSection(pSec);
+//    pSec.addSection(sec);
+//   }
+//    
+//  }
 
   
   return subm;
  }
+
+ private <T extends TagRef> List<T> resolveTags(String value, LogNode acNode, Level missedTagLL, TagRefFact<T> fct, int r, int c)
+ {
+  String[] tags = value.split("(?<!\\\\)"+TagSeparatorRX);
+  
+  List<T> res = new ArrayList<>( tags.length );
+  
+  for( String t : tags )
+  {
+   t = t.trim();
+   
+   if( t.length() == 0 )
+    continue;
+   
+   int pos = t.indexOf(ValueTagSeparatorRX);
+   
+   String nm = null;
+   String val = null;
+   
+   if( pos != -1 )
+   {
+    nm=t.substring(0,pos).trim();
+    val=t.substring(pos+1).trim();
+   }
+   
+   
+   String[] clsTg = nm.split(ClassifierSeparatorRX);
+   
+   if( clsTg.length != 2)
+   {
+    acNode.log(Level.WARN, "(R"+r+",C"+c+") Invalid tag reference: '"+nm+"'");
+    continue;
+   }
+   
+   Tag tg = tagRslv.getTagByName(clsTg[0].trim(),clsTg[1].trim());
+
+   if( val != null && val.length() > 0 )
+    val = StringUtils.removeEscapes(val, "\\");
+   else
+    val=null;
+   
+   if( tg != null )
+   {
+    T tr = fct.createTagRef();
+    
+    tr.setTag(tg);
+    tr.setParameter(val);
+    
+    res.add(tr);
+    
+    acNode.log(Level.INFO, "(R"+r+",C"+c+") Tag resolved: '"+nm+"'");
+   }
+   else
+    acNode.log(missedTagLL, "(R"+r+",C"+c+") Tag not resolved: '"+nm+"'");
+   
+   
+  }
+  
+  return res;
+ }
+
+ private List<AccessTag> resolveAccessTags(String value, LogNode acNode, LogNode.Level ll, int r, int c )
+ {
+  String[] tags = value.split(TagSeparatorRX);
+  
+  List<AccessTag> res = new ArrayList<>( tags.length );
+
+  for( String t : tags )
+  {
+   t = t.trim();
+   
+   if( t.length() == 0 )
+    continue;
+      
+   AccessTag tg = tagRslv.getAccessTagByName(t);
+   
+   if( tg != null )
+   {
+    res.add(tg);
+    acNode.log(Level.INFO, "(R"+r+",C"+c+") Access tag resolved: '"+t+"'");
+   }
+   else
+    acNode.log(ll, "(R"+r+",C"+c+") Access tag not resolved: '"+t+"'");
+  }
+  
+  return res;
+ }
+
 
  private static class SecCellCoupling
  {
@@ -500,6 +650,11 @@ public class PageTabSyntaxParser
     return false;
   
   return true;
+ }
+ 
+ interface TagRefFact<T extends TagRef>
+ {
+  T createTagRef();
  }
  
 }

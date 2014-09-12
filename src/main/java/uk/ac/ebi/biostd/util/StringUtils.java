@@ -1121,4 +1121,38 @@ public class StringUtils
    out.append(s);
  }
  
+ public static String removeEscapes( String str, String esc )
+ {
+  int start=0;
+  int pos = str.indexOf(esc);
+  
+  StringBuilder sb = null;
+  
+  while( pos != -1 )
+  {
+   if( sb == null )
+    sb= new StringBuilder(str.length());
+   
+   sb.append(str.substring(start,pos) );
+   
+   start = pos+esc.length();
+   
+   if( start < str.length() )
+    sb.append(str.charAt(start) );
+   else
+    break;
+   
+   start++;
+   
+   pos = str.indexOf(esc,start);
+  }
+  
+  if( sb == null )
+   return str;
+  
+  sb.append(str.substring(start));
+  
+  return sb.toString();
+ }
+ 
 }

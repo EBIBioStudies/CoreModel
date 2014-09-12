@@ -48,6 +48,17 @@ public class Submission implements Annotated, SecurityObject, Classified
  {
   this.acc = acc;
  }
+ 
+ public String getDescription()
+ {
+  return description;
+ }
+ private String description;
+
+ public void setDescription(String acc)
+ {
+  this.description = acc;
+ }
 
  @ManyToOne
  @JoinColumn(name="owner_id")
