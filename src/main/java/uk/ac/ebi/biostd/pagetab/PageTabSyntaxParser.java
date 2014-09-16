@@ -350,7 +350,7 @@ public class PageTabSyntaxParser
      if( cell != null && cell.getValue().length() > 0 )
      {
       if( tagRslv == null )
-       ln.log(Level.WARN, "(R"+cell.getRow()+","+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
+       ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
       else
       {
        LogNode acNode = ln.branch("Resolving tags");
