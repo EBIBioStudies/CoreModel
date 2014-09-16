@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.pagetab;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -14,7 +15,9 @@ import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.model.SubmissionTagRef;
+import uk.ac.ebi.biostd.model.trfactory.FileTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.SubmissionTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.util.StringUtils;
@@ -315,8 +318,11 @@ public class PageTabSyntaxParser
    
    if( cell.getValue().equals(SubmissionTag) )
    {
+    
+    LogNode sln = ln.branch("(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Processing '"+SubmissionTag+"' block");
+    
     if( subm != null )
-     ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Repeating block: '"+SubmissionTag+"'");
+     sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Repeating block: '"+SubmissionTag+"'");
     
     subm = new Submission();
     blockObj = subm;
@@ -328,54 +334,26 @@ public class PageTabSyntaxParser
      if( acc.length() > 0 )
       subm.setAcc( cells2.get(0).getValue() );
      else
-      ln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Missing submission ID");
+      sln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Missing submission ID");
  
-     cell = sz3 > 0?cells3.get(0):null;
-     if( cell != null && cell.getValue().length() > 0 )
-     {
-      if( tagRslv == null )
-       ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Access tags will be ignored");
-      else
-      {
-       LogNode acNode = ln.branch("Resolving access tags");
-       List<AccessTag> tags = resolveAccessTags(cell.getValue(),acNode, pConf.missedAccessTagLL(), cell.getRow(), cell.getCol() );
-       
-       subm.setAccessTags(tags);
-       acNode.success();
-      }
-      
-     }
+     subm.setAccessTags( processAccessTags(cells3,0,pConf,sln) );
+     subm.setTagRefs( processTags(cells4,0,pConf,SubmissionTagRefFactory.getInstance(),sln) );
 
-     cell = sz4 > 0?cells4.get(0):null;
-     if( cell != null && cell.getValue().length() > 0 )
-     {
-      if( tagRslv == null )
-       ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
-      else
-      {
-       LogNode acNode = ln.branch("Resolving tags");
-       List<SubmissionTagRef> tags = resolveTags(cell.getValue(),acNode, pConf.missedTagLL(), new TagRefFact<SubmissionTagRef>()
-       {
-        @Override
-        public SubmissionTagRef createTagRef()
-        {
-         return new SubmissionTagRef();
-        }
-       }, cell.getRow(), cell.getCol() );
-       
-       subm.setTagRefs(tags);
-
-       acNode.success();
-      }
-     }
     }
 
+    sln.success();
     
    }
    else if( subm == null )
-    throw new ParserException(reader.getLineNumber(), 1, "First block should be '"+SubmissionTag+"'");
-   else if( cell0.getValue().equals(FileTag) )
    {
+    ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") First block should be '"+SubmissionTag+"'");
+   }
+   else if( cell.getValue().equals(FileTag) )
+   {
+    if( lastSection == null )
+     ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") '"+FileTag+ "' block should follow any section block");
+
+    
     FileRef fr = new FileRef();
     
     if( sz2 > 0 )
@@ -385,11 +363,8 @@ public class PageTabSyntaxParser
      if( nm.length() > 0 )
       fr.setName( cells2.get(0).getValue() );
  
-     if( sz3 > 0 )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
-     
-     if( lastSection == null )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), FileTag+ " block should follow any section block");
+     fr.setAccessTags( processAccessTags(cells3,0,pConf,ln) );
+     fr.setTagRefs( processTags(cells4,0,pConf,FileTagRefFactory.getInstance(),ln) );
      
      lastSection.addFileRef(fr);
     }
@@ -542,9 +517,53 @@ public class PageTabSyntaxParser
   return subm;
  }
 
- private <T extends TagRef> List<T> resolveTags(String value, LogNode acNode, Level missedTagLL, TagRefFact<T> fct, int r, int c)
+ private <T extends TagRef> List<T> processTags(List<CellValue> cells, int i, ParserConfig pConf, TagReferenceFactory<T> tagRefFact, LogNode ln)
  {
-  String[] tags = value.split("(?<!\\\\)"+TagSeparatorRX);
+  CellValue cell = cells.size() > 0?cells.get(i):null;
+  
+  List<T> tags = null;
+  
+  if( cell != null && cell.getValue().length() > 0 )
+  {
+   if( tagRslv == null )
+    ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
+   else
+   {
+    LogNode acNode = ln.branch("Resolving tags");
+    tags = resolveTags(cell, acNode, pConf.missedTagLL(), tagRefFact );
+    
+    acNode.success();
+   }
+  }
+  
+  return tags;
+ }
+
+ private Collection<AccessTag> processAccessTags(List<CellValue> cells, int i, ParserConfig pConf, LogNode ln)
+ {
+  CellValue cell = cells.size() > i?cells.get(i):null;
+  
+  List<AccessTag> tags = null;
+  
+  if( cell != null && cell.getValue().length() > 0 )
+  {
+   if( tagRslv == null )
+    ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Access tags will be ignored");
+   else
+   {
+    LogNode acNode = ln.branch("Resolving access tags");
+    tags = resolveAccessTags(cell.getValue(),acNode, pConf.missedAccessTagLL(), cell.getRow(), cell.getCol() );
+
+    acNode.success();
+   }
+  }
+
+  return tags;
+ }
+
+ private <T extends TagRef> List<T> resolveTags(CellValue cell, LogNode acNode, Level missedTagLL, TagReferenceFactory<T> tagRefFact)
+ {
+  String[] tags = cell.getValue().split("(?<!\\\\)"+TagSeparatorRX);
   
   List<T> res = new ArrayList<>( tags.length );
   
@@ -571,7 +590,7 @@ public class PageTabSyntaxParser
    
    if( clsTg.length != 2)
    {
-    acNode.log(Level.WARN, "(R"+r+",C"+c+") Invalid tag reference: '"+nm+"'");
+    acNode.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Invalid tag reference: '"+nm+"'");
     continue;
    }
    
@@ -584,17 +603,17 @@ public class PageTabSyntaxParser
    
    if( tg != null )
    {
-    T tr = fct.createTagRef();
+    T tr = tagRefFact.createTagRef();
     
     tr.setTag(tg);
     tr.setParameter(val);
     
     res.add(tr);
     
-    acNode.log(Level.INFO, "(R"+r+",C"+c+") Tag resolved: '"+nm+"'");
+    acNode.log(Level.INFO, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolved: '"+nm+"'");
    }
    else
-    acNode.log(missedTagLL, "(R"+r+",C"+c+") Tag not resolved: '"+nm+"'");
+    acNode.log(missedTagLL, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag not resolved: '"+nm+"'");
    
    
   }
