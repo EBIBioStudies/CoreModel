@@ -27,7 +27,7 @@
   
   </dependencies>
   
-  <build>
+  <!-- build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
@@ -39,7 +39,7 @@
         </configuration>
       </plugin>
     </plugins>
-  </build>
+  </build-->
   
     <repositories>
 
