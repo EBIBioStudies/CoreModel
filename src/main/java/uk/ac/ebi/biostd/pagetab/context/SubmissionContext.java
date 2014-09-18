@@ -6,6 +6,8 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.SubmissionAttribute;
 import uk.ac.ebi.biostd.model.SubmissionAttributeTagRef;
+import uk.ac.ebi.biostd.model.trfactory.SubmissionAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public class SubmissionContext extends BlockContext
 {
@@ -40,5 +42,11 @@ public class SubmissionContext extends BlockContext
 
   attr.setHost(submission);
   submission.addAttribute(attr);  
+ }
+
+ @Override
+ public TagReferenceFactory< ? > getAttributeTagRefFactory()
+ {
+  return SubmissionAttributeTagRefFactory.getInstance();
  }
 }

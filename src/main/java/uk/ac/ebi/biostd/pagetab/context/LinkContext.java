@@ -6,6 +6,8 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.LinkAttribute;
 import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
+import uk.ac.ebi.biostd.model.trfactory.LinkAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public class LinkContext extends BlockContext
 {
@@ -39,6 +41,12 @@ public class LinkContext extends BlockContext
 
   attr.setHost(link);
   link.addAttribute(attr);  
+ }
+
+ @Override
+ public TagReferenceFactory< ? > getAttributeTagRefFactory()
+ {
+  return LinkAttributeTagRefFactory.getInstance();
  }
 
 }

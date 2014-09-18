@@ -6,6 +6,8 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.FileAttribute;
 import uk.ac.ebi.biostd.model.FileAttributeTagRef;
 import uk.ac.ebi.biostd.model.FileRef;
+import uk.ac.ebi.biostd.model.trfactory.FileAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public class FileContext extends BlockContext
 {
@@ -39,6 +41,12 @@ public class FileContext extends BlockContext
 
   attr.setHost(fileRef);
   fileRef.addAttribute(attr);  
+ }
+
+ @Override
+ public TagReferenceFactory< ? > getAttributeTagRefFactory()
+ {
+  return FileAttributeTagRefFactory.getInstance();
  }
 
 

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.Section;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public abstract class BlockContext
 {
@@ -45,5 +46,7 @@ public abstract class BlockContext
  }
  
  public abstract void addAttribute( String nm, String val, String nameQ, String valQ, Collection<? extends TagRef> tags );
+
+ public abstract TagReferenceFactory<?> getAttributeTagRefFactory();
  
 }

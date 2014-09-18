@@ -6,6 +6,8 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
+import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public class SectionContext extends BlockContext
 {
@@ -39,6 +41,12 @@ public class SectionContext extends BlockContext
 
   attr.setHost(section);
   section.addAttribute(attr);  
+ }
+
+ @Override
+ public TagReferenceFactory< ? > getAttributeTagRefFactory()
+ {
+  return SectionAttributeTagRefFactory.getInstance();
  }
  
 }

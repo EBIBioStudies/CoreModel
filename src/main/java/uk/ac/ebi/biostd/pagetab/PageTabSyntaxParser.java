@@ -245,6 +245,8 @@ public class PageTabSyntaxParser
   ln.log(Level.INFO, "Processing submission");
   
   
+  LogNode ctxLN = ln;
+  
   while( reader.readRow(parts) != null )
   {
    if( isEmptyLine(parts) )
@@ -352,6 +354,7 @@ public class PageTabSyntaxParser
      }
      
      context = new SubmissionContext( subm );
+     ctxLN = sln;
     }
     else if( cell.getValue().equals(FileKeyword) )
     {
@@ -383,6 +386,7 @@ public class PageTabSyntaxParser
      fc.setLastSection(context.getLastSection());
      
      context = fc;
+     ctxLN = fln;
     }    
     else if( cell.getValue().equals(LinkKeyword) )
     {
@@ -415,6 +419,7 @@ public class PageTabSyntaxParser
      lc.setLastSection(context.getLastSection());
      
      context = lc;
+     ctxLN = lln;
     }
     else
     {
@@ -486,7 +491,7 @@ public class PageTabSyntaxParser
       secMap.put(s.getAcc(), s );
      
      context.setLastSection( s );
-    
+     ctxLN = sln;
     }
    }
    
@@ -520,7 +525,7 @@ public class PageTabSyntaxParser
        throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Qualifiers of empty value are not allowed");
      }
      else
-      context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,SectionTagRefFactory.getInstance(),sln) );
+      context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,context.getAttributeTagRefFactory(),ctxLN) );
     }
     else
     {
@@ -538,8 +543,8 @@ public class PageTabSyntaxParser
    
   }
 
-  if( sections.size() == 0 )
-   throw new ParserException(0, 0, "No sections defined");
+//  if( sections.size() == 0 )
+//   throw new ParserException(0, 0, "No sections defined");
    
   
 //  if( sections.get(0).sec.getParentAcc() != null  )
@@ -566,7 +571,7 @@ public class PageTabSyntaxParser
   return subm;
  }
 
- private <T extends TagRef> List<T> processTagsX(List<CellValue> cells, int i, ParserConfig pConf, TagReferenceFactory<T> tagRefFact, LogNode ln)
+ private <T extends TagRef> List<T> processTags(List<CellValue> cells, int i, ParserConfig pConf, TagReferenceFactory<T> tagRefFact, LogNode ln)
  {
   CellValue cell = cells.size() > 0?cells.get(i):null;
   
@@ -587,6 +592,8 @@ public class PageTabSyntaxParser
   
   return tags;
  }
+ 
+ /*
  
  private void processTags(List<CellValue> cells, int i, ParserConfig pConf, BlockContext ctx, LogNode ln)
  {
@@ -639,7 +646,7 @@ public class PageTabSyntaxParser
      
      if( tg != null )
      {
-      TagRef tr = context.createTagRef();
+      TagRef tr = ctx.createTagRef();
       
       tr.setTag(tg);
       tr.setParameter(val);
@@ -657,6 +664,8 @@ public class PageTabSyntaxParser
   }
   
  }
+
+*/
 
  private Collection<AccessTag> processAccessTags(List<CellValue> cells, int i, ParserConfig pConf, LogNode ln)
  {
