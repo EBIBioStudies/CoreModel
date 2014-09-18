@@ -42,18 +42,18 @@ public class LinkAttribute extends AbstractAttribute
  
  @Override
  @OneToMany(mappedBy="attribute",cascade=CascadeType.ALL)
- public Collection<FileAttributeTagRef> getTagRefs()
+ public Collection<LinkAttributeTagRef> getTagRefs()
  {
   return tagRefs;
  }
- private Collection<FileAttributeTagRef> tagRefs;
+ private Collection<LinkAttributeTagRef> tagRefs;
 
- public void setTagRefs(Collection<FileAttributeTagRef> tags)
+ public void setTagRefs(Collection<LinkAttributeTagRef> tags)
  {
   this.tagRefs = tags;
  }
  
- public void addTagRef( FileAttributeTagRef tr )
+ public void addTagRef( LinkAttributeTagRef tr )
  {
   if( tagRefs == null )
    tagRefs = new ArrayList<>();

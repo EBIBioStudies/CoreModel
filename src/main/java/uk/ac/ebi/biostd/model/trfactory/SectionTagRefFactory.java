@@ -6,7 +6,7 @@ public class SectionTagRefFactory implements TagReferenceFactory<SectionTagRef>
 {
  private static SectionTagRefFactory instance  = new SectionTagRefFactory();
  
- public SectionTagRefFactory getInstance()
+ public static SectionTagRefFactory  getInstance()
  {
   return instance;
  }

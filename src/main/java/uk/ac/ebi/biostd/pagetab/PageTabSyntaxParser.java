@@ -10,14 +10,21 @@ import java.util.Map;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
-import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.trfactory.FileTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.LinkTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.SectionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.SubmissionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
+import uk.ac.ebi.biostd.pagetab.context.BlockContext;
+import uk.ac.ebi.biostd.pagetab.context.BlockContext.BlockType;
+import uk.ac.ebi.biostd.pagetab.context.FileContext;
+import uk.ac.ebi.biostd.pagetab.context.LinkContext;
+import uk.ac.ebi.biostd.pagetab.context.SubmissionContext;
+import uk.ac.ebi.biostd.pagetab.context.VoidContext;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.util.StringUtils;
@@ -31,9 +38,9 @@ public class PageTabSyntaxParser
  public static final String ClassifierSeparatorRX = ":";
  public static final String ValueTagSeparatorRX = "=";
  
- public static final String SubmissionTag = "Submission";
- public static final String FileTag = "File";
- public static final String LinkTag = "Link";
+ public static final String SubmissionKeyword = "Submission";
+ public static final String FileKeyword = "File";
+ public static final String LinkKeyword = "Link";
  
  private final TagResolver tagRslv;
  
@@ -230,9 +237,9 @@ public class PageTabSyntaxParser
   
   Submission subm = null;
   Map<String,Section> secMap = new HashMap<>();
-  List<SecCellCoupling> sections = new ArrayList<>();
+//  List<SecCellCoupling> sections = new ArrayList<>();
   
-  Section lastSection = null;
+  BlockContext context = new VoidContext();
   
   ln.success();
   ln.log(Level.INFO, "Processing submission");
@@ -241,8 +248,11 @@ public class PageTabSyntaxParser
   while( reader.readRow(parts) != null )
   {
    if( isEmptyLine(parts) )
+   {
+    context.setBlockType(BlockType.NONE);
     continue;
-
+   }
+   
    CellValue classRef = new CellValue( parts.get(0) );
    
  
@@ -262,8 +272,8 @@ public class PageTabSyntaxParser
     block = new VerticalBlockSupplier( reader, parts );
    }
    
-   if( subm == null && ! classRef.getValue().equals(SubmissionTag))
-    ln.log(Level.ERROR, "(R"+reader.getLineNumber()+",C1) First block should be '"+SubmissionTag+"'");
+   if( subm == null && ! classRef.getValue().equals(SubmissionKeyword))
+    ln.log(Level.ERROR, "(R"+reader.getLineNumber()+",C1) First block should be '"+SubmissionKeyword+"'");
    
    parts.clear();
    
@@ -301,8 +311,6 @@ public class PageTabSyntaxParser
     }
    }
    
-   Annotated blockObj = null;
-   
    int sz1 = cells1.size();
    int sz2 = cells2.size();
    int sz3 = cells3.size();
@@ -316,132 +324,173 @@ public class PageTabSyntaxParser
 
    CellValue cell = cells1.get(0);
    
-   if( cell.getValue().equals(SubmissionTag) )
+   
+   if( context.getBlockType() == BlockType.NONE )
    {
     
-    LogNode sln = ln.branch("(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Processing '"+SubmissionTag+"' block");
-    
-    if( subm != null )
-     sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Repeating block: '"+SubmissionTag+"'");
-    
-    subm = new Submission();
-    blockObj = subm;
-    
-    if( sz2 > 0 )
+    if( cell.getValue().equals(SubmissionKeyword) )
     {
-     String acc = cells2.get(0).getValue();
+     LogNode sln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+SubmissionKeyword+"' block");
      
-     if( acc.length() > 0 )
-      subm.setAcc( cells2.get(0).getValue() );
-     else
-      sln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Missing submission ID");
- 
-     subm.setAccessTags( processAccessTags(cells3,0,pConf,sln) );
-     subm.setTagRefs( processTags(cells4,0,pConf,SubmissionTagRefFactory.getInstance(),sln) );
-
-    }
-
-    sln.success();
-    
-   }
-   else if( subm == null )
-   {
-    ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") First block should be '"+SubmissionTag+"'");
-   }
-   else if( cell.getValue().equals(FileTag) )
-   {
-    if( lastSection == null )
-     ln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") '"+FileTag+ "' block should follow any section block");
-
-    
-    FileRef fr = new FileRef();
-    
-    if( sz2 > 0 )
-    {
-     String nm = cells2.get(0).getValue();
+     if( subm != null )
+      sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Multiple blocks: '"+SubmissionKeyword+"' are not allowed");
      
-     if( nm.length() > 0 )
-      fr.setName( cells2.get(0).getValue() );
- 
-     fr.setAccessTags( processAccessTags(cells3,0,pConf,ln) );
-     fr.setTagRefs( processTags(cells4,0,pConf,FileTagRefFactory.getInstance(),ln) );
+     subm = new Submission();
      
-     lastSection.addFileRef(fr);
-    }
-
-    if( fr.getName() == null )
-     throw new ParserException(cell0.getRow(), cell0.getCol(), "File name missing");
-    
-    blockObj = fr;
-   }
-   else if( cell0.getValue().equals(LinkTag) )
-   {
-    Link l = new Link();
-    
-    if( sz2 > 0 )
-    {
-     String nm = cells2.get(0).getValue();
-     
-     if( nm.length() > 0 )
-      l.setUrl( cells2.get(0).getValue() );
- 
-     if( sz3 > 0 )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), "Unexpected value. Expecting blank cell");
-     
-     if( lastSection == null )
-      throw new ParserException(cells3.get(0).getRow(), cells3.get(0).getCol(), LinkTag+ " block should follow any section block");
-     
-     lastSection.addLink(l);
-    }
-
-    if( l.getUrl() == null )
-     throw new ParserException(cell0.getRow(), cell0.getCol(), "Link URL missing");
-    
-    blockObj = l;
-   }
-   else
-   {
-    Section s = new Section();
-    
-    if( lastSection == null )
-     subm.setRootSection(s);
-    
-    
-    s.setType(cell0.getValue());
-    
-    if( sz2 > 0 )
-    {
-     String acc = cells2.get(0).getValue();
-     
-     if( acc.length() > 0 )
+     if( sz2 > 0 )
      {
-      if( secMap.containsKey(acc) )
-       throw new ParserException(cell0.getRow(), cell0.getCol(), "Section ID '"+acc+"' is not unique");
-       
-      s.setAcc( acc );
-     }
-     
-     if( sz3 > 0 && cells3.get(0).getValue().length() > 0 )
-      s.setParentAcc( cells3.get(0).getValue() );
-     else
-     {
-      s.setParentSection(lastSection);
+      String acc = cells2.get(0).getValue();
       
-      if( lastSection != null )
-       lastSection.addSection(s);
+      if( acc.length() > 0 )
+       subm.setAcc( cells2.get(0).getValue() );
+      else
+       sln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") Missing submission ID");
+  
+      subm.setAccessTags( processAccessTags(cells3,0,pConf,sln) );
+      subm.setTagRefs( processTags(cells4,0,pConf,SubmissionTagRefFactory.getInstance(),sln) );
+
      }
+     
+     context = new SubmissionContext( subm );
     }
+    else if( cell.getValue().equals(FileKeyword) )
+    {
+     LogNode fln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+FileKeyword+"' block");
+
+     if( context.getLastSection() == null )
+      fln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") '"+FileKeyword+ "' block should follow any section block");
+     
+     FileRef fr = new FileRef();
+     
+     if( sz2 > 0 )
+     {
+      String nm = cells2.get(0).getValue();
+      
+      if( nm.length() > 0 )
+       fr.setName( nm );
+  
+      fr.setAccessTags( processAccessTags(cells3,0,pConf,fln) );
+      fr.setTagRefs( processTags(cells4,0,pConf,FileTagRefFactory.getInstance(),fln) );
+      
+      if( context.getLastSection() == null )
+       context.getLastSection().addFileRef(fr);
+     }
+
+     if( fr.getName() == null )
+      fln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") File name missing");
+
+     FileContext fc = new FileContext( fr );
+     fc.setLastSection(context.getLastSection());
+     
+     context = fc;
+    }    
+    else if( cell.getValue().equals(LinkKeyword) )
+    {
+     LogNode lln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+LinkKeyword+"' block");
+
+     if( context.getLastSection() == null )
+      lln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") '"+LinkKeyword+ "' block should follow any section block");
+
+     Link l = new Link();
+     
+     if( sz2 > 0 )
+     {
+      String nm = cells2.get(0).getValue();
+      
+      if( nm.length() > 0 )
+       l.setUrl( nm );
+  
+      l.setAccessTags( processAccessTags(cells3,0,pConf,lln) );
+      l.setTagRefs( processTags(cells4,0,pConf,LinkTagRefFactory.getInstance(),lln) );
+      
+      if( context.getLastSection() == null )
+       context.getLastSection().addLink(l);
+
+     }
+
+     if( l.getUrl() == null )
+      lln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Link URL missing");
+     
+     LinkContext lc = new LinkContext( l );
+     lc.setLastSection(context.getLastSection());
+     
+     context = lc;
+    }
+    else
+    {
+     LogNode sln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+cell.getValue()+"' section block");
+
+     Section s = new Section();
+
+     if( context.getLastSection() == null )
+     {
+      if( subm == null )
+       sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Section must follow '"+SubmissionKeyword+"' block or other section block");
+      else
+       subm.setRootSection(s);
+     }
+     
+     s.setType(cell.getValue());
+     
+     if( sz2 > 0 )
+     {
+      cell = cells2.get(0);
+      
+      String acc = cell.getValue();
+      
+      if( acc.length() > 0 )
+      {
+       if( secMap.containsKey(acc) )
+        sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Section accession number '"+acc+"' is arleady used for another object");
+        
+       s.setAcc( acc );
+      }
+      
+      if( sz3 > 0  )
+      {
+       cell = cells3.get(0);
+
+       if( cell.getValue().length() > 0)
+       {
+        Section pSec = secMap.get(cell.getValue());
+
+        if(pSec != null)
+        {
+         s.setParentAcc(pSec.getAcc());
+         s.setParentSection(pSec);
+        }
+        else
+         sln.log(Level.ERROR, "(R" + cell.getRow() + ",C" + cell.getCol() + ") Parent section '" + acc + "' not found");
+
+       }
+       
+       
+       s.setAccessTags( processAccessTags(cells4,0,pConf,sln) );
+       s.setTagRefs( processTags(cells5,0,pConf,SectionTagRefFactory.getInstance(),sln) );
+
+      }
+      
+      if( s.getParentSection() == null )
+      {
+       s.setParentSection(context.getLastSection());
+       
+       if( context.getLastSection() != null )
+        context.getLastSection().addSection(s);
+      }
+     }
+     
+//     SecCellCoupling cpl = new SecCellCoupling(cell0,s);
+//     sections.add(cpl);
+     
+     if( s.getAcc() != null )
+      secMap.put(s.getAcc(), s );
+     
+     context.setLastSection( s );
     
-    SecCellCoupling cpl = new SecCellCoupling(cell0,s);
-    
-    sections.add(cpl);
-    
-    if( s.getAcc() != null )
-     secMap.put(s.getAcc(), s );
-    
-    lastSection = s;
-    blockObj = s;
+    }
    }
+   
+   
    
    
    for( int i=1; i < sz1; i++ )
@@ -471,7 +520,7 @@ public class PageTabSyntaxParser
        throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Qualifiers of empty value are not allowed");
      }
      else
-      blockObj.addAttribute(nm, val, nameQ, valQ);
+      context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,SectionTagRefFactory.getInstance(),sln) );
     }
     else
     {
@@ -517,7 +566,7 @@ public class PageTabSyntaxParser
   return subm;
  }
 
- private <T extends TagRef> List<T> processTags(List<CellValue> cells, int i, ParserConfig pConf, TagReferenceFactory<T> tagRefFact, LogNode ln)
+ private <T extends TagRef> List<T> processTagsX(List<CellValue> cells, int i, ParserConfig pConf, TagReferenceFactory<T> tagRefFact, LogNode ln)
  {
   CellValue cell = cells.size() > 0?cells.get(i):null;
   
@@ -537,6 +586,76 @@ public class PageTabSyntaxParser
   }
   
   return tags;
+ }
+ 
+ private void processTags(List<CellValue> cells, int i, ParserConfig pConf, BlockContext ctx, LogNode ln)
+ {
+  CellValue cell = cells.size() > 0?cells.get(i):null;
+  
+  if( cell != null && cell.getValue().length() > 0 )
+  {
+   if( tagRslv == null )
+    ln.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolver is not configured. Tags will be ignored");
+   else
+   {
+    LogNode acNode = ln.branch("Resolving tags");
+    
+    String[] tags = cell.getValue().split("(?<!\\\\)"+TagSeparatorRX);
+    List<TagRef> res = new ArrayList<>( tags.length );
+    
+    for( String t : tags )
+    {
+     t = t.trim();
+     
+     if( t.length() == 0 )
+      continue;
+     
+     int pos = t.indexOf(ValueTagSeparatorRX);
+     
+     String nm = null;
+     String val = null;
+     
+     if( pos != -1 )
+     {
+      nm=t.substring(0,pos).trim();
+      val=t.substring(pos+1).trim();
+     }
+     
+     
+     String[] clsTg = nm.split(ClassifierSeparatorRX);
+     
+     if( clsTg.length != 2)
+     {
+      acNode.log(Level.WARN, "(R"+cell.getRow()+",C"+cell.getCol()+") Invalid tag reference: '"+nm+"'");
+      continue;
+     }
+     
+     Tag tg = tagRslv.getTagByName(clsTg[0].trim(),clsTg[1].trim());
+
+     if( val != null && val.length() > 0 )
+      val = StringUtils.removeEscapes(val, "\\");
+     else
+      val=null;
+     
+     if( tg != null )
+     {
+      TagRef tr = context.createTagRef();
+      
+      tr.setTag(tg);
+      tr.setParameter(val);
+      
+      res.add(tr);
+      
+      acNode.log(Level.INFO, "(R"+cell.getRow()+",C"+cell.getCol()+") Tag resolved: '"+nm+"'");
+     }
+     else
+      acNode.log(pConf.missedTagLL(), "(R"+cell.getRow()+",C"+cell.getCol()+") Tag not resolved: '"+nm+"'");
+     
+    }
+    
+   }
+  }
+  
  }
 
  private Collection<AccessTag> processAccessTags(List<CellValue> cells, int i, ParserConfig pConf, LogNode ln)

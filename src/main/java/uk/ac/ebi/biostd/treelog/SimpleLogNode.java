@@ -45,7 +45,7 @@ public class SimpleLogNode implements LogNode,Serializable
   if(subNodes == null)
    subNodes = new ArrayList<LogNode>(10);
 
-  LogNode nnd = new SimpleLogNode(null, msg, errCnt);
+  LogNode nnd = new SimpleLogNode(Level.SUCCESS, msg, errCnt);
 
   subNodes.add(nnd);
 
