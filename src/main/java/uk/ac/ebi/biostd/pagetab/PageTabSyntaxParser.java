@@ -37,6 +37,9 @@ public class PageTabSyntaxParser
  public static final String TagSeparatorRX = "[,;]";
  public static final String ClassifierSeparatorRX = ":";
  public static final String ValueTagSeparatorRX = "=";
+
+ public static final String GeneratedAccNoPattern = "(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?";
+
  
  public static final String SubmissionKeyword = "Submission";
  public static final String FileKeyword = "File";
@@ -330,7 +333,7 @@ public class PageTabSyntaxParser
    if( context.getBlockType() == BlockType.NONE )
    {
     
-    if( cell.getValue().equals(SubmissionKeyword) )
+    if( cell.getValue().trim().equals(SubmissionKeyword) )
     {
      LogNode sln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+SubmissionKeyword+"' block");
      
@@ -341,7 +344,7 @@ public class PageTabSyntaxParser
      
      if( sz2 > 0 )
      {
-      String acc = cells2.get(0).getValue();
+      String acc = cells2.get(0).getValue().trim();
       
       if( acc.length() > 0 )
        subm.setAcc( cells2.get(0).getValue() );
@@ -356,7 +359,7 @@ public class PageTabSyntaxParser
      context = new SubmissionContext( subm );
      ctxLN = sln;
     }
-    else if( cell.getValue().equals(FileKeyword) )
+    else if( cell.getValue().trim().equals(FileKeyword) )
     {
      LogNode fln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+FileKeyword+"' block");
 
@@ -367,10 +370,13 @@ public class PageTabSyntaxParser
      
      if( sz2 > 0 )
      {
-      String nm = cells2.get(0).getValue();
+      String nm = cells2.get(0).getValue().trim();
       
       if( nm.length() > 0 )
        fr.setName( nm );
+      else
+       fln.log(Level.ERROR, "(R"+cells2.get(0).getRow()+",C"+cells2.get(0).getCol()+") File name missing");
+       
   
       fr.setAccessTags( processAccessTags(cells3,0,pConf,fln) );
       fr.setTagRefs( processTags(cells4,0,pConf,FileTagRefFactory.getInstance(),fln) );
@@ -379,8 +385,8 @@ public class PageTabSyntaxParser
        context.getLastSection().addFileRef(fr);
      }
 
-     if( fr.getName() == null )
-      fln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") File name missing");
+//     if( fr.getName() == null )
+//      fln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") File name missing");
 
      FileContext fc = new FileContext( fr );
      fc.setLastSection(context.getLastSection());
@@ -388,7 +394,7 @@ public class PageTabSyntaxParser
      context = fc;
      ctxLN = fln;
     }    
-    else if( cell.getValue().equals(LinkKeyword) )
+    else if( cell.getValue().trim().equals(LinkKeyword) )
     {
      LogNode lln = ln.branch("(R"+cell.getRow()+",C"+cell.getCol()+") Processing '"+LinkKeyword+"' block");
 
@@ -399,7 +405,7 @@ public class PageTabSyntaxParser
      
      if( sz2 > 0 )
      {
-      String nm = cells2.get(0).getValue();
+      String nm = cells2.get(0).getValue().trim();
       
       if( nm.length() > 0 )
        l.setUrl( nm );
@@ -435,13 +441,13 @@ public class PageTabSyntaxParser
        subm.setRootSection(s);
      }
      
-     s.setType(cell.getValue());
+     s.setType(cell.getValue().trim());
      
      if( sz2 > 0 )
      {
       cell = cells2.get(0);
       
-      String acc = cell.getValue();
+      String acc = cell.getValue().trim();
       
       if( acc.length() > 0 )
       {
@@ -454,10 +460,12 @@ public class PageTabSyntaxParser
       if( sz3 > 0  )
       {
        cell = cells3.get(0);
+       
+       String pAcc = cell.getValue().trim();
 
-       if( cell.getValue().length() > 0)
+       if( pAcc.length() > 0)
        {
-        Section pSec = secMap.get(cell.getValue());
+        Section pSec = secMap.get(pAcc);
 
         if(pSec != null)
         {
@@ -465,7 +473,7 @@ public class PageTabSyntaxParser
          s.setParentSection(pSec);
         }
         else
-         sln.log(Level.ERROR, "(R" + cell.getRow() + ",C" + cell.getCol() + ") Parent section '" + acc + "' not found");
+         sln.log(Level.ERROR, "(R" + cell.getRow() + ",C" + cell.getCol() + ") Parent section '" + pAcc + "' not found");
 
        }
        
@@ -502,72 +510,43 @@ public class PageTabSyntaxParser
    {
     String nm = cells1.get(i).getValue();
     
-    String val = sz2 > i?cells2.get(i).getValue():"";
+    if( nm != null )
+     nm = nm.trim();
+    
+    if( nm.length() == 0 )
+     nm = null;
+    
+    if( nm == null )
+     ctxLN.log(Level.ERROR, "(R" + cells1.get(i).getRow() + ",C" + cells1.get(i).getCol() + ") Invalid attribute with empty name");
+
+    String val = sz2 > i?cells2.get(i).getValue().trim():"";
    
     if( val.length() == 0 )
      val = null;
 
-    String nameQ = sz3 > i?cells3.get(i).getValue():"";
+    String nameQ = sz3 > i?cells3.get(i).getValue().trim():"";
     
     if( nameQ.length() == 0 )
      nameQ = null;
     
-    String valQ = sz4 > i?cells4.get(i).getValue():"";
+   
+    String valQ = sz4 > i?cells4.get(i).getValue().trim():"";
 
     if( valQ.length() == 0 )
      valQ = null;
     
-    if( nm.length() > 0 )
-    {
-     if( val == null )
-     {
-      if( valQ != null )
-       throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Qualifiers of empty value are not allowed");
-     }
-     else
-      context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,context.getAttributeTagRefFactory(),ctxLN) );
-    }
-    else
-    {
-     if( val != null )
-      throw new ParserException(cells2.get(i).getRow(), cells2.get(i).getCol(), "Unexpected value. Expecting blank cell");
-
-     if( nameQ != null )
-      throw new ParserException(cells3.get(i).getRow(), cells3.get(i).getCol(), "Unexpected value. Expecting blank cell");
-
-     if( valQ != null )
-      throw new ParserException(cells4.get(i).getRow(), cells4.get(i).getCol(), "Unexpected value. Expecting blank cell");
-    }
+    
+    if( val == null && valQ != null )
+     ctxLN.log(Level.WARN, "(R" + cells4.get(i).getRow() + ",C" + cells4.get(i).getCol() + ") Qualifiers of empty value will be ignored");
+    
+    if( nm != null )
+     context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,context.getAttributeTagRefFactory(),ctxLN) );
     
    }
    
   }
 
-//  if( sections.size() == 0 )
-//   throw new ParserException(0, 0, "No sections defined");
-   
-  
-//  if( sections.get(0).sec.getParentAcc() != null  )
-//   throw new ParserException(sections.get(0).cell.getRow(), sections.get(0).cell.getCol(), "Root section can't have a parent");
-//  
-//  for( int i=1; i < sections.size(); i++ )
-//  {
-//   Section sec = sections.get(i).sec;
-//   
-//   if( sec.getParentSection() == null )
-//   {
-//    Section pSec = secMap.get( sec.getParentAcc() );
-//    
-//    if( pSec == null )
-//     throw new ParserException(sections.get(i).cell.getRow(), sections.get(i).cell.getCol(), "No parent section with ID: "+sec.getParentAcc() );
-//    
-//    sec.setParentSection(pSec);
-//    pSec.addSection(sec);
-//   }
-//    
-//  }
-
-  
+ 
   return subm;
  }
 
@@ -793,7 +772,7 @@ public class PageTabSyntaxParser
  private static boolean isEmptyLine( List<String> parts )
  {
   for(String pt : parts )
-   if( pt.length() != 0 )
+   if( pt.trim().length() != 0 )
     return false;
   
   return true;
