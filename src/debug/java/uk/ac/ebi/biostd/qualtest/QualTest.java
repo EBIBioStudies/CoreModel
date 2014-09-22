@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.model;
+package uk.ac.ebi.biostd.qualtest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,17 +6,39 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.Basic;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 
-import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.model.Qualifier;
 
-@MappedSuperclass
-abstract public class AbstractAttribute
+public class QualTest
 {
+
+ public static void main( String[] args )
+ {
+  QualTest qt = new QualTest();
+  
+  System.out.println("Empty: "+qt.getQualifiers());
+  
+  qt.addQualifier( new Qualifier("a","b") );
+
+  System.out.println("Added a=b: "+qt.getQualifiers()+" QStr: "+qt.qualifierString);
+ 
+  qt.addQualifier( new Qualifier("b","c") );
+
+  System.out.println("Added b=c: "+qt.getQualifiers()+" QStr: "+qt.qualifierString);
+
+  qt.addQualifier( new Qualifier("b;=",";c") );
+
+  System.out.println("Added 'b;='=';c': "+qt.getQualifiers()+" QStr: "+qt.qualifierString);
+
+  qt.addQualifier( new Qualifier("x;=",";y") );
+
+  qt.quals = null;
+  
+  System.out.println("Reconsructed: "+qt.getQualifiers());
+
+ }
+ 
  private final static String QUALIFIERS_SEPARATOR = ";";
  private final static String QUALIFIER_VALUE_SEPARATOR = "=";
  
@@ -31,41 +53,7 @@ abstract public class AbstractAttribute
  @Lob
  @Basic
  private String qualifierString;
- 
- public AbstractAttribute()
- {}
 
- public AbstractAttribute(String name2, String value2)
- {
-  setName(name2);
-  setValue(value2);
- }
- 
- 
- @Id
- @GeneratedValue
- public long getId()
- {
-  return id;
- }
- private long id;
-  
- public void setId(long id)
- {
-  this.id = id;
- }
-
- public String getName()
- {
-  return name;
- }
- String name;
-
- public void setName(String name)
- {
-  this.name = name;
- }
- 
  public Collection<Qualifier> getQualifiers()
  {
   if( quals != null )
@@ -159,64 +147,4 @@ abstract public class AbstractAttribute
  }
 
  
- public String getValue()
- {
-  return value;
- }
- String value;
-
- public void setValue(String value)
- {
-  this.value = value;
- }
-
- public String getValueQualifier()
- {
-  return valueQualifier;
- }
- String valueQualifier;
-
- public void setValueQualifier(String value)
- {
-  this.valueQualifier = value;
- }
-
- 
- public double getNumValue()
- {
-  return numValue;
- }
- double numValue;
-
- public void setNumValue(double numValue)
- {
-  this.numValue = numValue;
- }
-
- @Transient
- public abstract Collection<? extends TagRef> getTagRefs();
- 
- @Transient
- public String getEntityClass()
- {
-  if( getTagRefs() == null )
-   return null;
-  
-  StringBuilder sb = new StringBuilder();
-  
-  for( TagRef t : getTagRefs() )
-  {
-   sb.append(t.getTag().getClassifier().getName()).append(":").append(t.getTag().getName());
-   
-   if( t.getParameter() != null && t.getParameter().length() != 0 )
-    sb.append("=").append( t.getParameter() );
-   
-   sb.append(",");
-  }
-  
-  if( sb.length() > 0 )
-   sb.setLength( sb.length()-1 );
-  
-  return sb.toString();
- }
 }

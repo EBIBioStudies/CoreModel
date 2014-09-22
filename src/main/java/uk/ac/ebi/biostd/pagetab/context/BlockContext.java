@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.pagetab.context;
 import java.util.Collection;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
@@ -45,7 +46,7 @@ public abstract class BlockContext
   this.blockType = blockType;
  }
  
- public abstract void addAttribute( String nm, String val, String nameQ, String valQ, Collection<? extends TagRef> tags );
+ public abstract AbstractAttribute addAttribute( String nm, String val, Collection<? extends TagRef> tags );
 
  public abstract TagReferenceFactory<?> getAttributeTagRefFactory();
  

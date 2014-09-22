@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
@@ -39,6 +41,9 @@ public class PageTabSyntaxParser
  public static final String ValueTagSeparatorRX = "=";
 
  public static final String GeneratedAccNoPattern = "(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?";
+ public static final String NameQualifierPattern = "\\<(?<nameq>[^>]+)\\>";
+ public static final String ValueQualifierPattern = "\\[(?<valueq>[^>]+)\\]";
+ public static final String TableBlockPattern = "(?<name>[^[]+)[table]";
 
  
  public static final String SubmissionKeyword = "Submission";
@@ -47,9 +52,16 @@ public class PageTabSyntaxParser
  
  private final TagResolver tagRslv;
  
+ private final Matcher nameQualMtch;
+ private final Matcher valueQualMtch;
+ 
  public PageTabSyntaxParser( TagResolver tr )
  {
   tagRslv = tr;
+  
+  nameQualMtch = Pattern.compile(NameQualifierPattern).matcher("");
+  valueQualMtch = Pattern.compile(ValueQualifierPattern).matcher("");
+  
  }
 
 
@@ -517,8 +529,19 @@ public class PageTabSyntaxParser
      nm = null;
     
     if( nm == null )
+    {
      ctxLN.log(Level.ERROR, "(R" + cells1.get(i).getRow() + ",C" + cells1.get(i).getCol() + ") Invalid attribute with empty name");
+     continue;
+    }
+     
+    nameQualMtch.reset(nm);
 
+    if( nameQualMtch.matches() )
+    {
+     
+    }
+    
+    
     String val = sz2 > i?cells2.get(i).getValue().trim():"";
    
     if( val.length() == 0 )
@@ -540,7 +563,7 @@ public class PageTabSyntaxParser
      ctxLN.log(Level.WARN, "(R" + cells4.get(i).getRow() + ",C" + cells4.get(i).getCol() + ") Qualifiers of empty value will be ignored");
     
     if( nm != null )
-     context.addAttribute(nm, val, nameQ, valQ, processTags(cells5,i,pConf,context.getAttributeTagRefFactory(),ctxLN) );
+     context.addAttribute(nm, val, processTags(cells5,i,pConf,context.getAttributeTagRefFactory(),ctxLN) );
     
    }
    
