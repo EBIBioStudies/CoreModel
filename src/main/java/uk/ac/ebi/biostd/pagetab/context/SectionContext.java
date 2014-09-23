@@ -21,7 +21,7 @@ public class SectionContext extends BlockContext
  private final LogNode log;
  private final PageTabSyntaxParser2 parser;
  
- protected SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln)
+ public SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln)
  {
   super(BlockType.SECTION);
   

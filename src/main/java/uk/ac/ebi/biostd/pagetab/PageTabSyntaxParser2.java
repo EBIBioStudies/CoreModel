@@ -164,44 +164,28 @@ public class PageTabSyntaxParser2
       
       s.setType(c0);
       
-      if( sz2 > 0 )
+      if( s.getAcc() != null )
       {
-       cell = cells2.get(0);
+       if( secMap.containsKey( s.getAcc() ) )
+        sln.log(Level.ERROR, "(R"+lineNo+",C2) Section accession number '"+s.getAcc()+"' is arleady used for another object");
+       else
+        secMap.put(s.getAcc(), new SectionRef(s) );
+      }
+      
+      if( s.getParentAcc() != null )
+      {
+       SectionRef psec = secMap.get( s.getParentAcc() );
        
-       String acc = cell.getValue().trim();
-       
-       if( acc.length() > 0 )
-       {
-        if( secMap.containsKey(acc) )
-         sln.log(Level.ERROR, "(R"+cell.getRow()+",C"+cell.getCol()+") Section accession number '"+acc+"' is arleady used for another object");
-         
-        s.setAcc( acc );
-       }
-       
-       if( sz3 > 0  )
-       {
-        cell = cells3.get(0);
-        
-        String pAcc = cell.getValue().trim();
-
-        if( pAcc.length() > 0)
-        {
-         Section pSec = secMap.get(pAcc);
-
-         if(pSec != null)
-         {
-          s.setParentAcc(pSec.getAcc());
-          s.setParentSection(pSec);
-         }
-         else
-          sln.log(Level.ERROR, "(R" + cell.getRow() + ",C" + cell.getCol() + ") Parent section '" + pAcc + "' not found");
-
-        }
-
-     }
+       if( psec != null )
+        psec.getSection().addSection(s);
+       else
+        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + s.getParentAcc() + "' not found");
+      }
+      
+     lastSection = s;
      
     }
-     }}
+     }
     
    }
   

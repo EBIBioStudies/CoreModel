@@ -10,6 +10,12 @@ public class SectionRef
  private String  suffix;
  private boolean local;
 
+ public SectionRef(Section s)
+ {
+  section = s;
+  accNo = s.getAcc();
+ }
+
  public Section getSection()
  {
   return section;
