@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.pagetab.context;
 
 import java.util.Collection;
+import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -24,6 +25,11 @@ public class VoidContext extends BlockContext
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {
   throw new UnsupportedOperationException("getAttributeTagRefFactory at VoidContext");
+ }
+
+ @Override
+ public void parseFirstLine(List<String> parts, int lineNo)
+ {
  }
 
 }

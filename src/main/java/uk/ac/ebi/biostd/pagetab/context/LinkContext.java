@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.pagetab.context;
 
 import java.util.Collection;
+import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -8,20 +9,45 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.LinkAttribute;
 import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.LinkAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.LinkTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
+import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.treelog.LogNode;
+import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
 public class LinkContext extends BlockContext
 {
 
+ 
  private final Link link;
  
- public LinkContext(Link ln)
+ private LogNode log;
+ private PageTabSyntaxParser2 parser;
+ 
+ public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln)
  {
-  super(BlockType.SECTION);
+  super(BlockType.LINK);
   
-  link = ln;
+  link = lnk;
  }
 
+ @Override
+ public void parseFirstLine( List<String> cells, int ln )
+ {
+  String nm = null;
+  
+  if( cells.size() > 1 )
+   nm = cells.get(1).trim();
+  
+  if(nm != null && nm.length() > 0)
+   link.setUrl(nm);
+  else
+   log.log(Level.ERROR, "(R" + ln + ",C2) File name missing");
+
+  link.setAccessTags(parser.processAccessTags(cells, ln, 3, log));
+  link.setTagRefs(parser.processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));
+ }
+ 
  public Link getLink()
  {
   return link;

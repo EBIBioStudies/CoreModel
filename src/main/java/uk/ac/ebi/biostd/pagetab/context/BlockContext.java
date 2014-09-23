@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.pagetab.context;
 
 import java.util.Collection;
+import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -53,5 +54,8 @@ public abstract class BlockContext
  public void finish()
  {
  }
+
+ public abstract void parseFirstLine(List<String> parts, int lineNo);
+
  
 }

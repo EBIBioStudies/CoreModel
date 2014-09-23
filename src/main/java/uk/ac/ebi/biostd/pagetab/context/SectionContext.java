@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.pagetab.context;
 
 import java.util.Collection;
+import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -8,18 +9,25 @@ import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
+import uk.ac.ebi.biostd.model.trfactory.SectionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
+import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SectionContext extends BlockContext
 {
 
  private final Section section;
+ private final LogNode log;
+ private final PageTabSyntaxParser2 parser;
  
- protected SectionContext(Section sec)
+ protected SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln)
  {
   super(BlockType.SECTION);
   
   section = sec;
+  parser=prs;
+  log = sln;
  }
 
  public Section getSection()
@@ -48,6 +56,27 @@ public class SectionContext extends BlockContext
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {
   return SectionAttributeTagRefFactory.getInstance();
+ }
+
+ @Override
+ public void parseFirstLine(List<String> cells, int ln)
+ {
+  String acc = null;
+  
+  if( cells.size() > 1 )
+   acc = cells.get(1).trim();
+   
+  if( acc != null && acc.length() > 0 )
+   section.setAcc( acc );
+
+  if( cells.size() > 2 )
+   acc = cells.get(2).trim();
+   
+  if( acc != null && acc.length() > 0 )
+   section.setParentAcc(acc);
+ 
+  section.setAccessTags( parser.processAccessTags(cells, ln, 4, log) );
+  section.setTagRefs( parser.processTags(cells, ln, 5, SectionTagRefFactory.getInstance(),log) );
  }
  
 }
