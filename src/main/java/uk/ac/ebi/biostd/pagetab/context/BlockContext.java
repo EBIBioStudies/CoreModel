@@ -49,5 +49,9 @@ public abstract class BlockContext
  public abstract AbstractAttribute addAttribute( String nm, String val, Collection<? extends TagRef> tags );
 
  public abstract TagReferenceFactory<?> getAttributeTagRefFactory();
+
+ public void finish()
+ {
+ }
  
 }

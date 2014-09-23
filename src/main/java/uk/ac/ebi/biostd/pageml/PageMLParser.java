@@ -19,6 +19,7 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
+import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 
@@ -140,7 +141,13 @@ public class PageMLParser extends DefaultHandler
    String nameQ = atts.getValue(PageMLAttributes.NAMEQ.getAttrName());
    String valueQ = atts.getValue(PageMLAttributes.VALUEQ.getAttrName());
    
-   AbstractAttribute at = ((Annotated)contextObj).addAttribute(name, null, nameQ, valueQ);
+   AbstractAttribute at = ((Annotated)contextObj).addAttribute(name, null);
+   
+   if( nameQ != null && nameQ.length() > 0 && valueQ != null && valueQ.length() > 0 )
+    at.addQualifier( new Qualifier(nameQ,valueQ) );
+
+   //TODO Need a format for multiple qualifiers;
+   
    
    context.push( PageMLElements.ATTRIBUTE );
    contextObjStk.push( at );

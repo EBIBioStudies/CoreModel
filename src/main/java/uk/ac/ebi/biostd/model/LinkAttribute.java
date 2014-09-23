@@ -21,10 +21,6 @@ public class LinkAttribute extends AbstractAttribute
   super(name,value);
  }
  
- public LinkAttribute(String name, String value, String nameQual, String valQual)
- {
-  super(name, value, nameQual, valQual);
- }
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="link_id")

@@ -90,13 +90,7 @@ public class FileRef implements Annotated, Classified, SecurityObject
  @Override
  public AbstractAttribute addAttribute(String name, String value)
  {
-  return addAttribute(name, value, null, null);
- }
-
- @Override
- public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
- {
-  FileAttribute sa = new FileAttribute( name, value, nameQual, valQual );
+  FileAttribute sa = new FileAttribute( name, value );
   
   addAttribute(sa);
   

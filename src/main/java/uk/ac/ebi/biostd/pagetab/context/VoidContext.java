@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.pagetab.context;
 import java.util.Collection;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 
 public class VoidContext extends BlockContext
@@ -14,7 +15,7 @@ public class VoidContext extends BlockContext
  }
 
  @Override
- public void addAttribute(String nm, String val, String nameQ, String valQ, Collection< ? extends TagRef> tags)
+ public AbstractAttribute addAttribute(String nm, String val, Collection< ? extends TagRef> tags)
  {
   throw new UnsupportedOperationException("addAttribute at VoidContext");
  }

@@ -98,16 +98,11 @@ public class Link implements Annotated, Classified, SecurityObject
   hostSection = pr;
  }
  
+
  @Override
  public AbstractAttribute addAttribute(String name, String value)
  {
-  return addAttribute(name, value, null, null);
- }
-
- @Override
- public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
- {
-  LinkAttribute sa = new LinkAttribute( name, value, nameQual, valQual );
+  LinkAttribute sa = new LinkAttribute( name, value );
   
   addAttribute(sa);
   

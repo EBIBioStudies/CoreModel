@@ -234,16 +234,11 @@ public class Section implements Annotated, Classified, SecurityObject
 
  }
 
- @Override
- public AbstractAttribute addAttribute(String name, String value)
- {
-  return addAttribute(name, value, null, null);
- }
 
  @Override
- public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
+ public AbstractAttribute addAttribute( String name, String value )
  {
-  SectionAttribute sa = new SectionAttribute( name, value, nameQual, valQual );
+  SectionAttribute sa = new SectionAttribute( name, value );
   
   addAttribute(sa);
   

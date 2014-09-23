@@ -115,16 +115,11 @@ public class Submission implements Annotated, SecurityObject, Classified
   rootSection.setSubmission(this);
  }
 
+
  @Override
  public AbstractAttribute addAttribute(String name, String value)
  {
-  return addAttribute(name, value, null, null);
- }
-
- @Override
- public AbstractAttribute addAttribute(String name, String value, String nameQual, String valQual)
- {
-  SubmissionAttribute sa = new SubmissionAttribute( name, value, nameQual, valQual );
+  SubmissionAttribute sa = new SubmissionAttribute( name, value);
   
   addAttribute(sa);
   

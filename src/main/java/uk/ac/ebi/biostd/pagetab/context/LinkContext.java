@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.pagetab.context;
 import java.util.Collection;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.LinkAttribute;
 import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
@@ -28,19 +29,19 @@ public class LinkContext extends BlockContext
 
  @SuppressWarnings("unchecked")
  @Override
- public void addAttribute(String nm, String val, String nameQ, String valQ, Collection< ? extends TagRef> tags)
+ public AbstractAttribute addAttribute(String nm, String val, Collection< ? extends TagRef> tags)
  {
   LinkAttribute attr = new LinkAttribute();
   
   attr.setName(nm);
   attr.setValue(val);
-  attr.setNameQualifier(nameQ);
-  attr.setValueQualifier(valQ);
 
   attr.setTagRefs((Collection<LinkAttributeTagRef>)tags);
 
   attr.setHost(link);
-  link.addAttribute(attr);  
+  link.addAttribute(attr);
+  
+  return attr;
  }
 
  @Override
