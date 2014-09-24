@@ -40,7 +40,7 @@ public class PageTabSyntaxParser2
  public static final String GeneratedAccNoPattern = "(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?";
  public static final String NameQualifierPattern  = "\\<(?<nameq>[^>]+)\\>";
  public static final String ValueQualifierPattern = "\\[(?<valueq>[^>]+)\\]";
- public static final String TableBlockPattern     = "(?<name>[^[]+)\\[(?<parent>[^\\]])?\\]";
+ public static final String TableBlockPattern     = "(?<name>[^\\s[]+)\\[(?<parent>[^\\]])?\\]";
 
  public static final String SubmissionKeyword     = "Submission";
  public static final String FileKeyword           = "File";
@@ -98,6 +98,9 @@ public class PageTabSyntaxParser2
    if( context.getBlockType() == BlockType.NONE )
    {
     String c0 = parts.get(0).trim();
+
+    if( c0.length() == 0 )
+     ln.log(Level.ERROR, "(R"+lineNo+",C1) Empty cell is not expected here. Should be a block type");
     
     if( c0.equals(SubmissionKeyword) )
     {
@@ -144,6 +147,23 @@ public class PageTabSyntaxParser2
      
      if( tableBlockMtch.matches() )
      {
+      String sName = tableBlockMtch.group("name").trim();
+      String pAcc = tableBlockMtch.group("parent").trim();
+
+      LogNode sln = ln.branch("(R"+lineNo+",C1) Processing '"+sName+"' table block");
+      
+      Section pSec = lastSection;
+      
+      if( pAcc.length() > 0 )
+      {
+       SectionRef pSecRef = secMap.get( pAcc );
+       
+       if( pSec == null )
+        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
+
+      }
+      
+      context = new SectionTableContext(this, sln);
       
      }
      else
@@ -160,7 +180,7 @@ public class PageTabSyntaxParser2
         subm.setRootSection(s);
       }
       
-      context = new SectionContext( s, this, sln);
+      context = new SectionContext( s, this, sln );
       
       s.setType(c0);
       
