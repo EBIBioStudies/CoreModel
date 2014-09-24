@@ -5,26 +5,32 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
+import uk.ac.ebi.biostd.model.Section;
+import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
+import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.treelog.LogNode;
 
-public class VoidContext extends BlockContext
+public class SectionTableContext extends BlockContext
 {
 
- public VoidContext()
+ 
+ public SectionTableContext(String sName, Section pSec, PageTabSyntaxParser2 prs, LogNode sln)
  {
-  super(BlockType.NONE,null);
+  super(BlockType.SECTABLE,prs);
  }
 
  @Override
  public AbstractAttribute addAttribute(String nm, String val, Collection< ? extends TagRef> tags)
  {
-  throw new UnsupportedOperationException("addAttribute at VoidContext");
+  // TODO Auto-generated method stub
+  return null;
  }
 
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {
-  throw new UnsupportedOperationException("getAttributeTagRefFactory at VoidContext");
+  return SectionAttributeTagRefFactory.getInstance();
  }
 
  @Override
@@ -35,6 +41,8 @@ public class VoidContext extends BlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  String atName = parts.get(0);
+  
  }
 
 }

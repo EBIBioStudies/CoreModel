@@ -22,11 +22,10 @@ public class LinkContext extends BlockContext
  private final Link link;
  
  private LogNode log;
- private PageTabSyntaxParser2 parser;
  
  public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln)
  {
-  super(BlockType.LINK);
+  super(BlockType.LINK,pars);
   
   link = lnk;
  }
@@ -44,8 +43,8 @@ public class LinkContext extends BlockContext
   else
    log.log(Level.ERROR, "(R" + ln + ",C2) File name missing");
 
-  link.setAccessTags(parser.processAccessTags(cells, ln, 3, log));
-  link.setTagRefs(parser.processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));
+  link.setAccessTags(getParser().processAccessTags(cells, ln, 3, log));
+  link.setTagRefs(getParser().processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));
  }
  
  public Link getLink()

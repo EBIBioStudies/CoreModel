@@ -21,11 +21,10 @@ public class SubmissionContext extends BlockContext
  private final Submission submission;
  
  private LogNode log;
- private PageTabSyntaxParser2 parser;
 
  public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln )
  {
-  super(BlockType.SUBMISSION);
+  super(BlockType.SUBMISSION, pars);
  
   submission = sbm;
  }
@@ -43,8 +42,8 @@ public class SubmissionContext extends BlockContext
    else
     log.log(Level.ERROR, "(R"+ln+",C2) Missing submission ID");
 
-   submission.setAccessTags( parser.processAccessTags(cells, ln, 3, log) );
-   submission.setTagRefs( parser.processTags(cells, ln, 4, SubmissionTagRefFactory.getInstance(),log) );
+   submission.setAccessTags( getParser().processAccessTags(cells, ln, 3, log) );
+   submission.setTagRefs( getParser().processTags(cells, ln, 4, SubmissionTagRefFactory.getInstance(),log) );
 
  }
  

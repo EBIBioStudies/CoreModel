@@ -19,12 +19,11 @@ public class FileContext extends BlockContext
 {
  
  private LogNode log;
- private PageTabSyntaxParser2 parser;
  private final FileRef fileRef;
  
  public FileContext(FileRef fr, PageTabSyntaxParser2 pars, LogNode sln)
  {
-  super(BlockType.FILE);
+  super(BlockType.FILE, pars);
   
   fileRef = fr;
  }
@@ -42,8 +41,8 @@ public class FileContext extends BlockContext
   else
    log.log(Level.ERROR, "(R" + ln + ",C2) File name missing");
 
-  fileRef.setAccessTags(parser.processAccessTags(cells, ln, 3, log));
-  fileRef.setTagRefs(parser.processTags(cells, ln, 4, FileTagRefFactory.getInstance(), log));
+  fileRef.setAccessTags(getParser().processAccessTags(cells, ln, 3, log));
+  fileRef.setTagRefs(getParser().processTags(cells, ln, 4, FileTagRefFactory.getInstance(), log));
  }
  
  public FileRef getFileRef()

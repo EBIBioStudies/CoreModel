@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +27,16 @@ abstract public class AbstractAttribute
  private static final Pattern escQS = Pattern.compile(QUALIFIERS_SEPARATOR);
  private static final Pattern escQV = Pattern.compile(QUALIFIER_VALUE_SEPARATOR);
  
- private Collection<Qualifier> quals;
+ private Collection<Qualifier> nameQualifiers;
+ private Collection<Qualifier> valueQualifiers;
  
  @Lob
  @Basic
- private String qualifierString;
+ private String nameQualifierString;
+
+ @Lob
+ @Basic
+ private String valueQualifierString;
  
  public AbstractAttribute()
  {}
@@ -66,17 +72,140 @@ abstract public class AbstractAttribute
   this.name = name;
  }
  
- public Collection<Qualifier> getQualifiers()
+ public Collection<Qualifier> getNameQualifiers()
  {
-  if( quals != null )
-   return quals;
+  if( nameQualifiers != null )
+   return nameQualifiers;
   
-  if( qualifierString == null )
+  if( nameQualifierString == null )
    return null;
   
-  String[] qus = qStrSplit.split(qualifierString);
   
-  quals = new ArrayList<>(qus.length);
+  nameQualifiers = strToQualifiers( nameQualifierString );
+  
+  return nameQualifiers;
+ }
+ 
+
+ public void setNameQualifiers( Collection<Qualifier> qs )
+ {
+  nameQualifiers = qs;
+  
+  nameQualifierString = qualifiersToStr(qs);
+ }
+ 
+ public void addNameQualifier( Qualifier q )
+ {
+  nameQualifierString = addQualifierToStr(nameQualifierString, q);
+  
+  if( nameQualifiers == null )
+   nameQualifiers = new ArrayList<>();
+   
+  nameQualifiers.add( q );
+ }
+ 
+ 
+ public Collection<Qualifier> getValueQualifiers()
+ {
+  if( valueQualifiers != null )
+   return valueQualifiers;
+  
+  if( valueQualifierString == null )
+   return null;
+  
+  
+  valueQualifiers = strToQualifiers(valueQualifierString );
+  
+  return valueQualifiers;
+ }
+ 
+
+ public void setValueQualifiers( Collection<Qualifier> qs )
+ {
+  valueQualifiers = qs;
+  
+  valueQualifierString = qualifiersToStr(qs);
+ }
+ 
+ public void addValueQualifier( Qualifier q )
+ {
+  valueQualifierString = addQualifierToStr(valueQualifierString, q);
+  
+  if( valueQualifiers == null )
+   valueQualifiers = new ArrayList<>();
+   
+   valueQualifiers.add( q );
+ }
+
+ 
+ public String getValue()
+ {
+  return value;
+ }
+ String value;
+
+ public void setValue(String value)
+ {
+  this.value = value;
+ }
+
+ 
+ public double getNumValue()
+ {
+  return numValue;
+ }
+ double numValue;
+
+ public void setNumValue(double numValue)
+ {
+  this.numValue = numValue;
+ }
+
+ private String addQualifierToStr( String str, Qualifier q )
+ {
+  StringBuilder sb = new StringBuilder();
+  
+  Matcher qvMatcher = escQV.matcher("");
+  Matcher qsMatcher = escQS.matcher("");
+  
+  if( str != null && str.length() > 0 )
+   sb.append(str).append(QUALIFIERS_SEPARATOR);
+  
+  sb.append( qsMatcher.reset( qvMatcher.reset(q.getName()).replaceAll("\\\\"+QUALIFIER_VALUE_SEPARATOR) ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
+  sb.append(QUALIFIER_VALUE_SEPARATOR);
+  sb.append( qsMatcher.reset( q.getValue() ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
+
+  return sb.toString();
+ }
+ 
+ private String qualifiersToStr( Collection<Qualifier> qs )
+ {
+  if( qs == null || qs.size() == 0 )
+   return null;
+  
+  StringBuilder sb = new StringBuilder();
+  
+  Matcher qvMatcher = escQV.matcher("");
+  Matcher qsMatcher = escQS.matcher("");
+  
+  for( Qualifier q : qs )
+  {
+   sb.append( qsMatcher.reset( qvMatcher.reset(q.getName()).replaceAll("\\\\"+QUALIFIER_VALUE_SEPARATOR) ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
+   sb.append(QUALIFIER_VALUE_SEPARATOR);
+   sb.append( qsMatcher.reset( q.getValue() ).replaceAll(QUALIFIERS_SEPARATOR) );
+   sb.append(QUALIFIERS_SEPARATOR);
+  }
+  
+  sb.setLength(sb.length() - QUALIFIERS_SEPARATOR.length() );
+  
+  return sb.toString();
+ }
+ 
+ private List<Qualifier> strToQualifiers( String str )
+ {
+  String[] qus = qStrSplit.split(str);
+  
+  List<Qualifier> res = new ArrayList<>(qus.length);
   
   for( String s : qus )
   {
@@ -103,96 +232,13 @@ abstract public class AbstractAttribute
     pos = pos + QUALIFIER_VALUE_SEPARATOR.length();
    }
    
-   quals.add( new Qualifier(nm,vl) );
-  }
-
-  
-  return quals;
- }
- 
-
- public void setNameQualifiers( Collection<Qualifier> qs )
- {
-  quals = qs;
-  
-  if( qs == null || qs.size() == 0 )
-   return;
-  
-  StringBuilder sb = new StringBuilder();
-  
-  Matcher qvMatcher = escQV.matcher("");
-  Matcher qsMatcher = escQS.matcher("");
-  
-  for( Qualifier q : qs )
-  {
-   sb.append( qsMatcher.reset( qvMatcher.reset(q.getName()).replaceAll("\\\\"+QUALIFIER_VALUE_SEPARATOR) ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
-   sb.append(QUALIFIER_VALUE_SEPARATOR);
-   sb.append( qsMatcher.reset( q.getValue() ).replaceAll(QUALIFIERS_SEPARATOR) );
-   sb.append(QUALIFIERS_SEPARATOR);
+   res.add( new Qualifier(nm,vl) );
   }
   
-  sb.setLength(sb.length() - QUALIFIERS_SEPARATOR.length() );
-  
-  qualifierString = sb.toString();
+  return res;
  }
  
- public void addQualifier( Qualifier q )
- {
-  StringBuilder sb = new StringBuilder();
-  
-  Matcher qvMatcher = escQV.matcher("");
-  Matcher qsMatcher = escQS.matcher("");
-  
-  if( qualifierString != null && qualifierString.length() > 0 )
-   sb.append(qualifierString).append(QUALIFIERS_SEPARATOR);
-  
-  sb.append( qsMatcher.reset( qvMatcher.reset(q.getName()).replaceAll("\\\\"+QUALIFIER_VALUE_SEPARATOR) ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
-  sb.append(QUALIFIER_VALUE_SEPARATOR);
-  sb.append( qsMatcher.reset( q.getValue() ).replaceAll("\\\\"+QUALIFIERS_SEPARATOR) );
-
-  qualifierString = sb.toString();
-  
-  if( quals == null )
-   quals = new ArrayList<>();
-   
-  quals.add( q );
- }
-
  
- public String getValue()
- {
-  return value;
- }
- String value;
-
- public void setValue(String value)
- {
-  this.value = value;
- }
-
- public String getValueQualifier()
- {
-  return valueQualifier;
- }
- String valueQualifier;
-
- public void setValueQualifier(String value)
- {
-  this.valueQualifier = value;
- }
-
- 
- public double getNumValue()
- {
-  return numValue;
- }
- double numValue;
-
- public void setNumValue(double numValue)
- {
-  this.numValue = numValue;
- }
-
  @Transient
  public abstract Collection<? extends TagRef> getTagRefs();
  
