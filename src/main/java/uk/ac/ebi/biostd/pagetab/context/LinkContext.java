@@ -15,17 +15,16 @@ import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
-public class LinkContext extends BlockContext
+public class LinkContext extends VerticalBlockContext
 {
 
  
  private final Link link;
  
- private LogNode log;
  
  public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln)
  {
-  super(BlockType.LINK,pars);
+  super(BlockType.LINK,pars, sln);
   
   link = lnk;
  }
@@ -41,7 +40,7 @@ public class LinkContext extends BlockContext
   if(nm != null && nm.length() > 0)
    link.setUrl(nm);
   else
-   log.log(Level.ERROR, "(R" + ln + ",C2) File name missing");
+   log.log(Level.ERROR, "(R" + ln + ",C2) URL missing");
 
   link.setAccessTags(getParser().processAccessTags(cells, ln, 3, log));
   link.setTagRefs(getParser().processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));

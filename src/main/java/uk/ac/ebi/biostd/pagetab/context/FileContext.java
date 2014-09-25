@@ -15,15 +15,14 @@ import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
-public class FileContext extends BlockContext
+public class FileContext extends VerticalBlockContext
 {
  
- private LogNode log;
  private final FileRef fileRef;
  
  public FileContext(FileRef fr, PageTabSyntaxParser2 pars, LogNode sln)
  {
-  super(BlockType.FILE, pars);
+  super(BlockType.FILE, pars, sln);
   
   fileRef = fr;
  }

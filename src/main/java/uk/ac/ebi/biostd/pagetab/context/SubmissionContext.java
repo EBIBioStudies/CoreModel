@@ -15,16 +15,15 @@ import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
-public class SubmissionContext extends BlockContext
+public class SubmissionContext extends VerticalBlockContext
 {
 
  private final Submission submission;
  
- private LogNode log;
 
  public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln )
  {
-  super(BlockType.SUBMISSION, pars);
+  super(BlockType.SUBMISSION, pars, sln);
  
   submission = sbm;
  }
