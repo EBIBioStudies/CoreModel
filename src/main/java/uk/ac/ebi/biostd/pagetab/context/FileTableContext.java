@@ -10,7 +10,6 @@ import uk.ac.ebi.biostd.model.FileAttributeTagRef;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.FileAttributeTagRefFactory;
-import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -51,7 +50,7 @@ public class FileTableContext extends TableBlockContext
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {
-  return SectionAttributeTagRefFactory.getInstance();
+  return FileAttributeTagRefFactory.getInstance();
  }
 
 
@@ -60,30 +59,15 @@ public class FileTableContext extends TableBlockContext
  {
   String acc = parts.get(0).trim();
   
-  current = new Section();
+  current = new FileRef();
   
-  current.setAcc( acc );
-  current.setType(secName);
+  current.setName( acc );
   
   super.parseLine(parts, lineNo);
 
-  parent.addSection(current);
+  parent.addFileRef(current);
   
  }
 
-
-
- @Override
- public TagReferenceFactory< ? > getAttributeTagRefFactory()
- {
-  return FileAttributeTagRefFactory.getInstance();
- }
-
- @Override
- public void parseFirstLine(List<String> parts, int lineNo)
- {
-  // TODO Auto-generated method stub
-  
- }
 
 }
