@@ -7,9 +7,7 @@ public enum PageMLAttributes
  CLASS( "class" ),
  TYPE( "type" ),
  URL( "url" ),
- NAME( "name" ),
- NAMEQ( "nameQualifier" ),
- VALUEQ( "valueQualifier" );
+ NAME( "name" );
  
  private PageMLAttributes( String el )
  {

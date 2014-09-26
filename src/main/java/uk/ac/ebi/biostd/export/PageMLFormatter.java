@@ -4,10 +4,8 @@ import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ACCESS;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.CLASS;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ID;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.NAME;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.NAMEQ;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.TYPE;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.URL;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.VALUEQ;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.ATTRIBUTE;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.ATTRIBUTES;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.FILE;
@@ -16,6 +14,7 @@ import static uk.ac.ebi.biostd.pageml.PageMLElements.LINK;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.LINKS;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.SECTION;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBSECTIONS;
+import static uk.ac.ebi.biostd.pageml.PageMLElements.TABLE;
 import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
@@ -26,8 +25,10 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
+import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.pageml.PageMLElements;
 
 public class PageMLFormatter implements Formatter
 {
@@ -114,9 +115,41 @@ public class PageMLFormatter implements Formatter
   out.append(shift);
   out.append("<").append(SUBSECTIONS.getElementName()).append(">\n");
  
+  boolean hasTable=false;
+  
   for( Section ssec : lst )
-   formatSection(ssec, out, contShift);
+  {
+   if( ssec.getTableIndex() >=0 )
+   {
+    if( ! hasTable )
+    {
+     out.append(contShift);
+     out.append("<").append(TABLE.getElementName()).append(">\n");
 
+     contShift = contShift + shiftSym;
+     hasTable = true;
+    }
+   }
+   else if( hasTable )
+   {
+    contShift = shift+shiftSym;
+
+    out.append(contShift);
+    out.append("</").append(TABLE.getElementName()).append(">\n");
+    
+    hasTable = false;
+   }
+   
+   formatSection(ssec, out, contShift);
+  }
+  
+  
+  if( hasTable )
+  {
+   out.append(shift);
+   out.append("</").append(TABLE.getElementName()).append(">\n");
+  }
+  
   out.append(shift);
   out.append("</").append(SUBSECTIONS.getElementName()).append(">\n");
  }
@@ -254,38 +287,55 @@ public class PageMLFormatter implements Formatter
    out.append('<').append(ATTRIBUTE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
    xmlEscaped(at.getName());
 
-//   out.append("\" value=\"");
-//   xmlEscaped(at.getValue());
-   
+ 
    String str = at.getEntityClass();
    if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
     xmlEscaped(str);
    }
-
    
-   if( at.getNameQualifier() != null && at.getNameQualifier().length() > 0 )
+   out.append("\">\n");
+   
+   String vshift = atShift+shiftSym;
+   
+   List<Qualifier> qlist = at.getNameQualifiers();
+   
+   if( qlist != null && qlist.size() > 0 )
    {
-    out.append("\" ").append(NAMEQ.getAttrName()).append("=\"");
-    xmlEscaped(at.getNameQualifier());
+    for( Qualifier q : qlist )
+     formatQualifier(q, PageMLElements.NMQUALIFIER.getElementName(), out, vshift);
+   }
+   
+   qlist = at.getValueQualifiers();
+   
+   if( qlist != null && qlist.size() > 0 )
+   {
+    for( Qualifier q : qlist )
+     formatQualifier(q, PageMLElements.VALQUALIFIER.getElementName(), out, vshift);
    }
 
-   if( at.getValueQualifier() != null && at.getValueQualifier().length() > 0 )
-   {
-    out.append("\" ").append(VALUEQ.getAttrName()).append("=\"");
-    xmlEscaped(at.getValueQualifier());
-   }
-   
-   out.append("\">");
+   out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
    xmlEscaped(at.getValue());
+   out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
+   
+   out.append(atShift);
    out.append("</").append(ATTRIBUTE.getElementName()).append(">\n");
-
 
   }
 
   out.append(shift);
   out.append("</").append(ATTRIBUTES.getElementName()).append(">\n");
   
+ }
+ 
+ private void formatQualifier(Qualifier q, String xmltag, Appendable out, String shift ) throws IOException
+ {
+  out.append(shift).append('<').append(xmltag)
+  .append(' ').append(NAME.getAttrName()).append("=\"");
+  xmlEscaped(q.getName());
+  out.append("\">");
+  xmlEscaped(q.getValue());
+  out.append("</").append(xmltag).append(">\n");
  }
 }

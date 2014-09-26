@@ -40,7 +40,7 @@ public abstract class TableBlockContext extends BlockContext
   
   for(int i=1; i < parts.size(); i++ )
   {
-   String nm = parts.get(0).trim();
+   String nm = parts.get(i).trim();
    
    if( nm.length() == 0 )
    {

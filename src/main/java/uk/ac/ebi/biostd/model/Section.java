@@ -46,6 +46,7 @@ public class Section implements Annotated, Classified, SecurityObject
   parentAcc = pa;
  }
  
+ 
  @Override
  @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
  @OrderColumn(name="ord",insertable=true)
@@ -311,5 +312,17 @@ public class Section implements Annotated, Classified, SecurityObject
    accessTags = new ArrayList<>();
    
   accessTags.add(t);
+ }
+
+ public int getTableIndex()
+ {
+  return tableIndex;
+ }
+ private int tableIndex = -1;
+ 
+
+ public void setTableIndex(int tableIndex)
+ {
+  this.tableIndex = tableIndex;
  }
 }

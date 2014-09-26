@@ -23,6 +23,11 @@ public class AccPatTest
   
   System.out.println(str+" matches "+PageTabSyntaxParser2.ValueQualifierRx+" : "+Pattern.compile(PageTabSyntaxParser2.ValueQualifierRx).matcher(str).matches());
 
+  str = "aa[ bb ]";
+  
+  System.out.println(str+" matches "+PageTabSyntaxParser2.TableBlockRx+" : "+Pattern.compile(PageTabSyntaxParser2.TableBlockRx).matcher(str).matches());
+
+  
   Pattern pat = Pattern.compile(GeneratedAccNoPattern);
   
   Matcher mtch = pat.matcher("");

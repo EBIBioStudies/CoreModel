@@ -20,6 +20,7 @@ public class LinkTableContext extends TableBlockContext
  private final Section parent;
  private Link current;
 
+ private int tableIdx=-1;
  
  public LinkTableContext(Section pSec, PageTabSyntaxParser2 prs, LogNode sln)
  {
@@ -56,11 +57,13 @@ public class LinkTableContext extends TableBlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  tableIdx++;
   String acc = parts.get(0).trim();
   
   current = new Link();
   
   current.setUrl( acc );
+  current.setTableIndex(tableIdx);
   
   super.parseLine(parts, lineNo);
 

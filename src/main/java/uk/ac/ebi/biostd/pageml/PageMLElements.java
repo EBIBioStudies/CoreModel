@@ -11,7 +11,11 @@ public enum PageMLElements
  LINKS( "links" ),
  LINK( "link" ),
  ATTRIBUTES( "attributes" ),
- ATTRIBUTE( "attribute" );
+ ATTRIBUTE( "attribute" ),
+ TABLE( "table" ),
+ NMQUALIFIER("nmqual"),
+ VALQUALIFIER("valqual"),
+ VALUE("value");
  
  private PageMLElements( String el )
  {

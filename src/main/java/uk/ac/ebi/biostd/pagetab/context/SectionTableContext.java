@@ -20,6 +20,7 @@ public class SectionTableContext extends TableBlockContext
  private final Section parent;
  
  private Section current;
+ private int tableIdx=-1;
  
  
  public SectionTableContext(String sName, Section pSec, PageTabSyntaxParser2 prs, LogNode sln)
@@ -58,12 +59,14 @@ public class SectionTableContext extends TableBlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  tableIdx++;
   String acc = parts.get(0).trim();
   
   current = new Section();
   
   current.setAcc( acc );
   current.setType(secName);
+  current.setTableIndex(tableIdx);
   
   super.parseLine(parts, lineNo);
 

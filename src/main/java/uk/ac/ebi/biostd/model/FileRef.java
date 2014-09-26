@@ -163,4 +163,16 @@ public class FileRef implements Annotated, Classified, SecurityObject
    
   accessTags.add(t);
  }
+ 
+ public int getTableIndex()
+ {
+  return tableIndex;
+ }
+ private int tableIndex = -1;
+ 
+
+ public void setTableIndex(int tableIndex)
+ {
+  this.tableIndex = tableIndex;
+ }
 }

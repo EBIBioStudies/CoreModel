@@ -21,6 +21,7 @@ public class FileTableContext extends TableBlockContext
  
  private FileRef current;
  
+ private int tableIdx=-1;
  
  public FileTableContext( Section pSec, PageTabSyntaxParser2 prs, LogNode sln )
  {
@@ -57,11 +58,14 @@ public class FileTableContext extends TableBlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  tableIdx++;
+  
   String acc = parts.get(0).trim();
   
   current = new FileRef();
   
   current.setName( acc );
+  current.setTableIndex(tableIdx);
   
   super.parseLine(parts, lineNo);
 

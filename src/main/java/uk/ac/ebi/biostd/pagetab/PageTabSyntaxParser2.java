@@ -40,7 +40,7 @@ public class PageTabSyntaxParser2
  public static final String GeneratedAccNoRx = "\\s*(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?\\s*";
  public static final String NameQualifierRx  = "\\s*<\\s*(?<name>[^\\s>]+)\\s*>\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\s>]+)\\s*\\]\\s*";
- public static final String TableBlockRx     = "\\s*(?<name>[^\\s[]+)\\[\\s*(?<parent>[^\\]])?\\s*\\]\\s*";
+ public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
 
  public static final String SubmissionKeyword     = "Submission";
  public static final String FileKeyword           = "File";
@@ -51,8 +51,6 @@ public class PageTabSyntaxParser2
  private final TagResolver  tagRslv;
  private final ParserConfig config;
 
- private final Matcher      nameQualMtch;
- private final Matcher      valueQualMtch;
  private final Matcher      tableBlockMtch;
  
  public static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx) ;
@@ -64,8 +62,7 @@ public class PageTabSyntaxParser2
  {
   tagRslv = tr;
 
-  nameQualMtch = Pattern.compile(NameQualifierRx).matcher("");
-  valueQualMtch = Pattern.compile(ValueQualifierRx).matcher("");
+
   tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
   
 
@@ -135,6 +132,9 @@ public class PageTabSyntaxParser2
      context = new FileContext(fr, this, sln);
 
      context.parseFirstLine(parts, lineNo);
+     
+     if(lastSection != null)
+      lastSection.addFileRef(fr);
     }
     else if(c0.equals(LinkKeyword))
     {
@@ -148,6 +148,9 @@ public class PageTabSyntaxParser2
      context = new LinkContext(lnk, this, sln);
 
      context.parseFirstLine(parts, lineNo);
+     
+     if(lastSection != null)
+      lastSection.addLink(lnk);
     }
     else if(c0.equals(LinkTableKeyword))
     {
@@ -176,7 +179,10 @@ public class PageTabSyntaxParser2
      if(tableBlockMtch.matches())
      {
       String sName = tableBlockMtch.group("name").trim();
-      String pAcc = tableBlockMtch.group("parent").trim();
+      String pAcc = tableBlockMtch.group("parent");
+      
+      if( pAcc != null )
+       pAcc = pAcc.trim();
 
       LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
 
@@ -185,7 +191,7 @@ public class PageTabSyntaxParser2
 
       Section pSec = lastSection;
 
-      if(pAcc.length() > 0)
+      if(pAcc != null && pAcc.length() > 0)
       {
        SectionRef pSecRef = secMap.get(pAcc);
 
@@ -216,6 +222,8 @@ public class PageTabSyntaxParser2
 
       context = new SectionContext(s, this, sln);
 
+      context.parseFirstLine(parts, lineNo);
+      
       s.setType(c0);
 
       if(s.getAcc() != null)
@@ -235,7 +243,7 @@ public class PageTabSyntaxParser2
        else
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + s.getParentAcc() + "' not found");
       }
-      else
+      else if( lastSection != null )
        lastSection.addSection(s);
 
       lastSection = s;
@@ -266,7 +274,7 @@ public class PageTabSyntaxParser2
  
  public <T extends TagRef> List<T> processTags(List<String> cells, int r, int c, TagReferenceFactory<T> tagRefFact, LogNode ln)
  {
-  String cell = cells.size() >= c ?cells.get(c).trim():null;
+  String cell = cells.size() >= c ?cells.get(c-1).trim():null;
   
   List<T> tags = null;
   

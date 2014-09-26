@@ -27,8 +27,8 @@ abstract public class AbstractAttribute
  private static final Pattern escQS = Pattern.compile(QUALIFIERS_SEPARATOR);
  private static final Pattern escQV = Pattern.compile(QUALIFIER_VALUE_SEPARATOR);
  
- private Collection<Qualifier> nameQualifiers;
- private Collection<Qualifier> valueQualifiers;
+ private List<Qualifier> nameQualifiers;
+ private List<Qualifier> valueQualifiers;
  
  @Lob
  @Basic
@@ -72,7 +72,7 @@ abstract public class AbstractAttribute
   this.name = name;
  }
  
- public Collection<Qualifier> getNameQualifiers()
+ public List<Qualifier> getNameQualifiers()
  {
   if( nameQualifiers != null )
    return nameQualifiers;
@@ -87,7 +87,7 @@ abstract public class AbstractAttribute
  }
  
 
- public void setNameQualifiers( Collection<Qualifier> qs )
+ public void setNameQualifiers( List<Qualifier> qs )
  {
   nameQualifiers = qs;
   
@@ -105,7 +105,7 @@ abstract public class AbstractAttribute
  }
  
  
- public Collection<Qualifier> getValueQualifiers()
+ public List<Qualifier> getValueQualifiers()
  {
   if( valueQualifiers != null )
    return valueQualifiers;
@@ -120,7 +120,7 @@ abstract public class AbstractAttribute
  }
  
 
- public void setValueQualifiers( Collection<Qualifier> qs )
+ public void setValueQualifiers( List<Qualifier> qs )
  {
   valueQualifiers = qs;
   
@@ -264,5 +264,42 @@ abstract public class AbstractAttribute
    sb.setLength( sb.length()-1 );
   
   return sb.toString();
+ }
+ 
+ @Override
+ public String toString()
+ {
+  StringBuilder sb = new StringBuilder();
+  
+  sb.append(name);
+  
+  if( getNameQualifiers() != null && getNameQualifiers().size() > 0 )
+  {
+   sb.append('<');
+   
+   for( Qualifier q : getNameQualifiers() )
+    sb.append(q.getName()).append('=').append(q.getValue()).append(';');
+   
+   sb.setLength( sb.length()-1);
+   
+   sb.append('>');
+  }
+  
+  sb.append('=').append(value);
+  
+  if( getValueQualifiers() != null && getValueQualifiers().size() > 0 )
+  {
+   sb.append('[');
+   
+   for( Qualifier q : getValueQualifiers() )
+    sb.append(q.getName()).append('=').append(q.getValue()).append(';');
+   
+   sb.setLength( sb.length()-1);
+   
+   sb.append(']');
+  }
+  
+  return sb.toString();
+  
  }
 }
