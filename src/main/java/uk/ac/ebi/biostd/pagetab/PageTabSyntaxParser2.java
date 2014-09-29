@@ -27,6 +27,7 @@ import uk.ac.ebi.biostd.pagetab.context.SectionTableContext;
 import uk.ac.ebi.biostd.pagetab.context.SubmissionContext;
 import uk.ac.ebi.biostd.pagetab.context.VoidContext;
 import uk.ac.ebi.biostd.treelog.LogNode;
+import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.util.StringUtils;
 
@@ -36,6 +37,7 @@ public class PageTabSyntaxParser2
  public static final String TagSeparatorRX        = "[,;]";
  public static final String ClassifierSeparatorRX = ":";
  public static final String ValueTagSeparatorRX   = "=";
+ public static final String CommentPrefix   = "#";
 
  public static final String GeneratedAccNoRx = "\\s*(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?\\s*";
  public static final String NameQualifierRx  = "\\s*<\\s*(?<name>[^\\s>]+)\\s*>\\s*";
@@ -69,8 +71,10 @@ public class PageTabSyntaxParser2
   config = pConf;
  }
 
- public Submission parse( String txt, LogNode ln ) //throws ParserException
+ public List<Submission> parse( String txt, LogNode ln ) //throws ParserException
  {
+  List<Submission> res = new ArrayList<Submission>(10);
+  
   Submission subm = null;
 
   Map<String, SectionRef> secMap = new HashMap<>();
@@ -89,6 +93,12 @@ public class PageTabSyntaxParser2
   {
    lineNo++;
 
+   for( int i=0; i < parts.size(); i++ )
+   {
+    if( parts.get(i).startsWith(CommentPrefix) )
+     parts.set(i, "");
+   }
+   
    if(isEmptyLine(parts))
    {
     if(context.getBlockType() != BlockType.NONE)
@@ -111,7 +121,7 @@ public class PageTabSyntaxParser2
     {
      LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
 
-     if(subm != null)
+     if(subm != null && ! config.isMultipleSubmissions() )
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
 
      subm = new Submission();
@@ -119,6 +129,8 @@ public class PageTabSyntaxParser2
      context = new SubmissionContext(subm, this, sln);
 
      context.parseFirstLine(parts, lineNo);
+     
+     res.add(subm);
     }
     else if(c0.equals(FileKeyword))
     {
@@ -259,7 +271,9 @@ public class PageTabSyntaxParser2
 
   }
 
-  return subm;
+  SimpleLogNode.setLevels(ln);
+  
+  return res;
  }
  
  private static boolean isEmptyLine( List<String> parts )
