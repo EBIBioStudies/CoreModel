@@ -115,10 +115,22 @@ public class PageMLFormatter implements Formatter
   out.append(shift);
   out.append("<").append(SUBSECTIONS.getElementName()).append(">\n");
  
+  int lastTblIdx = -1;
+  
   boolean hasTable=false;
   
   for( Section ssec : lst )
   {
+   if( ssec.getTableIndex() < lastTblIdx && hasTable )
+   {
+    contShift = shift+shiftSym;
+
+    out.append(contShift);
+    out.append("</").append(TABLE.getElementName()).append(">\n");
+    
+    hasTable = false;
+   }   
+   
    if( ssec.getTableIndex() >=0 )
    {
     if( ! hasTable )
@@ -130,15 +142,8 @@ public class PageMLFormatter implements Formatter
      hasTable = true;
     }
    }
-   else if( hasTable )
-   {
-    contShift = shift+shiftSym;
 
-    out.append(contShift);
-    out.append("</").append(TABLE.getElementName()).append(">\n");
-    
-    hasTable = false;
-   }
+   lastTblIdx=ssec.getTableIndex();
    
    formatSection(ssec, out, contShift);
   }
@@ -146,7 +151,7 @@ public class PageMLFormatter implements Formatter
   
   if( hasTable )
   {
-   out.append(shift);
+   out.append(contShift);
    out.append("</").append(TABLE.getElementName()).append(">\n");
   }
   
@@ -161,8 +166,38 @@ public class PageMLFormatter implements Formatter
   
   String contShift = shift+shiftSym;
 
+  
+  
+  int lastTblIdx = -1;
+  
+  boolean hasTable=false;
+  
   for( Link ln : s.getLinks() )
   {
+   if( ln.getTableIndex() < lastTblIdx && hasTable )
+   {
+    contShift = shift+shiftSym;
+
+    out.append(contShift);
+    out.append("</").append(TABLE.getElementName()).append(">\n");
+    
+    hasTable = false;
+   }
+   
+   if( ln.getTableIndex() >=0 )
+   {
+    if( ! hasTable )
+    {
+     out.append(contShift);
+     out.append("<").append(TABLE.getElementName()).append(">\n");
+
+     contShift = contShift + shiftSym;
+     hasTable = true;
+    }
+   }
+   
+   lastTblIdx=ln.getTableIndex();
+   
    out.append(contShift);
    
    out.append('<').append(LINK.getElementName()).append(' ').append(URL.getAttrName()).append("=\"");
@@ -205,6 +240,12 @@ public class PageMLFormatter implements Formatter
 
   }
   
+  if( hasTable )
+  {
+   out.append(contShift);
+   out.append("</").append(TABLE.getElementName()).append(">\n");
+  }
+  
   out.append(shift);
   out.append("</").append(LINKS.getElementName()).append(">\n");
 
@@ -217,8 +258,36 @@ public class PageMLFormatter implements Formatter
   
   String contShift = shift+shiftSym;
 
+  int lastTblIdx = -1;
+  
+  boolean hasTable=false;
+  
   for( FileRef fr : s.getFileRefs() )
   {
+   if( fr.getTableIndex() < lastTblIdx && hasTable )
+   {
+    contShift = shift+shiftSym;
+
+    out.append(contShift);
+    out.append("</").append(TABLE.getElementName()).append(">\n");
+    
+    hasTable = false;
+   }   
+   
+   if( fr.getTableIndex() >=0 )
+   {
+    if( ! hasTable )
+    {
+     out.append(contShift);
+     out.append("<").append(TABLE.getElementName()).append(">\n");
+
+     contShift = contShift + shiftSym;
+     hasTable = true;
+    }
+   }
+
+   lastTblIdx=fr.getTableIndex();
+   
    out.append(contShift);
    
    out.append('<').append(FILE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
@@ -261,6 +330,13 @@ public class PageMLFormatter implements Formatter
    }
 
   }
+  
+  if( hasTable )
+  {
+   out.append(contShift);
+   out.append("</").append(TABLE.getElementName()).append(">\n");
+  }
+
   
   out.append(shift);
   out.append("</").append(FILES.getElementName()).append(">\n");
