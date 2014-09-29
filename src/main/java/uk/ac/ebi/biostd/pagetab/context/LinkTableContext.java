@@ -67,7 +67,8 @@ public class LinkTableContext extends TableBlockContext
   
   super.parseLine(parts, lineNo);
 
-  parent.addLink(current);
+  if( parent != null)
+   parent.addLink(current);
   
  }
 

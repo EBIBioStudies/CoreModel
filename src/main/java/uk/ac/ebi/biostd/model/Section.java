@@ -88,7 +88,7 @@ public class Section implements Annotated, Classified, SecurityObject
   if( sections != null )
   {
    for(Section s : sections )
-    s.setParentSection(this);
+    s.setSubmission(study);
   }
  }
 

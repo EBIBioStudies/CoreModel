@@ -27,8 +27,8 @@ import uk.ac.ebi.biostd.pagetab.context.SectionTableContext;
 import uk.ac.ebi.biostd.pagetab.context.SubmissionContext;
 import uk.ac.ebi.biostd.pagetab.context.VoidContext;
 import uk.ac.ebi.biostd.treelog.LogNode;
-import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
+import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.util.StringUtils;
 
 public class PageTabSyntaxParser2
@@ -71,7 +71,7 @@ public class PageTabSyntaxParser2
   config = pConf;
  }
 
- public List<Submission> parse( String txt, LogNode ln ) //throws ParserException
+ public List<Submission> parse( String txt, LogNode gln ) //throws ParserException
  {
   List<Submission> res = new ArrayList<Submission>(10);
   
@@ -88,6 +88,8 @@ public class PageTabSyntaxParser2
   int lineNo = 0;
 
   Section lastSection = null;
+  
+  LogNode ln=null;
 
   while(reader.readRow(parts) != null)
   {
@@ -119,16 +121,23 @@ public class PageTabSyntaxParser2
 
     if(c0.equals(SubmissionKeyword))
     {
-     LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
+     ln = gln.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
 
      if(subm != null && ! config.isMultipleSubmissions() )
-      sln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
+      ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
 
      subm = new Submission();
 
-     context = new SubmissionContext(subm, this, sln);
+     context = new SubmissionContext(subm, this, ln);
 
      context.parseFirstLine(parts, lineNo);
+     
+     if( subm.getAcc() != null )
+      ln.log(Level.INFO, "Submission AccNo: "+subm.getAcc());
+     
+     lastSection = null;
+     
+     secMap.clear();
      
      res.add(subm);
     }
@@ -271,7 +280,7 @@ public class PageTabSyntaxParser2
 
   }
 
-  SimpleLogNode.setLevels(ln);
+  SimpleLogNode.setLevels(gln);
   
   return res;
  }

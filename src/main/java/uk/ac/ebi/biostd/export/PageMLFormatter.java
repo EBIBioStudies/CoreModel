@@ -73,7 +73,7 @@ public class PageMLFormatter implements Formatter
     else
      out.append(';');
     
-    xmlEscaped(at.getName());
+    xmlEscaped(at.getName(),out);
    }
    
   }
@@ -151,7 +151,7 @@ public class PageMLFormatter implements Formatter
   
   if( hasTable )
   {
-   out.append(contShift);
+   out.append(shift+shiftSym);
    out.append("</").append(TABLE.getElementName()).append(">\n");
   }
   
@@ -201,13 +201,13 @@ public class PageMLFormatter implements Formatter
    out.append(contShift);
    
    out.append('<').append(LINK.getElementName()).append(' ').append(URL.getAttrName()).append("=\"");
-   xmlEscaped(ln.getUrl());
+   xmlEscaped(ln.getUrl(),out);
    
    String str = ln.getEntityClass();
    if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(str);
+    xmlEscaped(str,out);
    }
    
    if( ln.getAccessTags() != null && ln.getAccessTags().size() > 0 )
@@ -222,11 +222,11 @@ public class PageMLFormatter implements Formatter
      else
       out.append(';');
      
-     xmlEscaped(at.getName());
+     xmlEscaped(at.getName(),out);
     }
    }
    
-   if( ln.getAttributes() == null && ln.getAttributes().size() == 0 )
+   if( ln.getAttributes() == null || ln.getAttributes().size() == 0 )
     out.append("\"/>\n");
    else
    {
@@ -242,7 +242,7 @@ public class PageMLFormatter implements Formatter
   
   if( hasTable )
   {
-   out.append(contShift);
+   out.append(shift+shiftSym);
    out.append("</").append(TABLE.getElementName()).append(">\n");
   }
   
@@ -291,13 +291,13 @@ public class PageMLFormatter implements Formatter
    out.append(contShift);
    
    out.append('<').append(FILE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
-   xmlEscaped(fr.getName());
+   xmlEscaped(fr.getName(),out);
    
    String str = fr.getEntityClass();
    if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(str);
+    xmlEscaped(str,out);
    }
    
    if( fr.getAccessTags() != null && fr.getAccessTags().size() > 0 )
@@ -312,7 +312,7 @@ public class PageMLFormatter implements Formatter
      else
       out.append(';');
      
-     xmlEscaped(at.getName());
+     xmlEscaped(at.getName(),out);
     }
 
    }
@@ -333,7 +333,7 @@ public class PageMLFormatter implements Formatter
   
   if( hasTable )
   {
-   out.append(contShift);
+   out.append(shift+shiftSym);
    out.append("</").append(TABLE.getElementName()).append(">\n");
   }
 
@@ -356,19 +356,21 @@ public class PageMLFormatter implements Formatter
    out.append("/>\n");
    return;
   }
+  else
+   out.append(">\n");
 
   for( AbstractAttribute at : attrs )
   {
    out.append(atShift);
    out.append('<').append(ATTRIBUTE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
-   xmlEscaped(at.getName());
+   xmlEscaped(at.getName(),out);
 
  
    String str = at.getEntityClass();
    if( str != null && str.length() > 0 )
    {
     out.append("\" ").append(CLASS.getAttrName()).append("=\"");
-    xmlEscaped(str);
+    xmlEscaped(str,out);
    }
    
    out.append("\">\n");
@@ -392,7 +394,7 @@ public class PageMLFormatter implements Formatter
    }
 
    out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
-   xmlEscaped(at.getValue());
+   xmlEscaped(at.getValue(),out);
    out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
    
    out.append(atShift);
@@ -409,9 +411,9 @@ public class PageMLFormatter implements Formatter
  {
   out.append(shift).append('<').append(xmltag)
   .append(' ').append(NAME.getAttrName()).append("=\"");
-  xmlEscaped(q.getName());
+  xmlEscaped(q.getName(),out);
   out.append("\">");
-  xmlEscaped(q.getValue());
+  xmlEscaped(q.getValue(),out);
   out.append("</").append(xmltag).append(">\n");
  }
 }

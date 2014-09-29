@@ -741,7 +741,7 @@ public class StringUtils
  
 
  
- public static String xmlEscaped( String s )
+ public static String xmlEscapedSSS( String s )
  {
   StringBuilder sb = null;
   
@@ -807,10 +807,12 @@ public class StringUtils
   return replace(s, htmlPairs);
  }
  
- public static void splitExcelString(String line, String sep, List<String> accum)
+ public static boolean splitExcelString(String line, String sep, List<String> accum)
  {
   int spos;
   StringBuilder sb=null;
+  
+  boolean ok=true;
   
   while( line.length() > 0 )
   {
@@ -822,7 +824,7 @@ public class StringUtils
     if( spos < 0 )
     {
      accum.add(line);
-     return;
+     return true;
     }
     
     accum.add(line.substring(0,spos));
@@ -847,7 +849,7 @@ public class StringUtils
       else
        accum.add(line.substring(beg));
       
-      return;
+      return false;
      }
      else if( qpos == line.length()-1 )
      {
@@ -859,7 +861,7 @@ public class StringUtils
       else
        accum.add(line.substring(beg,line.length()-1));
 
-      return;
+      return true;
      }
      
      if( line.charAt(qpos+1) == '"' ) // We have found a double quote
@@ -893,12 +895,16 @@ public class StringUtils
        
        sb.append(line.substring(beg, qpos+1));
        beg = qpos+1;
+       
+       ok=false;
       }
      }
      
     }
    }
   }
+ 
+  return ok;
  }
 
  

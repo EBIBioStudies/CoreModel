@@ -74,7 +74,20 @@ public class SpreadsheetReader
   else
    accum.clear();
 
-  StringUtils.splitExcelString(line, columnSep, accum);
+  while( true ) // Reading cell that contains new line symbols (\n)
+  {
+   if( StringUtils.splitExcelString(line, columnSep, accum) )
+    break;
+   
+   accum.clear();
+   
+   String auxline = readLine();
+   
+   if( auxline == null )
+    return null;
+
+   line = line+auxline;
+  }
  
   return accum;
  }

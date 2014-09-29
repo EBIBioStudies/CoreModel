@@ -1,8 +1,11 @@
 package uk.ac.ebi.biostd.pagetab;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
+import uk.ac.ebi.biostd.export.PageMLFormatter;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.ErrorCounerImpl;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
@@ -20,21 +23,42 @@ public class TestPageTab
   */
  public static void main(String[] args) throws IOException
  {
-  String text = FileUtil.readFile(new File("e:/dev/temp/pagetab.txt") );
+  File in = new File("e:/dev/temp/data.txt");
+  
+  String text = FileUtil.readFile( in );
 
   ParserConfig cfg = new ParserConfig();
   PageTabSyntaxParser2 pars = new PageTabSyntaxParser2( null, cfg );
   
   ErrorCounter cnt = new ErrorCounerImpl();
   
-  SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "", cnt);
+  SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   
   
-  Submission sbm = pars.parse(text,ln);
+  List<Submission> sbm = pars.parse(text,ln);
    
-  System.out.println(sbm.getAcc());
+//  System.out.println(sbm.getAcc());
   
   printNode(ln,"");
+  
+  if( ln.getLevel() == Level.SUCCESS )
+  {
+   File xmlOut = new File( in.getParentFile(), "xmlout.xml");
+   
+   PageMLFormatter fmt = new PageMLFormatter();
+   
+   FileWriter out = new FileWriter(xmlOut);
+   
+   out.append("<data>\n");
+   
+   for( Submission s : sbm )
+    fmt.format(s, out);
+   
+   out.append("</data>\n");
+   
+   out.close();
+   
+  }
   
  }
 

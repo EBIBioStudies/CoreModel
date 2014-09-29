@@ -70,7 +70,8 @@ public class SectionTableContext extends TableBlockContext
   
   super.parseLine(parts, lineNo);
 
-  parent.addSection(current);
+  if( parent != null )
+   parent.addSection(current);
   
  }
 

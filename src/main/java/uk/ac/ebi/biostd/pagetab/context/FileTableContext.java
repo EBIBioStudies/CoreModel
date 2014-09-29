@@ -69,7 +69,8 @@ public class FileTableContext extends TableBlockContext
   
   super.parseLine(parts, lineNo);
 
-  parent.addFileRef(current);
+  if( parent != null )
+   parent.addFileRef(current);
   
  }
 

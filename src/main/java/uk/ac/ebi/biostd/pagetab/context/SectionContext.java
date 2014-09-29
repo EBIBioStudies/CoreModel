@@ -65,9 +65,11 @@ public class SectionContext extends VerticalBlockContext
   if( acc != null && acc.length() > 0 )
    section.setAcc( acc );
 
+  acc=null;
+
   if( cells.size() > 2 )
    acc = cells.get(2).trim();
-   
+  
   if( acc != null && acc.length() > 0 )
    section.setParentAcc(acc);
  
