@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
+import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.ErrorCounerImpl;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
@@ -23,8 +24,9 @@ public class TestPageTab
   */
  public static void main(String[] args) throws IOException
  {
-  File in = new File("e:/dev/temp/data.txt");
+//  File in = new File("e:/dev/temp/data.txt");
   
+  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/data1.txt");
   String text = FileUtil.readFile( in );
 
   ParserConfig cfg = new ParserConfig();
@@ -45,7 +47,7 @@ public class TestPageTab
   {
    File xmlOut = new File( in.getParentFile(), "xmlout.xml");
    
-   PageMLFormatter fmt = new PageMLFormatter();
+   PageMLFormatter fmt = new SubmissionPageMLFormatter();
    
    FileWriter out = new FileWriter(xmlOut);
    

@@ -13,7 +13,7 @@ public class SectionRef
  public SectionRef(Section s)
  {
   section = s;
-  accNo = s.getAcc();
+  accNo = s.getAccNo();
  }
 
  public Section getSection()

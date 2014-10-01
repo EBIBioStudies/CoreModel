@@ -48,10 +48,10 @@ public class PageMLFormatter implements Formatter
   out.append('<').append(SECTION.getElementName()).append(' ').append(TYPE.getAttrName()).append("=\"");
   xmlEscaped(sec.getType(), out);
   
-  if( sec.getAcc() != null )
+  if( sec.getAccNo() != null )
   {
    out.append("\" ").append(ID.getAttrName()).append("=\"");
-   xmlEscaped(sec.getAcc(),out);
+   xmlEscaped(sec.getAccNo(),out);
   }
   
   String str = sec.getEntityClass();

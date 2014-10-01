@@ -54,6 +54,7 @@ public class PageTabSyntaxParser2
  private final ParserConfig config;
 
  private final Matcher      tableBlockMtch;
+ private final Matcher      genAccNoMtch;
  
  public static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx) ;
  public static final Pattern ValueQualifierPattern = Pattern.compile(ValueQualifierRx) ;
@@ -66,7 +67,7 @@ public class PageTabSyntaxParser2
 
 
   tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
-  
+  genAccNoMtch = Pattern.compile(GeneratedAccNoRx).matcher("");
 
   config = pConf;
  }
@@ -132,8 +133,8 @@ public class PageTabSyntaxParser2
 
      context.parseFirstLine(parts, lineNo);
      
-     if( subm.getAcc() != null )
-      ln.log(Level.INFO, "Submission AccNo: "+subm.getAcc());
+     if( subm.getAccNo() != null )
+      ln.log(Level.INFO, "Submission AccNo: "+subm.getAccNo());
      
      lastSection = null;
      
@@ -247,22 +248,41 @@ public class PageTabSyntaxParser2
       
       s.setType(c0);
 
-      if(s.getAcc() != null)
+      if(s.getAccNo() != null)
       {
-       if(secMap.containsKey(s.getAcc()))
-        sln.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + s.getAcc() + "' is arleady used for another object");
-       else
-        secMap.put(s.getAcc(), new SectionRef(s));
+       genAccNoMtch.reset( s.getAccNo() );
+       
+       SectionRef sr = new SectionRef(s);
+       
+       if( genAccNoMtch.matches() )
+       {
+        sr = new SectionRef(s);
+        
+        sr.setLocal(false);
+        sr.setPrefix(genAccNoMtch.group("pfx"));
+        sr.setSuffix(genAccNoMtch.group("sfx"));
+        
+        sr.setAccNo(genAccNoMtch.group("tmpid"));
+       }
+
+       if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
+       {
+        if(secMap.containsKey(sr.getAccNo()))
+         sln.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + s.getAccNo() + "' is arleady used for another object");
+        else
+         secMap.put(sr.getAccNo(), sr);
+       }
+       
       }
 
-      if(s.getParentAcc() != null)
+      if(s.getParentAccNo() != null)
       {
-       SectionRef psec = secMap.get(s.getParentAcc());
+       SectionRef psec = secMap.get(s.getParentAccNo());
 
        if(psec != null)
         psec.getSection().addSection(s);
        else
-        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + s.getParentAcc() + "' not found");
+        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + s.getParentAccNo() + "' not found");
       }
       else if( lastSection != null )
        lastSection.addSection(s);

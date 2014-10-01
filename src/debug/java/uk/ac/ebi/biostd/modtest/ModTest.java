@@ -39,11 +39,11 @@ public class ModTest
   Submission st  = new Submission();
   
   Section s1 = new Section();
-  s1.setAcc("S1");
+  s1.setAccNo("S1");
   s1.setType("ST1");
   
   Section s2 = new Section();
-  s2.setAcc("S2");
+  s2.setAccNo("S2");
   s2.setType("ST2");
   
   FileRef fr = new FileRef();

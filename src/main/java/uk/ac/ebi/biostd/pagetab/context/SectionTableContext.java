@@ -64,7 +64,7 @@ public class SectionTableContext extends TableBlockContext
   
   current = new Section();
   
-  current.setAcc( acc );
+  current.setAccNo( acc );
   current.setType(secName);
   current.setTableIndex(tableIdx);
   

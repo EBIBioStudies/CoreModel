@@ -86,7 +86,7 @@ public class PageMLParser extends DefaultHandler
     throw new SAXException("Invalid context for element '"+PageMLElements.SUBMISSION.getElementName()+"' : '"+ctx.getElementName()+"'");
    
    sub = new Submission();
-   sub.setAcc(atts.getValue(PageMLAttributes.ID.getAttrName()));
+   sub.setAccNo(atts.getValue(PageMLAttributes.ID.getAttrName()));
    
    sub.setTagRefs( reslv.getSubmissionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
    sub.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
@@ -115,7 +115,7 @@ public class PageMLParser extends DefaultHandler
    else
     ( (Section)contextObj ).addSection(sec);
    
-   sec.setAcc(atts.getValue(PageMLAttributes.ID.getAttrName()));
+   sec.setAccNo(atts.getValue(PageMLAttributes.ID.getAttrName()));
    
    sec.setTagRefs( reslv.getSectionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
    sec.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );

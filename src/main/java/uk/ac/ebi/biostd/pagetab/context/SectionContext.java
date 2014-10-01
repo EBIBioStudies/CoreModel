@@ -63,7 +63,7 @@ public class SectionContext extends VerticalBlockContext
    acc = cells.get(1).trim();
    
   if( acc != null && acc.length() > 0 )
-   section.setAcc( acc );
+   section.setAccNo( acc );
 
   acc=null;
 
@@ -71,7 +71,7 @@ public class SectionContext extends VerticalBlockContext
    acc = cells.get(2).trim();
   
   if( acc != null && acc.length() > 0 )
-   section.setParentAcc(acc);
+   section.setParentAccNo(acc);
  
   section.setAccessTags( getParser().processAccessTags(cells, ln, 4, log) );
   section.setTagRefs( getParser().processTags(cells, ln, 5, SectionTagRefFactory.getInstance(),log) );

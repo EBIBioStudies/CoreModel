@@ -741,7 +741,7 @@ public class StringUtils
  
 
  
- public static String xmlEscapedSSS( String s )
+ public static String xmlEscaped( String s )
  {
   StringBuilder sb = null;
   

@@ -37,7 +37,7 @@ public class SubmissionContext extends VerticalBlockContext
    acc = cells.get(1).trim();
    
    if( acc != null && acc.length() > 0 )
-    submission.setAcc( acc );
+    submission.setAccNo( acc );
    else
     log.log(Level.ERROR, "(R"+ln+",C2) Missing submission ID");
 

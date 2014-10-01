@@ -23,7 +23,7 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.authz.User;
 
 @Entity
-public class Submission implements Annotated, SecurityObject, Classified
+public class Submission implements Annotated, SecurityObject, Classified, Accessible
 {
  @Id
  @GeneratedValue
@@ -38,13 +38,15 @@ public class Submission implements Annotated, SecurityObject, Classified
   this.id = id;
  }
  
- public String getAcc()
+ @Override
+ public String getAccNo()
  {
   return acc;
  }
  private String acc;
 
- public void setAcc(String acc)
+ @Override
+ public void setAccNo(String acc)
  {
   this.acc = acc;
  }

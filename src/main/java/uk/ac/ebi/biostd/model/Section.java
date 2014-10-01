@@ -20,7 +20,7 @@ import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class Section implements Annotated, Classified, SecurityObject
+public class Section implements Annotated, Classified, SecurityObject, Accessible
 {
  @Id
  @GeneratedValue
@@ -35,13 +35,13 @@ public class Section implements Annotated, Classified, SecurityObject
   this.id = id;
  }
 
- public String getParentAcc()
+ public String getParentAccNo()
  {
   return parentAcc;
  }
  private String parentAcc;
  
- public void setParentAcc( String pa )
+ public void setParentAccNo( String pa )
  {
   parentAcc = pa;
  }
@@ -107,7 +107,7 @@ public class Section implements Annotated, Classified, SecurityObject
   if( pr == null )
    return;
 
-  parentAcc = pr.getAcc();
+  parentAcc = pr.getAccNo();
 
   setSubmission(pr.getSubmission());
   
@@ -129,20 +129,22 @@ public class Section implements Annotated, Classified, SecurityObject
   this.type = type;
  }
  
- public String getAcc()
+ @Override
+ public String getAccNo()
  {
   return acc;
  }
  private String acc;
 
- public void setAcc(String acc)
+ @Override
+ public void setAccNo(String acc)
  {
   this.acc = acc;
 
   if( sections != null )
   {
    for(Section s : sections )
-    s.setParentAcc(acc);
+    s.setParentAccNo(acc);
   }
  }
  

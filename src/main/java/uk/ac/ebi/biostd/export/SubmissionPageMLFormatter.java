@@ -24,7 +24,7 @@ public class SubmissionPageMLFormatter extends PageMLFormatter
  {
   out.append(shift);
   out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ID.getAttrName()).append("=\"");
-  xmlEscaped(subm.getAcc(), out);
+  xmlEscaped(subm.getAccNo(), out);
   
   String str = subm.getEntityClass();
   if( str != null && str.length() > 0 )
@@ -45,7 +45,7 @@ public class SubmissionPageMLFormatter extends PageMLFormatter
     else
      out.append(';');
     
-    xmlEscaped(at.getName());
+    xmlEscaped(at.getName(),out);
    }
    
   }
