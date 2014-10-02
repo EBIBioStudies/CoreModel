@@ -2,9 +2,7 @@ package uk.ac.ebi.biostd.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +37,7 @@ public class PageTabSyntaxParser2
  public static final String ValueTagSeparatorRX   = "=";
  public static final String CommentPrefix   = "#";
 
- public static final String GeneratedAccNoRx = "\\s*(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?\\s*";
+ public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?\\s*";
  public static final String NameQualifierRx  = "\\s*<\\s*(?<name>[^\\s>]+)\\s*>\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\s>]+)\\s*\\]\\s*";
  public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
@@ -72,13 +70,11 @@ public class PageTabSyntaxParser2
   config = pConf;
  }
 
- public List<Submission> parse( String txt, LogNode gln ) //throws ParserException
+ public List<SubmissionInfo> parse( String txt, LogNode gln ) //throws ParserException
  {
-  List<Submission> res = new ArrayList<Submission>(10);
+  List<SubmissionInfo> res = new ArrayList<>(10);
   
-  Submission subm = null;
-
-  Map<String, SectionRef> secMap = new HashMap<>();
+  SubmissionInfo submInf = new SubmissionInfo(null);
 
   SpreadsheetReader reader = new SpreadsheetReader(txt);
 
@@ -124,23 +120,34 @@ public class PageTabSyntaxParser2
     {
      ln = gln.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
 
-     if(subm != null && ! config.isMultipleSubmissions() )
+     if(submInf.getSubmission() != null && ! config.isMultipleSubmissions() )
       ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
 
-     subm = new Submission();
+     Submission subm = new Submission();
+     submInf = new SubmissionInfo( subm );
 
      context = new SubmissionContext(subm, this, ln);
 
      context.parseFirstLine(parts, lineNo);
      
      if( subm.getAccNo() != null )
+     {
       ln.log(Level.INFO, "Submission AccNo: "+subm.getAccNo());
      
+      genAccNoMtch.reset(subm.getAccNo());
+      
+      if( genAccNoMtch.matches() );
+      {
+       subm.setAccNo(genAccNoMtch.group("tmpid"));
+       submInf.setAccNoPrefix(genAccNoMtch.group("pfx"));
+       submInf.setAccNoSuffix(genAccNoMtch.group("sfx"));
+      }
+     
+     }
+      
      lastSection = null;
      
-     secMap.clear();
-     
-     res.add(subm);
+     res.add(submInf);
     }
     else if(c0.equals(FileKeyword))
     {
@@ -215,7 +222,7 @@ public class PageTabSyntaxParser2
 
       if(pAcc != null && pAcc.length() > 0)
       {
-       SectionRef pSecRef = secMap.get(pAcc);
+       SectionRef pSecRef = submInf.getSectionMap().get(pAcc);
 
        if(pSecRef == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
@@ -224,7 +231,7 @@ public class PageTabSyntaxParser2
 
       }
 
-      context = new SectionTableContext(sName, pSec, this, sln);
+      context = new SectionTableContext(sName, pSec, submInf, this, sln);
       context.parseFirstLine(parts, lineNo);
 
      }
@@ -236,10 +243,10 @@ public class PageTabSyntaxParser2
 
       if(lastSection == null)
       {
-       if(subm == null)
+       if(submInf == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
-       else
-        subm.setRootSection(s);
+       else if( submInf.getSubmission() != null )
+        submInf.getSubmission().setRootSection(s);
       }
 
       context = new SectionContext(s, this, sln);
@@ -256,28 +263,29 @@ public class PageTabSyntaxParser2
        
        if( genAccNoMtch.matches() )
        {
-        sr = new SectionRef(s);
-        
         sr.setLocal(false);
         sr.setPrefix(genAccNoMtch.group("pfx"));
         sr.setSuffix(genAccNoMtch.group("sfx"));
         
         sr.setAccNo(genAccNoMtch.group("tmpid"));
+        s.setAccNo(sr.getAccNo());
        }
+       else
+        s.setAccNo(null);
 
        if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
        {
-        if(secMap.containsKey(sr.getAccNo()))
-         sln.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + s.getAccNo() + "' is arleady used for another object");
+        if(submInf.getSectionMap().containsKey(sr.getAccNo()))
+         sln.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + sr.getAccNo() + "' is arleady used for another object");
         else
-         secMap.put(sr.getAccNo(), sr);
+         submInf.getSectionMap().put(sr.getAccNo(), sr);
        }
        
       }
 
       if(s.getParentAccNo() != null)
       {
-       SectionRef psec = secMap.get(s.getParentAccNo());
+       SectionRef psec = submInf.getSectionMap().get(s.getParentAccNo());
 
        if(psec != null)
         psec.getSection().addSection(s);

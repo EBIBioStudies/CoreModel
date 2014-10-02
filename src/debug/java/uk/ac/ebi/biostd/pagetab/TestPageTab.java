@@ -7,7 +7,6 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
 import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
-import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.ErrorCounerImpl;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -17,7 +16,16 @@ import uk.ac.ebi.biostd.util.FileUtil;
 
 public class TestPageTab
 {
-
+ static class IdGen
+ {
+  private int gen=1;
+  
+  public int getId()
+  {
+   return gen++;
+  }
+ }
+ 
  /**
   * @param args
   * @throws IOException 
@@ -26,7 +34,8 @@ public class TestPageTab
  {
 //  File in = new File("e:/dev/temp/data.txt");
   
-  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/data1.txt");
+  
+  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/idgen.txt");
   String text = FileUtil.readFile( in );
 
   ParserConfig cfg = new ParserConfig();
@@ -37,14 +46,40 @@ public class TestPageTab
   SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   
   
-  List<Submission> sbm = pars.parse(text,ln);
+  List<SubmissionInfo> sbm = pars.parse(text,ln);
    
+
+  if(ln.getLevel() == Level.SUCCESS)
+  {
+   IdGen idGen = new IdGen();
+
+   
+   for(SubmissionInfo s : sbm)
+   {
+    if(s.getAccNoPrefix() != null || s.getAccNoSuffix() != null)
+     s.getSubmission().setAccNo(
+       (s.getAccNoPrefix() != null ? s.getAccNoPrefix() : "") + idGen.getId() + (s.getAccNoSuffix() != null ? s.getAccNoSuffix() : ""));
+    
+    for( SectionRef sr : s.getSectionMap().values() )
+    {
+   
+     if(sr.getPrefix() != null || sr.getSuffix() != null)
+     {
+      String accNo = (sr.getPrefix() != null ? sr.getPrefix() : "") + idGen.getId() + (sr.getSuffix() != null ? sr.getSuffix() : "");
+      
+      sr.getSection().setAccNo( accNo );
+     }
+    }
+   }
+  }
+  
 //  System.out.println(sbm.getAcc());
   
   printNode(ln,"");
   
   if( ln.getLevel() == Level.SUCCESS )
   {
+
    File xmlOut = new File( in.getParentFile(), "xmlout.xml");
    
    PageMLFormatter fmt = new SubmissionPageMLFormatter();
@@ -53,8 +88,8 @@ public class TestPageTab
    
    out.append("<data>\n");
    
-   for( Submission s : sbm )
-    fmt.format(s, out);
+   for( SubmissionInfo s : sbm )
+    fmt.format(s.getSubmission(), out);
    
    out.append("</data>\n");
    
