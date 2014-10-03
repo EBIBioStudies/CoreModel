@@ -60,15 +60,11 @@ public class TestPageTab
      s.getSubmission().setAccNo(
        (s.getAccNoPrefix() != null ? s.getAccNoPrefix() : "") + idGen.getId() + (s.getAccNoSuffix() != null ? s.getAccNoSuffix() : ""));
     
-    for( SectionRef sr : s.getSectionMap().values() )
+    for( SectionRef sr : s.getSec2genId() )
     {
-   
-     if(sr.getPrefix() != null || sr.getSuffix() != null)
-     {
       String accNo = (sr.getPrefix() != null ? sr.getPrefix() : "") + idGen.getId() + (sr.getSuffix() != null ? sr.getSuffix() : "");
       
       sr.getSection().setAccNo( accNo );
-     }
     }
    }
   }

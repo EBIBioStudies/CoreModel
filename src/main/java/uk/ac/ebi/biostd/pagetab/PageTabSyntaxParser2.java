@@ -37,7 +37,7 @@ public class PageTabSyntaxParser2
  public static final String ValueTagSeparatorRX   = "=";
  public static final String CommentPrefix   = "#";
 
- public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?\\s*";
+ public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)?(?:,(?<sfx>[^}]+))?\\})?\\s*";
  public static final String NameQualifierRx  = "\\s*<\\s*(?<name>[^\\s>]+)\\s*>\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\s>]+)\\s*\\]\\s*";
  public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
@@ -264,11 +264,36 @@ public class PageTabSyntaxParser2
        if( genAccNoMtch.matches() )
        {
         sr.setLocal(false);
-        sr.setPrefix(genAccNoMtch.group("pfx"));
-        sr.setSuffix(genAccNoMtch.group("sfx"));
+        
+        String pfx = genAccNoMtch.group("pfx");
+        String sfx = genAccNoMtch.group("sfx");
+        
+        sr.setPrefix(pfx);
+        sr.setSuffix(sfx);
         
         sr.setAccNo(genAccNoMtch.group("tmpid"));
         s.setAccNo(sr.getAccNo());
+        
+        boolean gen=false;
+        
+        if( pfx != null && pfx.length() > 0 )
+        { 
+         gen = true;
+         
+         if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
+          sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number prefix can't end with a digit '" + pfx + "'");
+        }
+        
+        if( sfx != null && sfx.length() > 0 ) 
+        { 
+         gen = true;
+         
+         if( Character.isDigit( sfx.charAt(0) ) )
+          sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
+        }
+        
+        if( gen )
+         submInf.addSec2genId(sr);
        }
        else
         s.setAccNo(null);

@@ -95,11 +95,36 @@ public class SectionTableContext extends TableBlockContext
    if( genAccNoMtch.matches() )
    {
     sr.setLocal(false);
-    sr.setPrefix(genAccNoMtch.group("pfx"));
-    sr.setSuffix(genAccNoMtch.group("sfx"));
+
+    String pfx = genAccNoMtch.group("pfx");
+    String sfx = genAccNoMtch.group("sfx");
+    
+    sr.setPrefix(pfx);
+    sr.setSuffix(sfx);
     
     sr.setAccNo(genAccNoMtch.group("tmpid"));
     current.setAccNo(sr.getAccNo());
+    
+    boolean gen=false;
+    
+    if( pfx != null && pfx.length() > 0 )
+    { 
+     gen = true;
+     
+     if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
+      log.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number prefix can't end with a digit '" + pfx + "'");
+    }
+    
+    if( sfx != null && sfx.length() > 0 ) 
+    { 
+     gen = true;
+     
+     if( Character.isDigit( sfx.charAt(0) ) )
+      log.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
+    }
+    
+    if( gen )
+     submInf.addSec2genId(sr);
    }
    else
     current.setAccNo(null);
