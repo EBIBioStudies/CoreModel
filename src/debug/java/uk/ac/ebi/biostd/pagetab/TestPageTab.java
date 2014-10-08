@@ -1,8 +1,10 @@
 package uk.ac.ebi.biostd.pagetab;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
@@ -32,11 +34,23 @@ public class TestPageTab
   */
  public static void main(String[] args) throws IOException
  {
-//  File in = new File("e:/dev/temp/data.txt");
+  File in = new File("e:/dev/temp/Book2.txt");
+//  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/idgen.txt");
+
+  FileInputStream fis = new FileInputStream(in);
+  
+  int first = fis.read();
+  int second = fis.read();
+  
+  fis.close();
+  
+  Charset cs = Charset.defaultCharset();
+  
+  if( ( first == 0xFF && second == 0xFE ) || ( first == 0xFE && second == 0xFF ) )
+   cs = Charset.forName("UTF-16");
   
   
-  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/idgen.txt");
-  String text = FileUtil.readFile( in );
+  String text = FileUtil.readFile( in, cs );
 
   ParserConfig cfg = new ParserConfig();
   PageTabSyntaxParser2 pars = new PageTabSyntaxParser2( null, cfg );

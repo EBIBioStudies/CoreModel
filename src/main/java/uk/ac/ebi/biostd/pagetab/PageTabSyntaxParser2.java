@@ -136,7 +136,7 @@ public class PageTabSyntaxParser2
      
       genAccNoMtch.reset(subm.getAccNo());
       
-      if( genAccNoMtch.matches() );
+      if( genAccNoMtch.matches() )
       {
        subm.setAccNo(genAccNoMtch.group("tmpid"));
        submInf.setAccNoPrefix(genAccNoMtch.group("pfx"));
