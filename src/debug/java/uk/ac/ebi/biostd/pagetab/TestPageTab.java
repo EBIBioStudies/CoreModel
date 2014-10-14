@@ -34,7 +34,7 @@ public class TestPageTab
   */
  public static void main(String[] args) throws IOException
  {
-  File in = new File("e:/dev/temp/Book2.txt");
+  File in = new File("e:/dev/temp/dataUni_us.txt");
 //  File in = new File("C:/Documents and Settings/Mike/My Documents/Upload/idgen.txt");
 
   FileInputStream fis = new FileInputStream(in);
