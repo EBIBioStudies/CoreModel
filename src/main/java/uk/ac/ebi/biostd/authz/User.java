@@ -98,4 +98,10 @@ public class User implements AuthzSubject
  {
   return (int)(id ^ (id >>> 32));
  }
+
+ public boolean checkPassword(String uPass)
+ {
+  // TODO Auto-generated method stub
+  return false;
+ }
 } 
