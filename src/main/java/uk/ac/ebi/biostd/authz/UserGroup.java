@@ -31,6 +31,28 @@ public class UserGroup implements AuthzSubject, AuthzObject
   this.id = id;
  }
 
+ public String getName()
+ {
+  return name;
+ }
+ private String name;
+ 
+ public void setName(String name)
+ {
+  this.name = name;
+ }
+ 
+ public boolean isProject()
+ {
+  return project;
+ }
+ private boolean project;
+
+ public void setProject(boolean project)
+ {
+  this.project = project;
+ }
+
  public String getDescription()
  {
   return description;
