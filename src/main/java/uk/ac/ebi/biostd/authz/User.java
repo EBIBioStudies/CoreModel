@@ -1,10 +1,15 @@
 package uk.ac.ebi.biostd.authz;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 
 @Entity
 public class User implements AuthzSubject
@@ -61,15 +66,16 @@ public class User implements AuthzSubject
   this.description = description;
  }
 
- public String getPassword()
+ @Lob
+ public byte[] getPasswordDigest()
  {
-  return password;
+  return passwordDigest;
  }
- private String password;
+ private byte[] passwordDigest;
 
- public void setPassword(String password)
+ public void setPasswordDigest(byte[] pwdd)
  {
-  this.password = password;
+  this.passwordDigest = pwdd;
  }
 
  @ManyToMany
@@ -101,7 +107,43 @@ public class User implements AuthzSubject
 
  public boolean checkPassword(String uPass)
  {
-  // TODO Auto-generated method stub
-  return false;
+  if( passwordDigest == null )
+   return false;
+  
+  MessageDigest sha1 = null;
+  
+  try
+  {
+   sha1 = MessageDigest.getInstance("SHA1");
+  }
+  catch(NoSuchAlgorithmException e)
+  {
+   //It should not happen
+   
+   e.printStackTrace();
+  }
+  
+  return Arrays.equals(sha1.digest(uPass.getBytes()), passwordDigest);
+ }
+ 
+ @Transient
+ public void setPassword( String pass )
+ {
+  MessageDigest sha1 = null;
+  
+  try
+  {
+   sha1 = MessageDigest.getInstance("SHA1");
+  }
+  catch(NoSuchAlgorithmException e)
+  {
+   //It should not happen
+   
+   e.printStackTrace();
+  }
+  
+  
+  setPasswordDigest( sha1.digest(pass.getBytes()) );
+  
  }
 } 
