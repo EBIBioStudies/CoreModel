@@ -5,7 +5,7 @@ import java.io.File;
 public class Session
 {
  private String sessionKey;
- private String user;
+ private User user;
  private long lastAccessTime;
  private boolean checkedIn=false;
  
@@ -19,12 +19,12 @@ public class Session
   lastAccessTime = System.currentTimeMillis();
  }
  
- public String getUser()
+ public User getUser()
  {
   return user;
  }
 
- public void setUser(String user)
+ public void setUser(User user)
  {
   this.user = user;
  }

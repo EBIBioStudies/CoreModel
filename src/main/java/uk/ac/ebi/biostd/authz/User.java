@@ -55,15 +55,15 @@ public class User implements AuthzSubject
   this.email = email;
  }
 
- public String getDescription()
+ public String getFullName()
  {
-  return description;
+  return fullName;
  }
- private String description;
+ private String fullName;
 
- public void setDescription(String description)
+ public void setFullName(String description)
  {
-  this.description = description;
+  this.fullName = description;
  }
 
  @Lob

@@ -7,4 +7,8 @@ public interface UserManager
 
  User getUserByName(String uName);
 
+ User getUserByEmail(String prm);
+
+ void addUser(User u);
+
 }
