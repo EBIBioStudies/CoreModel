@@ -21,9 +21,9 @@ public class SubmissionContext extends VerticalBlockContext
  private final Submission submission;
  
 
- public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln )
+ public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc )
  {
-  super(BlockType.SUBMISSION, pars, sln);
+  super(BlockType.SUBMISSION, pars, sln, pc);
  
   submission = sbm;
  }
@@ -31,6 +31,8 @@ public class SubmissionContext extends VerticalBlockContext
  @Override
  public void parseFirstLine( List<String> cells, int ln )
  {
+  LogNode log = getContextLogNode();
+
   String acc = null;
   
   if( cells.size() > 1 )

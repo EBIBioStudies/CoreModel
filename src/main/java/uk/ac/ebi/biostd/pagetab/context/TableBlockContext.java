@@ -13,17 +13,15 @@ import uk.ac.ebi.biostd.treelog.LogNode.Level;
 public abstract class TableBlockContext extends BlockContext
 {
  
- protected final LogNode log;
  
  private final Matcher nameQualifierMatcher;
  private final Matcher valueQualifierMatcher;
 
  private List<AttrRef> atRefs;
  
- protected TableBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln )
+ protected TableBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln , BlockContext pc )
  {
-  super(typ, parser);
-  log=ln;
+  super(typ, parser, ln, pc);
   
   nameQualifierMatcher = PageTabSyntaxParser2.NameQualifierPattern.matcher("");
   valueQualifierMatcher = PageTabSyntaxParser2.ValueQualifierPattern.matcher("");
@@ -32,6 +30,8 @@ public abstract class TableBlockContext extends BlockContext
  @Override
  public void parseFirstLine(List<String> parts, int lineNo)
  {
+  LogNode log = getContextLogNode();
+  
   atRefs = new ArrayList<>( parts.size() );
   
   int emptyIdx=-1;
@@ -94,6 +94,8 @@ public abstract class TableBlockContext extends BlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  LogNode log = getContextLogNode();
+
   int n = atRefs.size() >= parts.size() - 1?atRefs.size():parts.size() - 1;
   
   AbstractAttribute prevAttr = null;

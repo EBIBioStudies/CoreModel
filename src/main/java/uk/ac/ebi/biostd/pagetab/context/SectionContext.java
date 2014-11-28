@@ -19,9 +19,9 @@ public class SectionContext extends VerticalBlockContext
 
  private final Section section;
  
- public SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln)
+ public SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
  {
-  super(BlockType.SECTION, prs, sln);
+  super(BlockType.SECTION, prs, sln, pc);
   
   section = sec;
  }
@@ -57,6 +57,8 @@ public class SectionContext extends VerticalBlockContext
  @Override
  public void parseFirstLine(List<String> cells, int ln)
  {
+  LogNode log = getContextLogNode();
+
   String acc = null;
   
   if( cells.size() > 1 )

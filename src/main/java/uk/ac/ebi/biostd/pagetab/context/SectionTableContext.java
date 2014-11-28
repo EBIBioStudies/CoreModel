@@ -30,9 +30,9 @@ public class SectionTableContext extends TableBlockContext
  
  private Matcher genAccNoMtch;
  
- public SectionTableContext(String sName, Section pSec, SubmissionInfo si, PageTabSyntaxParser2 prs, LogNode sln)
+ public SectionTableContext(String sName, Section pSec, SubmissionInfo si, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
  {
-  super(BlockType.SECTABLE,prs,sln);
+  super(BlockType.SECTABLE,prs,sln, pc);
   
   secName = sName;
   parent = pSec;
@@ -69,6 +69,8 @@ public class SectionTableContext extends TableBlockContext
  @Override
  public void parseLine(List<String> parts, int lineNo)
  {
+  LogNode log = getContextLogNode();
+
   tableIdx++;
   String acc = parts.get(0).trim();
   
@@ -132,7 +134,7 @@ public class SectionTableContext extends TableBlockContext
    if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
    {
     if(submInf.getSectionMap().containsKey(sr.getAccNo()))
-     log.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + sr.getAccNo() + "' is arleady used for another object");
+     log.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + sr.getAccNo() + "' is arleady used for another section");
     else
      submInf.getSectionMap().put(sr.getAccNo(), sr);
    }

@@ -5,9 +5,9 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
-import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.treelog.LogNode;
 
 public abstract class BlockContext
 {
@@ -24,29 +24,33 @@ public abstract class BlockContext
  };
 
  private BlockType blockType;
- private Section lastSection;
  private final PageTabSyntaxParser2 parser;
+ private BlockContext parentContext;
+ private LogNode contextLogNode;
+// private Section lastSection;
 
- protected BlockContext( BlockType typ, PageTabSyntaxParser2 parser )
+ protected BlockContext( BlockType typ, PageTabSyntaxParser2 parser, LogNode ctxln, BlockContext pc )
  {
   blockType = typ;
   this.parser = parser;
+  parentContext = pc;
+  contextLogNode = ctxln;
  }
  
- public Section getLastSection()
- {
-  return lastSection;
- }
+// public Section getLastSection()
+// {
+//  return lastSection;
+// }
  
  public PageTabSyntaxParser2 getParser()
  {
   return parser;
  }
 
- public void setLastSection(Section lastSection)
- {
-  this.lastSection = lastSection;
- }
+// public void setLastSection(Section lastSection)
+// {
+//  this.lastSection = lastSection;
+// }
 
  public BlockType getBlockType()
  {
@@ -69,6 +73,16 @@ public abstract class BlockContext
  public abstract void parseFirstLine(List<String> parts, int lineNo);
 
  public abstract void parseLine(List<String> parts, int lineNo);
+
+ public BlockContext getParentContext()
+ {
+  return parentContext;
+ }
+
+ public LogNode getContextLogNode()
+ {
+  return contextLogNode;
+ }
 
 
  

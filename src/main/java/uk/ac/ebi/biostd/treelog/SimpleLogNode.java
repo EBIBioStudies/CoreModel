@@ -155,4 +155,15 @@ public class SimpleLogNode implements LogNode,Serializable
    }
   }
  }
+
+ @Override
+ public boolean remove(LogNode ln)
+ {
+  if( ! subNodes.remove(ln) )
+   return false;
+  
+  errCnt.addErrorCounter( - countErrors(ln) );
+  
+  return true;
+ }
 }

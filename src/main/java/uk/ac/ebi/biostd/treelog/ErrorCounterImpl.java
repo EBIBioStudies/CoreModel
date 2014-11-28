@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.treelog;
 
-public class ErrorCounerImpl implements ErrorCounter
+public class ErrorCounterImpl implements ErrorCounter
 {
  private int counter=0;
 

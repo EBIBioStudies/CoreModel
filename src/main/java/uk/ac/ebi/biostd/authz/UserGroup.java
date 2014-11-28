@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -20,6 +21,7 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 public class UserGroup implements AuthzSubject, AuthzObject
 {
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

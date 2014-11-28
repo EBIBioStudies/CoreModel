@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.authz;
 
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -12,6 +13,7 @@ import javax.persistence.Transient;
 public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
 {
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

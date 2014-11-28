@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -20,6 +21,7 @@ import uk.ac.ebi.biostd.idgen.acr.DomainProfUsrACR;
 public class Domain implements AuthzObject
 {
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

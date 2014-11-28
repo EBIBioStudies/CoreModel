@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.authz;
 
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -10,6 +11,7 @@ abstract public class TagRef
 {
 
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

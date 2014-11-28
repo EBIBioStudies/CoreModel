@@ -9,7 +9,7 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
 import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
-import uk.ac.ebi.biostd.treelog.ErrorCounerImpl;
+import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
@@ -55,7 +55,7 @@ public class TestPageTab
   ParserConfig cfg = new ParserConfig();
   PageTabSyntaxParser2 pars = new PageTabSyntaxParser2( null, cfg );
   
-  ErrorCounter cnt = new ErrorCounerImpl();
+  ErrorCounter cnt = new ErrorCounterImpl();
   
   SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   

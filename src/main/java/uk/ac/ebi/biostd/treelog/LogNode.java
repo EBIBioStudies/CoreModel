@@ -38,4 +38,5 @@ public interface LogNode
  Level getLevel();
  List<? extends LogNode> getSubNodes();
  void append(LogNode rootNode);
+ boolean remove( LogNode ln );
 }

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -15,6 +16,7 @@ public class PermissionProfile implements PermissionUnit
 {
  
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

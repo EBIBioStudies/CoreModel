@@ -51,6 +51,29 @@ public class Submission implements Annotated, SecurityObject, Classified, Access
   this.acc = acc;
  }
  
+ public long getCTime()
+ {
+  return ctime;
+ }
+ private long ctime;
+ 
+ public void setCTime( long tm )
+ {
+  ctime = tm;
+ }
+ 
+ public long getMTime()
+ {
+  return mtime;
+ }
+ private long mtime;
+ 
+ public void setMTime( long tm )
+ {
+  mtime = tm;
+ }
+ 
+ 
  public String getDescription()
  {
   return description;

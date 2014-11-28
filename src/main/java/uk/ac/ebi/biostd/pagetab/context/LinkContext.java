@@ -22,9 +22,9 @@ public class LinkContext extends VerticalBlockContext
  private final Link link;
  
  
- public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln)
+ public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc)
  {
-  super(BlockType.LINK,pars, sln);
+  super(BlockType.LINK,pars, sln, pc);
   
   link = lnk;
  }
@@ -32,6 +32,8 @@ public class LinkContext extends VerticalBlockContext
  @Override
  public void parseFirstLine( List<String> cells, int ln )
  {
+  LogNode log = getContextLogNode();
+
   String nm = null;
   
   if( cells.size() > 1 )

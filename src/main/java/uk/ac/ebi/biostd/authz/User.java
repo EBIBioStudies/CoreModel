@@ -1,19 +1,22 @@
 package uk.ac.ebi.biostd.authz;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
 @Entity
-public class User implements AuthzSubject
+public class User implements AuthzSubject, Serializable
 {
+ private static final long serialVersionUID = 1L;
 
  @Override
  public boolean isUserCompatible(User u)
@@ -22,6 +25,7 @@ public class User implements AuthzSubject
  }
 
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;
@@ -44,6 +48,7 @@ public class User implements AuthzSubject
   this.login = login;
  }
 
+ 
  public String getEmail()
  {
   return email;
@@ -71,19 +76,19 @@ public class User implements AuthzSubject
  {
   return passwordDigest;
  }
- private byte[] passwordDigest;
+ private transient byte[] passwordDigest;
 
  public void setPasswordDigest(byte[] pwdd)
  {
   this.passwordDigest = pwdd;
  }
 
- @ManyToMany
+ @ManyToMany(mappedBy = "users")
  public Collection<UserGroup> getGroups()
  {
   return groups;
  }
- private Collection<UserGroup> groups;
+ private transient Collection<UserGroup> groups;
 
  public void setGroups(Collection<UserGroup> groups)
  {
@@ -146,4 +151,16 @@ public class User implements AuthzSubject
   setPasswordDigest( sha1.digest(pass.getBytes()) );
   
  }
+
+ public boolean isSuperuser()
+ {
+  return superuser;
+ }
+ private boolean superuser;
+
+ public void setSuperuser(boolean superuser)
+ {
+  this.superuser = superuser;
+ }
+
 } 

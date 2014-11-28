@@ -20,9 +20,9 @@ public class FileContext extends VerticalBlockContext
  
  private final FileRef fileRef;
  
- public FileContext(FileRef fr, PageTabSyntaxParser2 pars, LogNode sln)
+ public FileContext(FileRef fr, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc)
  {
-  super(BlockType.FILE, pars, sln);
+  super(BlockType.FILE, pars, sln, pc);
   
   fileRef = fr;
  }
@@ -30,6 +30,8 @@ public class FileContext extends VerticalBlockContext
  @Override
  public void parseFirstLine( List<String> cells, int ln )
  {
+  LogNode log = getContextLogNode();
+
   String nm = null;
   
   if( cells.size() > 1 )

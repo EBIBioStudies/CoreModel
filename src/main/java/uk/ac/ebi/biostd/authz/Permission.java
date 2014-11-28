@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.authz;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
@@ -59,6 +60,7 @@ public class Permission implements PermissionUnit
  }
 
  @Id
+ @GeneratedValue
  public long getId()
  {
   return id;

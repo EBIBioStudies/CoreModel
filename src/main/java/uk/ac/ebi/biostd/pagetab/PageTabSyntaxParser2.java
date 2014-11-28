@@ -2,7 +2,9 @@ package uk.ac.ebi.biostd.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +40,9 @@ public class PageTabSyntaxParser2
  public static final String CommentPrefix   = "#";
 
  public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)?(?:,(?<sfx>[^}]+))?\\})?\\s*";
- public static final String NameQualifierRx  = "\\s*<\\s*(?<name>[^\\s>]+)\\s*>\\s*";
+ public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\s>]+)\\s*\\)\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\s>]+)\\s*\\]\\s*";
+ public static final String ReferenceRx = "\\s*\\<\\s*(?<name>[^\\s>]+)\\s*\\>\\s*";
  public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
 
  public static final String SubmissionKeyword     = "Submission";
@@ -70,7 +73,7 @@ public class PageTabSyntaxParser2
   config = pConf;
  }
 
- public List<SubmissionInfo> parse( String txt, LogNode gln ) //throws ParserException
+ public List<SubmissionInfo> parse( String txt, LogNode topLn ) //throws ParserException
  {
   List<SubmissionInfo> res = new ArrayList<>(10);
   
@@ -78,16 +81,19 @@ public class PageTabSyntaxParser2
 
   SpreadsheetReader reader = new SpreadsheetReader(txt);
 
-  BlockContext context = new VoidContext();
+  BlockContext context = new VoidContext(topLn, null);
 
   List<String> parts = new ArrayList<String>(100);
 
+  Map<String,SectionContext> secMap = new HashMap<String, SectionContext>();
+  
   int lineNo = 0;
 
-  Section lastSection = null;
+//  Section lastSection = null;
   
-  LogNode ln=null;
-
+  SectionContext lastSecContext = null;
+  SubmissionContext lastSubmissionContext = null;
+  
   while(reader.readRow(parts) != null)
   {
    lineNo++;
@@ -103,7 +109,15 @@ public class PageTabSyntaxParser2
     if(context.getBlockType() != BlockType.NONE)
     {
      context.finish();
-     context = new VoidContext();
+     
+     BlockContext pc=null;
+     
+     if( context.getBlockType() == BlockType.SUBMISSION || context.getBlockType() == BlockType.SECTION )
+      pc = context;
+     else
+      pc = context.getParentContext();
+      
+     context = new VoidContext( pc.getContextLogNode(), pc );
     }
 
     continue;
@@ -114,11 +128,11 @@ public class PageTabSyntaxParser2
     String c0 = parts.get(0).trim();
 
     if(c0.length() == 0)
-     ln.log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
+     context.getContextLogNode().log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
 
     if(c0.equals(SubmissionKeyword))
     {
-     ln = gln.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
+     LogNode ln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
 
      if(submInf.getSubmission() != null && ! config.isMultipleSubmissions() )
       ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
@@ -126,7 +140,8 @@ public class PageTabSyntaxParser2
      Submission subm = new Submission();
      submInf = new SubmissionInfo( subm );
 
-     context = new SubmissionContext(subm, this, ln);
+     lastSubmissionContext = new SubmissionContext(subm, this, ln, context);
+     context=lastSubmissionContext;
 
      context.parseFirstLine(parts, lineNo);
      
@@ -145,60 +160,60 @@ public class PageTabSyntaxParser2
      
      }
       
-     lastSection = null;
+     lastSecContext = null;
      
      res.add(submInf);
     }
     else if(c0.equals(FileKeyword))
     {
-     LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + FileKeyword + "' block");
+     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + FileKeyword + "' block");
 
-     if(lastSection == null)
+     if(lastSecContext == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) '" + FileKeyword + "' block should follow any section block");
 
      FileRef fr = new FileRef();
 
-     context = new FileContext(fr, this, sln);
+     context = new FileContext(fr, this, sln, context.getParentContext());
 
      context.parseFirstLine(parts, lineNo);
      
-     if(lastSection != null)
-      lastSection.addFileRef(fr);
+     if(lastSecContext != null)
+      lastSecContext.getSection().addFileRef(fr);
     }
     else if(c0.equals(LinkKeyword))
     {
-     LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + LinkKeyword + "' block");
+     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + LinkKeyword + "' block");
 
-     if(lastSection == null)
+     if(lastSecContext == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) '" + LinkKeyword + "' block should follow any section block");
 
      Link lnk = new Link();
 
-     context = new LinkContext(lnk, this, sln);
+     context = new LinkContext(lnk, this, sln, context.getParentContext());
 
      context.parseFirstLine(parts, lineNo);
      
-     if(lastSection != null)
-      lastSection.addLink(lnk);
+     if(lastSecContext != null)
+      lastSecContext.getSection().addLink(lnk);
     }
     else if(c0.equals(LinkTableKeyword))
     {
-     LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing links table block");
+     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing links table block");
 
-     if(lastSection == null)
-      sln.log(Level.ERROR, "(R" + lineNo + ",C1) Table must follow other section block");
+     if(lastSecContext == null)
+      sln.log(Level.ERROR, "(R" + lineNo + ",C1) Link table must follow section block");
 
-     context = new LinkTableContext(lastSection, this, sln);
+     context = new LinkTableContext(lastSecContext!=null?lastSecContext.getSection():null, this, sln, context.getParentContext());
      context.parseFirstLine(parts, lineNo);
     }
     else if(c0.equals(FileTableKeyword))
     {
-     LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing files table block");
+     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing files table block");
 
-     if(lastSection == null)
-      sln.log(Level.ERROR, "(R" + lineNo + ",C1) Table must follow other section block");
+     if(lastSecContext == null)
+      sln.log(Level.ERROR, "(R" + lineNo + ",C1) File table must follow section block");
 
-     context = new FileTableContext(lastSection, this, sln);
+     context = new FileTableContext(lastSecContext!=null?lastSecContext.getSection():null, this, sln, context.getParentContext());
      context.parseFirstLine(parts, lineNo);
     }
     else
@@ -213,43 +228,46 @@ public class PageTabSyntaxParser2
       if( pAcc != null )
        pAcc = pAcc.trim();
 
-      LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
+      LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
 
-      if(lastSection == null)
-       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Table must follow other section block");
+      if(lastSecContext == null)
+       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Sections table must follow section block");
 
-      Section pSec = lastSection;
+      SectionContext pSecCtx = lastSecContext;
 
       if(pAcc != null && pAcc.length() > 0)
       {
-       SectionRef pSecRef = submInf.getSectionMap().get(pAcc);
+       pSecCtx = secMap.get(pAcc);
 
-       if(pSecRef == null)
+       if(pSecCtx == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
-       else
-        pSec = pSecRef.getSection();
+       else if( context.getContextLogNode() != pSecCtx.getContextLogNode() )
+       {
+        context.getContextLogNode().remove(sln);
+        pSecCtx.getContextLogNode().append(sln);
+       }
 
       }
 
-      context = new SectionTableContext(sName, pSec, submInf, this, sln);
+      context = new SectionTableContext(sName, pSecCtx==null?null:pSecCtx.getSection(), submInf, this, sln, pSecCtx);
       context.parseFirstLine(parts, lineNo);
 
      }
      else
      {
-      LogNode sln = ln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
-
+      LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
+      
       Section s = new Section();
 
-      if(lastSection == null)
+      if(lastSecContext == null)
       {
-       if(submInf == null)
+       if(lastSubmissionContext == null )
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
        else if( submInf.getSubmission() != null )
         submInf.getSubmission().setRootSection(s);
       }
 
-      context = new SectionContext(s, this, sln);
+      context = new SectionContext(s, this, sln, context);
 
       context.parseFirstLine(parts, lineNo);
       

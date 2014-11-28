@@ -22,9 +22,9 @@ public class LinkTableContext extends TableBlockContext
 
  private int tableIdx=-1;
  
- public LinkTableContext(Section pSec, PageTabSyntaxParser2 prs, LogNode sln)
+ public LinkTableContext(Section pSec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
  {
-  super( BlockType.LINKTABLE, prs, sln);
+  super( BlockType.LINKTABLE, prs, sln, pc);
   
   parent = pSec;
  }

@@ -16,22 +16,21 @@ public abstract class VerticalBlockContext extends BlockContext
  protected final Matcher nameQualifierMatcher;
  protected final Matcher valueQualifierMatcher;
  
- protected final LogNode log;
-
  
- protected VerticalBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln)
+ protected VerticalBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln, BlockContext pc)
  {
-  super(typ, parser);
+  super(typ, parser, ln, pc);
   
   nameQualifierMatcher = PageTabSyntaxParser2.NameQualifierPattern.matcher("");
   valueQualifierMatcher = PageTabSyntaxParser2.ValueQualifierPattern.matcher("");
   
-  log=ln;
  }
 
  @Override
  public void parseLine(List<String> cells, int lineNo)
  {
+  LogNode log = getContextLogNode();
+
   String atName = cells.get(0);
   
   String val = null;

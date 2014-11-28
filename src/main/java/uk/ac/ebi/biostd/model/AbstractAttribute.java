@@ -72,6 +72,7 @@ abstract public class AbstractAttribute
   this.name = name;
  }
  
+ @Transient
  public List<Qualifier> getNameQualifiers()
  {
   if( nameQualifiers != null )
@@ -105,6 +106,7 @@ abstract public class AbstractAttribute
  }
  
  
+ @Transient
  public List<Qualifier> getValueQualifiers()
  {
   if( valueQualifiers != null )

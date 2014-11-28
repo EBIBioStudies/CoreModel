@@ -2,8 +2,13 @@ package uk.ac.ebi.biostd.authz;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Session
 {
+ private static Logger log;
+ 
  private String sessionKey;
  private User user;
  private long lastAccessTime;
@@ -15,6 +20,9 @@ public class Session
 
  public Session( File sessDir )
  {
+  if( log == null )
+   log = LoggerFactory.getLogger(getClass());
+  
   sessionDir = sessDir;
   lastAccessTime = System.currentTimeMillis();
  }
@@ -51,6 +59,10 @@ public class Session
 
  public File makeTempFile()
  {
+  if( ! sessionDir.exists() )
+   if( ! sessionDir.mkdirs() )
+    log.error("Can't create session directory: "+sessionDir.getAbsolutePath());
+  
   return new File( sessionDir, String.valueOf(++tmpFileCounter));
  }
 
@@ -58,12 +70,14 @@ public class Session
 
  public void destroy()
  {
-  if( sessionDir != null )
+  if( sessionDir != null && sessionDir.exists() )
   {
    for( File f : sessionDir.listFiles() )
-    f.delete();
+    if( ! f.delete() )
+     log.error("Can't delete session file: "+f.getAbsolutePath());
    
-   sessionDir.delete();
+   if( ! sessionDir.delete() )
+    log.error("Can't delete session directory: "+sessionDir.getAbsolutePath());
   }
  }
 

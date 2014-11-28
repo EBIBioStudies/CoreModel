@@ -23,9 +23,9 @@ public class FileTableContext extends TableBlockContext
  
  private int tableIdx=-1;
  
- public FileTableContext( Section pSec, PageTabSyntaxParser2 prs, LogNode sln )
+ public FileTableContext( Section pSec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc )
  {
-  super(BlockType.FILETABLE, prs, sln);
+  super(BlockType.FILETABLE, prs, sln, pc);
   
   parent = pSec;
   
