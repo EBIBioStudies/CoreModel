@@ -15,14 +15,14 @@ public class Log2JSON
  private static void convertNode( LogNode ln, Appendable sb, int lyr ) throws IOException
  {
   sb.append("{\n");
-  sb.append(" level: \"").append(ln.getLevel().name()).append("\",\n");
+  sb.append(" \"level\": \"").append(ln.getLevel().name()).append("\",\n");
   
   boolean needComma=false;
   
   if(  ln.getMessage() != null )
   {
-   sb.append(" message: \"");
-   StringUtils.appendAsCStr(sb, ln.getMessage() );
+   sb.append(" \"message\": \"");
+   StringUtils.appendAsJSONStr(sb, ln.getMessage() );
    sb.append('"');
 
    needComma = true;
@@ -33,7 +33,7 @@ public class Log2JSON
    if( needComma )
     sb.append(",\n");
 
-   sb.append(" subnodes: [");
+   sb.append(" \"subnodes\": [");
    
    needComma=false;
    

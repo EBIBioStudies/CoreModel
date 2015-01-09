@@ -39,4 +39,5 @@ public interface LogNode
  List<? extends LogNode> getSubNodes();
  void append(LogNode rootNode);
  boolean remove( LogNode ln );
+ boolean move(LogNode oldPar, LogNode newPar);
 }

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.mng;
+package uk.ac.ebi.biostd.mngxxx;
 
 import uk.ac.ebi.biostd.authz.User;
 

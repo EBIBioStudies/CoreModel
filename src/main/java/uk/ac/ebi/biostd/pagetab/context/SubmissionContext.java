@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.pagetab.context;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class SubmissionContext extends VerticalBlockContext
 
  private final Submission submission;
  
+ private List<SectionContext> sections = new ArrayList<SectionContext>();
 
  public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc )
  {
@@ -28,6 +30,16 @@ public class SubmissionContext extends VerticalBlockContext
   submission = sbm;
  }
 
+ public void addSection( SectionContext sc )
+ {
+  sections.add(sc);
+ }
+ 
+ public List<SectionContext> getSections()
+ {
+  return sections;
+ }
+ 
  @Override
  public void parseFirstLine( List<String> cells, int ln )
  {

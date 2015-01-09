@@ -5,6 +5,7 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
+import uk.ac.ebi.biostd.model.Reference;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -63,6 +64,10 @@ public abstract class BlockContext
  }
  
  public abstract AbstractAttribute addAttribute( String nm, String val, Collection<? extends TagRef> tags );
+ public Reference addReference( String nm, String val, Collection<? extends TagRef> tags )
+ {
+  return null;
+ }
 
  public abstract TagReferenceFactory<?> getAttributeTagRefFactory();
 
@@ -82,6 +87,11 @@ public abstract class BlockContext
  public LogNode getContextLogNode()
  {
   return contextLogNode;
+ }
+
+ public void setParentContext(SectionContext pCtx)
+ {
+  parentContext = pCtx;
  }
 
 

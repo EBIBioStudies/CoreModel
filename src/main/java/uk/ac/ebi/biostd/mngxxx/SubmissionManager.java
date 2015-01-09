@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.mng;
+package uk.ac.ebi.biostd.mngxxx;
 
 import java.util.Collection;
 

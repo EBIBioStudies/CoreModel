@@ -16,10 +16,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import uk.ac.ebi.biostd.export.TagResolver;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
-import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
-import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 
@@ -137,20 +135,20 @@ public class PageMLParser extends DefaultHandler
    if( ctx != PageMLElements.ATTRIBUTES  )
     throw new SAXException("Invalid context for element '"+PageMLElements.ATTRIBUTE.getElementName()+"' : '"+ctx.getElementName()+"'");
 
-   String name = atts.getValue(PageMLAttributes.NAME.getAttrName());
-   String nameQ = atts.getValue(PageMLAttributes.NAMEQ.getAttrName());
-   String valueQ = atts.getValue(PageMLAttributes.VALUEQ.getAttrName());
-   
-   AbstractAttribute at = ((Annotated)contextObj).addAttribute(name, null);
-   
-   if( nameQ != null && nameQ.length() > 0 && valueQ != null && valueQ.length() > 0 )
-    at.addQualifier( new Qualifier(nameQ,valueQ) );
-
-   //TODO Need a format for multiple qualifiers;
-   
-   
-   context.push( PageMLElements.ATTRIBUTE );
-   contextObjStk.push( at );
+//   String name = atts.getValue(PageMLAttributes.NAME.getAttrName());
+//   String nameQ = atts.getValue(PageMLAttributes.XXX.getAttrName());
+//   String valueQ = atts.getValue(PageMLAttributes.XXX.getAttrName());
+//   
+//   AbstractAttribute at = ((Annotated)contextObj).addAttribute(name, null);
+//   
+//   if( nameQ != null && nameQ.length() > 0 && valueQ != null && valueQ.length() > 0 )
+//    at.addValueQualifier( new Qualifier(nameQ,valueQ) );
+//
+//   //TODO Need a format for multiple qualifiers;
+//   
+//   
+//   context.push( PageMLElements.ATTRIBUTE );
+//   contextObjStk.push( at );
   }
   else if( PageMLElements.FILES.getElementName().equals(localName) )
   {

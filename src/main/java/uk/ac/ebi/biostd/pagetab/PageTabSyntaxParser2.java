@@ -14,6 +14,7 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
+import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.context.BlockContext;
@@ -60,6 +61,7 @@ public class PageTabSyntaxParser2
  public static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx) ;
  public static final Pattern ValueQualifierPattern = Pattern.compile(ValueQualifierRx) ;
  public static final Pattern TableBlockPattern = Pattern.compile(TableBlockRx) ;
+ public static final Pattern ReferencePattern = Pattern.compile(ReferenceRx) ;
 
 
  public PageTabSyntaxParser2(TagResolver tr, ParserConfig pConf)
@@ -243,8 +245,7 @@ public class PageTabSyntaxParser2
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
        else if( context.getContextLogNode() != pSecCtx.getContextLogNode() )
        {
-        context.getContextLogNode().remove(sln);
-        pSecCtx.getContextLogNode().append(sln);
+        sln.move(context.getContextLogNode(), pSecCtx.getContextLogNode());
        }
 
       }
@@ -255,6 +256,8 @@ public class PageTabSyntaxParser2
      }
      else
      {
+      BlockContext curCtx = context;
+      
       LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
       
       Section s = new Section();
@@ -263,8 +266,8 @@ public class PageTabSyntaxParser2
       {
        if(lastSubmissionContext == null )
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
-       else if( submInf.getSubmission() != null )
-        submInf.getSubmission().setRootSection(s);
+       else 
+        lastSubmissionContext.getSubmission().setRootSection(s);
       }
 
       context = new SectionContext(s, this, sln, context);
@@ -316,6 +319,7 @@ public class PageTabSyntaxParser2
        else
         s.setAccNo(null);
 
+       
        if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
        {
         if(submInf.getSectionMap().containsKey(sr.getAccNo()))
@@ -326,19 +330,34 @@ public class PageTabSyntaxParser2
        
       }
 
-      if(s.getParentAccNo() != null)
+      String pAcc = s.getParentAccNo();
+      SectionContext pSecCtx = lastSecContext;
+      
+      if(pAcc != null && pAcc.length() > 0)
       {
-       SectionRef psec = submInf.getSectionMap().get(s.getParentAccNo());
+       pSecCtx = secMap.get(pAcc);
 
-       if(psec != null)
-        psec.getSection().addSection(s);
-       else
-        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + s.getParentAccNo() + "' not found");
+       if(pSecCtx == null)
+        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
+       else if( context.getContextLogNode() != pSecCtx.getContextLogNode() )
+       {
+        sln.move(curCtx.getContextLogNode(), pSecCtx.getContextLogNode());
+        
+        context.setParentContext(pSecCtx);
+       }
       }
-      else if( lastSection != null )
-       lastSection.addSection(s);
+      
 
-      lastSection = s;
+      
+      if( pSecCtx != null )
+       pSecCtx.getSection().addSection(s);
+
+      lastSecContext = (SectionContext)context;
+
+      if( s.getAccNo() != null && s.getAccNo().length() > 0 )
+      {
+       secMap.put(s.getAccNo(), lastSecContext);
+      }
 
      }
     }
@@ -351,9 +370,33 @@ public class PageTabSyntaxParser2
 
   }
 
-  SimpleLogNode.setLevels(gln);
+  SimpleLogNode.setLevels(topLn);
   
   return res;
+ }
+ 
+ 
+ private void checkSubmRefs( SubmissionContext sctx )
+ {
+  sctx.getSubmission().getRootSection();
+  
+ }
+ 
+ private void checkSecRefs( Section sec, Map<String,Section> secMap, LogNode ln )
+ {
+  if( sec.getAttributes() == null )
+   return;
+  
+  for( SectionAttribute at : sec.getAttributes() )
+  {
+   if( ! at.isReference() )
+    return;
+   
+   if( ! secMap.containsKey(at.getValue()) )
+   {
+    ln.log(Level.ERROR, "Invalid reference. Target doesn't exist: "+at.getValue());
+   }
+  }
  }
  
  private static boolean isEmptyLine( List<String> parts )

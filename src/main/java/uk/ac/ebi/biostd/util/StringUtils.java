@@ -109,6 +109,14 @@ public class StringUtils
   new ReplacePair('\n',"\\n"),
   new ReplacePair('\r',"\\r")
   };
+ 
+ static final ReplacePair[] jsonPairs = { 
+  new ReplacePair('"',"\\\""),
+  new ReplacePair('\\',"\\\\"),
+  new ReplacePair('\0',"\\0"),
+  new ReplacePair('\n',"\\n"),
+  new ReplacePair('\r',"\\r")
+  };
 
  
 // static final CharPair[] escPairs = { 
@@ -473,6 +481,11 @@ public class StringUtils
  public static Appendable appendAsCStr( Appendable sb, String str ) throws IOException
  {
   return appendReplaced( sb, str, cStrPairs );
+ }
+
+ public static Appendable appendAsJSONStr( Appendable sb, String str ) throws IOException
+ {
+  return appendReplaced( sb, str, jsonPairs );
  }
 
  

@@ -159,10 +159,34 @@ public class SimpleLogNode implements LogNode,Serializable
  @Override
  public boolean remove(LogNode ln)
  {
-  if( ! subNodes.remove(ln) )
+  if( subNodes == null || ! subNodes.remove(ln) )
    return false;
   
   errCnt.addErrorCounter( - countErrors(ln) );
+  
+  return true;
+ }
+ 
+ @Override
+ public boolean move( LogNode oldPar, LogNode newPar )
+ {
+  if( oldPar instanceof SimpleLogNode && newPar instanceof SimpleLogNode )
+  {
+   if( ((SimpleLogNode)oldPar).subNodes == null || ! ((SimpleLogNode)oldPar).subNodes.remove(this) )
+    return false;
+
+   if(((SimpleLogNode)newPar).subNodes == null)
+    ((SimpleLogNode)newPar).subNodes = new ArrayList<LogNode>(10);
+
+   ((SimpleLogNode)newPar).subNodes.add(this);
+  }
+  else
+  {
+   if( ! oldPar.remove(this) )
+    return false;
+   
+   newPar.append(this);
+  }
   
   return true;
  }

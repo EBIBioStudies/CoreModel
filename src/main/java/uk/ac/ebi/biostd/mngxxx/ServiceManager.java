@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.mng;
+package uk.ac.ebi.biostd.mngxxx;
 
 
 
@@ -11,5 +11,6 @@ public interface ServiceManager
  String getServiceName();
 
  SubmissionManager getSubmissionManager();
+
 
 }

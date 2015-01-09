@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
+import uk.ac.ebi.biostd.model.Reference;
 import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
@@ -15,6 +16,7 @@ public abstract class VerticalBlockContext extends BlockContext
  
  protected final Matcher nameQualifierMatcher;
  protected final Matcher valueQualifierMatcher;
+ protected final Matcher refMatcher;
  
  
  protected VerticalBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln, BlockContext pc)
@@ -23,6 +25,7 @@ public abstract class VerticalBlockContext extends BlockContext
   
   nameQualifierMatcher = PageTabSyntaxParser2.NameQualifierPattern.matcher("");
   valueQualifierMatcher = PageTabSyntaxParser2.ValueQualifierPattern.matcher("");
+  refMatcher = PageTabSyntaxParser2.ReferencePattern.matcher("");
   
  }
 
@@ -73,7 +76,24 @@ public abstract class VerticalBlockContext extends BlockContext
      lastAttr.addValueQualifier(new Qualifier( atName , val ));
    }
    else
+   {
+    refMatcher.reset(atName);
+    
+    if( refMatcher.matches() )
+    {
+     atName = refMatcher.group("name").trim();
+     
+     Reference ref = addReference(atName,val,getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+     
+     if( ref == null )
+      log.log(Level.ERROR, "(R" + lineNo + ",C1) References are not allowed in this context");
+     else
+      lastAttr = ref;
+
+    }
+    
     lastAttr = addAttribute(atName,val,getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+   }
    
    nRead=3;
   }
