@@ -11,7 +11,6 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
-import uk.ac.ebi.biostd.model.PreparedSubmission;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.model.Submission;
@@ -69,7 +68,7 @@ public class PageTabSyntaxParser2
   config = pConf;
  }
 
- public List<PreparedSubmission> parse( String txt, LogNode topLn ) throws ParserException
+ public List<SubmissionInfo> parse( String txt, LogNode topLn ) throws ParserException
  {
   Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
   Matcher genAccNoMtch = GeneratedAccNo.matcher("");
@@ -82,7 +81,7 @@ public class PageTabSyntaxParser2
   pstate.setReferenceMatcher(ReferencePattern.matcher(""));
   pstate.setGeneratedAccNoMatcher(genAccNoMtch);
   
-  List<PreparedSubmission> res = new ArrayList<>(10);
+  List<SubmissionInfo> res = new ArrayList<>(10);
   
   SubmissionInfo submInf = null;
 
@@ -163,15 +162,7 @@ public class PageTabSyntaxParser2
      {
       finalizeSubmission(submInf);
 
-      PreparedSubmission psub = new PreparedSubmission();
-      
-      psub.setSubmission(submInf.getSubmission());
-      psub.setGlobalSections(submInf.getSec2genId());
-      psub.setAcc( submInf.getSubmission().getAccNo() );
-      psub.setAccPrefix( submInf.getAccNoPrefix() );
-      psub.setAccSuffix( submInf.getAccNoSuffix() );
-      
-      res.add(psub);
+      res.add(submInf);
       
       if ( ! config.isMultipleSubmissions() )
        ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
@@ -424,15 +415,7 @@ public class PageTabSyntaxParser2
   {
    finalizeSubmission(submInf);
   
-   PreparedSubmission psub = new PreparedSubmission();
-   
-   psub.setSubmission(submInf.getSubmission());
-   psub.setGlobalSections(submInf.getSec2genId());
-   psub.setAcc( submInf.getSubmission().getAccNo() );
-   psub.setAccPrefix( submInf.getAccNoPrefix() );
-   psub.setAccSuffix( submInf.getAccNoSuffix() );
-   
-   res.add(psub);
+   res.add(submInf);
   }
   
   SimpleLogNode.setLevels(topLn);
@@ -447,8 +430,11 @@ public class PageTabSyntaxParser2
   {
    for( ReferenceOccurrence r : si.getReferenceOccurrences() )
    {
-    if( si.getSectionOccurance(r.getRef()) == null )
+    SectionOccurance soc = si.getSectionOccurance(r.getRef());
+    if( soc == null )
      r.getLogNode().log(Level.ERROR, "(R" + r.getRow() + ",C"+r.getCol()+")"+"Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
+    else
+     r.setSection( soc.getSection() );
    }
   }
  }
