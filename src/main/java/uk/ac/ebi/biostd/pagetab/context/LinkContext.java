@@ -11,7 +11,8 @@ import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.LinkAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.LinkTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -22,9 +23,9 @@ public class LinkContext extends VerticalBlockContext
  private final Link link;
  
  
- public LinkContext(Link lnk, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc)
+ public LinkContext(Link lnk, SubmissionInfo si, ParserState pars, LogNode sln  )
  {
-  super(BlockType.LINK,pars, sln, pc);
+  super(BlockType.LINK, si, pars, sln );
   
   link = lnk;
  }
@@ -44,8 +45,8 @@ public class LinkContext extends VerticalBlockContext
   else
    log.log(Level.ERROR, "(R" + ln + ",C2) URL missing");
 
-  link.setAccessTags(getParser().processAccessTags(cells, ln, 3, log));
-  link.setTagRefs(getParser().processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));
+  link.setAccessTags(getParserState().getParser().processAccessTags(cells, ln, 3, log));
+  link.setTagRefs(getParserState().getParser().processTags(cells, ln, 4, LinkTagRefFactory.getInstance(), log));
  }
  
  public Link getLink()

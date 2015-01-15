@@ -13,7 +13,8 @@ import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.SectionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SectionContext extends VerticalBlockContext
@@ -22,9 +23,9 @@ public class SectionContext extends VerticalBlockContext
  private final Section section;
  private List<SectionContext> sections = new ArrayList<SectionContext>();
 
- public SectionContext(Section sec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
+ public SectionContext(Section sec, SubmissionInfo si, ParserState prs, LogNode sln)
  {
-  super(BlockType.SECTION, prs, sln, pc);
+  super(BlockType.SECTION, si, prs, sln);
   
   section = sec;
  }
@@ -106,8 +107,8 @@ public class SectionContext extends VerticalBlockContext
   if( acc != null && acc.length() > 0 )
    section.setParentAccNo(acc);
  
-  section.setAccessTags( getParser().processAccessTags(cells, ln, 4, log) );
-  section.setTagRefs( getParser().processTags(cells, ln, 5, SectionTagRefFactory.getInstance(),log) );
+  section.setAccessTags( getParserState().getParser().processAccessTags(cells, ln, 4, log) );
+  section.setTagRefs( getParserState().getParser().processTags(cells, ln, 5, SectionTagRefFactory.getInstance(),log) );
  }
  
 }

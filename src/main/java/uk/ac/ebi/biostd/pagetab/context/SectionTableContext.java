@@ -3,17 +3,17 @@ package uk.ac.ebi.biostd.pagetab.context;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
+import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
-import uk.ac.ebi.biostd.pagetab.SectionRef;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SectionOccurance;
 import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
@@ -22,24 +22,17 @@ public class SectionTableContext extends TableBlockContext
 {
 
  private final String secName;
- private final Section parent;
- private SubmissionInfo submInf;
+ private final SectionOccurance parent;
  
  private Section current;
  private int tableIdx=-1;
  
- private Matcher genAccNoMtch;
- 
- public SectionTableContext(String sName, Section pSec, SubmissionInfo si, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
+ public SectionTableContext(String sName, SectionOccurance parentSec, SubmissionInfo si, ParserState prs, LogNode sln)
  {
-  super(BlockType.SECTABLE,prs,sln, pc);
+  super(BlockType.SECTABLE, si, prs,sln);
   
   secName = sName;
-  parent = pSec;
-  
-  submInf = si;
-  
-  genAccNoMtch = Pattern.compile(PageTabSyntaxParser2.GeneratedAccNoRx).matcher("");
+  parent = parentSec;
  }
 
  @SuppressWarnings("unchecked")
@@ -86,10 +79,12 @@ public class SectionTableContext extends TableBlockContext
   super.parseLine(parts, lineNo);
 
   if( parent != null )
-   parent.addSection(current);
+   parent.getSection().addSection(current);
   
   if(acc != null)
   {
+   Matcher genAccNoMtch = getParserState().getGeneratedAccNoMatcher();
+   
    genAccNoMtch.reset( acc );
    
    SectionRef sr = new SectionRef(current);
@@ -126,17 +121,28 @@ public class SectionTableContext extends TableBlockContext
     }
     
     if( gen )
-     submInf.addSec2genId(sr);
+     getSubmissionInfo().addSec2genId(sr);
    }
    else
-    current.setAccNo(null);
+    current.setAccNo(acc);
 
-   if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
+   if( current.getAccNo() != null  )
    {
-    if(submInf.getSectionMap().containsKey(sr.getAccNo()))
-     log.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + sr.getAccNo() + "' is arleady used for another section");
+    SectionOccurance secOc = getSubmissionInfo().getSectionOccurance( current.getAccNo() );
+    
+    if( secOc == null )
+    {
+     secOc = new SectionOccurance();
+     
+     secOc.setRow(lineNo);
+     secOc.setCol(1);
+     secOc.setSection(current);
+     secOc.setSecLogNode(log);
+     
+     getSubmissionInfo().addSectionOccurance(secOc);
+    }
     else
-     submInf.getSectionMap().put(sr.getAccNo(), sr);
+     log.log(Level.ERROR, "Accession number '"+current.getAccNo()+"' is used by other section at (R" + secOc.getRow() + ",C"+secOc.getCol()+")");
    }
    
   }

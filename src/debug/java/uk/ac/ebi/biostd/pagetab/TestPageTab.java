@@ -9,8 +9,10 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
 import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
-import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
+import uk.ac.ebi.biostd.model.PreparedSubmission;
+import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
+import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
@@ -60,7 +62,17 @@ public class TestPageTab
   SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   
   
-  List<SubmissionInfo> sbm = pars.parse(text,ln);
+  List<PreparedSubmission> sbm = null ;
+
+  try
+  {
+   sbm = pars.parse(text,ln);
+  }
+  catch(ParserException e)
+  {
+   // TODO Auto-generated catch block
+   e.printStackTrace();
+  }
    
 
   if(ln.getLevel() == Level.SUCCESS)
@@ -68,13 +80,13 @@ public class TestPageTab
    IdGen idGen = new IdGen();
 
    
-   for(SubmissionInfo s : sbm)
+   for(PreparedSubmission s : sbm)
    {
-    if(s.getAccNoPrefix() != null || s.getAccNoSuffix() != null)
+    if(s.getAccPrefix() != null || s.getAccSuffix() != null)
      s.getSubmission().setAccNo(
-       (s.getAccNoPrefix() != null ? s.getAccNoPrefix() : "") + idGen.getId() + (s.getAccNoSuffix() != null ? s.getAccNoSuffix() : ""));
+       (s.getAccPrefix() != null ? s.getAccPrefix() : "") + idGen.getId() + (s.getAccSuffix() != null ? s.getAccSuffix() : ""));
     
-    for( SectionRef sr : s.getSec2genId() )
+    for( SectionRef sr : s.getGlobalSections() )
     {
       String accNo = (sr.getPrefix() != null ? sr.getPrefix() : "") + idGen.getId() + (sr.getSuffix() != null ? sr.getSuffix() : "");
       
@@ -98,7 +110,7 @@ public class TestPageTab
    
    out.append("<data>\n");
    
-   for( SubmissionInfo s : sbm )
+   for( PreparedSubmission s : sbm )
     fmt.format(s.getSubmission(), out);
    
    out.append("</data>\n");

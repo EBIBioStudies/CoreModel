@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Reference;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -16,19 +17,26 @@ public abstract class VerticalBlockContext extends BlockContext
  
  protected final Matcher nameQualifierMatcher;
  protected final Matcher valueQualifierMatcher;
- protected final Matcher refMatcher;
+ protected final Matcher referenceMatcher;
  
+ private SubmissionInfo submInfo;
  
- protected VerticalBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln, BlockContext pc)
+ protected VerticalBlockContext(BlockType typ, SubmissionInfo si, ParserState ps, LogNode ln )
  {
-  super(typ, parser, ln, pc);
+  super( typ, ps, ln );
   
-  nameQualifierMatcher = PageTabSyntaxParser2.NameQualifierPattern.matcher("");
-  valueQualifierMatcher = PageTabSyntaxParser2.ValueQualifierPattern.matcher("");
-  refMatcher = PageTabSyntaxParser2.ReferencePattern.matcher("");
+  nameQualifierMatcher = ps.getNameQualifierMatcher();
+  valueQualifierMatcher = ps.getValueQualifierMatcher();
+  referenceMatcher = ps.getReferenceMatcher();
   
+  submInfo = si;
  }
 
+ public SubmissionInfo getSubmissionInfo()
+ {
+  return submInfo;
+ }
+ 
  @Override
  public void parseLine(List<String> cells, int lineNo)
  {
@@ -77,22 +85,25 @@ public abstract class VerticalBlockContext extends BlockContext
    }
    else
    {
-    refMatcher.reset(atName);
+    referenceMatcher.reset(atName);
     
-    if( refMatcher.matches() )
+    if( referenceMatcher.matches() )
     {
-     atName = refMatcher.group("name").trim();
+     atName = referenceMatcher.group("name").trim();
      
-     Reference ref = addReference(atName,val,getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+     Reference ref = addReference(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
      
      if( ref == null )
       log.log(Level.ERROR, "(R" + lineNo + ",C1) References are not allowed in this context");
      else
+     {
       lastAttr = ref;
-
+     
+      submInfo.addReferenceOccurance(lineNo, 2, val, log);
+     }
     }
-    
-    lastAttr = addAttribute(atName,val,getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+    else
+     lastAttr = addAttribute(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
    }
    
    nRead=3;

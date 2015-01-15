@@ -7,7 +7,7 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Reference;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public abstract class BlockContext
@@ -25,16 +25,16 @@ public abstract class BlockContext
  };
 
  private BlockType blockType;
- private final PageTabSyntaxParser2 parser;
- private BlockContext parentContext;
+ private final ParserState parserState;
+// private SectionOccurance parentSection;
  private LogNode contextLogNode;
 // private Section lastSection;
 
- protected BlockContext( BlockType typ, PageTabSyntaxParser2 parser, LogNode ctxln, BlockContext pc )
+ protected BlockContext( BlockType typ, ParserState ps, LogNode ctxln /*, SectionOccurance pc */ )
  {
   blockType = typ;
-  this.parser = parser;
-  parentContext = pc;
+  this.parserState = ps;
+//  parentSection = pc;
   contextLogNode = ctxln;
  }
  
@@ -43,9 +43,9 @@ public abstract class BlockContext
 //  return lastSection;
 // }
  
- public PageTabSyntaxParser2 getParser()
+ public ParserState getParserState()
  {
-  return parser;
+  return parserState;
  }
 
 // public void setLastSection(Section lastSection)
@@ -79,20 +79,20 @@ public abstract class BlockContext
 
  public abstract void parseLine(List<String> parts, int lineNo);
 
- public BlockContext getParentContext()
- {
-  return parentContext;
- }
+// public BlockContext getParentSection()
+// {
+//  return parentContext;
+// }
 
- public LogNode getContextLogNode()
+ protected LogNode getContextLogNode()
  {
   return contextLogNode;
  }
 
- public void setParentContext(SectionContext pCtx)
- {
-  parentContext = pCtx;
- }
+// public void setParentContext(SectionContext pCtx)
+// {
+//  parentContext = pCtx;
+// }
 
 
  

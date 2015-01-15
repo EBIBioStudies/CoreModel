@@ -6,14 +6,13 @@ import java.util.List;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class VoidContext extends BlockContext
 {
 
- public VoidContext( LogNode ctxln, BlockContext pc)
+ public VoidContext( )
  {
-  super(BlockType.NONE,null, ctxln, pc);
+  super(BlockType.NONE,null, null );
  }
 
  @Override

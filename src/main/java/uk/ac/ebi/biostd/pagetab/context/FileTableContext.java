@@ -11,7 +11,8 @@ import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.FileAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class FileTableContext extends TableBlockContext
@@ -23,9 +24,9 @@ public class FileTableContext extends TableBlockContext
  
  private int tableIdx=-1;
  
- public FileTableContext( Section pSec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc )
+ public FileTableContext( Section pSec, SubmissionInfo si, ParserState prs, LogNode sln )
  {
-  super(BlockType.FILETABLE, prs, sln, pc);
+  super(BlockType.FILETABLE, si, prs, sln);
   
   parent = pSec;
   

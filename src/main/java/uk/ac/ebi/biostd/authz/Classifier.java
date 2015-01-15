@@ -14,7 +14,7 @@ import javax.persistence.Transient;
 public class Classifier
 {
  
- Classifier()
+ public Classifier()
  {}
  
  @Id

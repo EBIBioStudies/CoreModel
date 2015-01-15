@@ -11,7 +11,8 @@ import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.trfactory.FileAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.FileTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -20,9 +21,9 @@ public class FileContext extends VerticalBlockContext
  
  private final FileRef fileRef;
  
- public FileContext(FileRef fr, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc)
+ public FileContext(FileRef fr, SubmissionInfo si, ParserState pars, LogNode sln /*, BlockContext pc */ )
  {
-  super(BlockType.FILE, pars, sln, pc);
+  super(BlockType.FILE, si, pars, sln);
   
   fileRef = fr;
  }
@@ -42,8 +43,8 @@ public class FileContext extends VerticalBlockContext
   else
    log.log(Level.ERROR, "(R" + ln + ",C2) File name missing");
 
-  fileRef.setAccessTags(getParser().processAccessTags(cells, ln, 3, log));
-  fileRef.setTagRefs(getParser().processTags(cells, ln, 4, FileTagRefFactory.getInstance(), log));
+  fileRef.setAccessTags( getParserState().getParser().processAccessTags(cells, ln, 3, log));
+  fileRef.setTagRefs(getParserState().getParser().processTags(cells, ln, 4, FileTagRefFactory.getInstance(), log));
  }
  
  public FileRef getFileRef()

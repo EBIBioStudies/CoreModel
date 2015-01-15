@@ -11,7 +11,8 @@ import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.LinkAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class LinkTableContext extends TableBlockContext
@@ -22,9 +23,9 @@ public class LinkTableContext extends TableBlockContext
 
  private int tableIdx=-1;
  
- public LinkTableContext(Section pSec, PageTabSyntaxParser2 prs, LogNode sln, BlockContext pc)
+ public LinkTableContext(Section pSec, SubmissionInfo si, ParserState prs, LogNode sln)
  {
-  super( BlockType.LINKTABLE, prs, sln, pc);
+  super( BlockType.LINKTABLE, si, prs, sln );
   
   parent = pSec;
  }

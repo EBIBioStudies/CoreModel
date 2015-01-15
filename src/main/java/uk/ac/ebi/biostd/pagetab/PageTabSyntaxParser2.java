@@ -2,9 +2,7 @@ package uk.ac.ebi.biostd.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,8 +11,9 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
+import uk.ac.ebi.biostd.model.PreparedSubmission;
 import uk.ac.ebi.biostd.model.Section;
-import uk.ac.ebi.biostd.model.SectionAttribute;
+import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.context.BlockContext;
@@ -55,45 +54,69 @@ public class PageTabSyntaxParser2
  private final TagResolver  tagRslv;
  private final ParserConfig config;
 
- private final Matcher      tableBlockMtch;
- private final Matcher      genAccNoMtch;
  
  public static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx) ;
  public static final Pattern ValueQualifierPattern = Pattern.compile(ValueQualifierRx) ;
  public static final Pattern TableBlockPattern = Pattern.compile(TableBlockRx) ;
  public static final Pattern ReferencePattern = Pattern.compile(ReferenceRx) ;
+ public static final Pattern GeneratedAccNo = Pattern.compile(GeneratedAccNoRx);
 
 
  public PageTabSyntaxParser2(TagResolver tr, ParserConfig pConf)
  {
   tagRslv = tr;
 
-
-  tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
-  genAccNoMtch = Pattern.compile(GeneratedAccNoRx).matcher("");
-
   config = pConf;
  }
 
- public List<SubmissionInfo> parse( String txt, LogNode topLn ) //throws ParserException
+ public List<PreparedSubmission> parse( String txt, LogNode topLn ) throws ParserException
  {
-  List<SubmissionInfo> res = new ArrayList<>(10);
+  Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
+  Matcher genAccNoMtch = GeneratedAccNo.matcher("");
   
-  SubmissionInfo submInf = new SubmissionInfo(null);
+  ParserState pstate = new ParserState();
+  
+  pstate.setParser(this);
+  pstate.setNameQualifierMatcher(NameQualifierPattern.matcher(""));
+  pstate.setValueQualifierMatcher(ValueQualifierPattern.matcher(""));
+  pstate.setReferenceMatcher(ReferencePattern.matcher(""));
+  pstate.setGeneratedAccNoMatcher(genAccNoMtch);
+  
+  List<PreparedSubmission> res = new ArrayList<>(10);
+  
+  SubmissionInfo submInf = null;
 
-  SpreadsheetReader reader = new SpreadsheetReader(txt);
+  SpreadsheetReader reader = null;
+  
+  if( txt.startsWith("<?xml"))
+  {
+   try
+   {
+    reader = new XMLSpreadsheetReader(txt);
+   }
+   catch(Exception e)
+   {
+    topLn.log(Level.ERROR, "Invalid XML");
+    return null;
+   }
+  }
+  else
+   reader = new CSVTSVSpreadsheetReader(txt);
 
-  BlockContext context = new VoidContext(topLn, null);
+  BlockContext context = new VoidContext();
 
   List<String> parts = new ArrayList<String>(100);
 
-  Map<String,SectionContext> secMap = new HashMap<String, SectionContext>();
+//  Map<String,SectionContext> parentsSectionMap = new HashMap<String, SectionContext>();
   
   int lineNo = 0;
 
 //  Section lastSection = null;
   
-  SectionContext lastSecContext = null;
+//  SectionContext lastSecContext = null;
+  
+  SectionOccurance lastSectionOccurance = null;
+  
   SubmissionContext lastSubmissionContext = null;
   
   while(reader.readRow(parts) != null)
@@ -112,37 +135,53 @@ public class PageTabSyntaxParser2
     {
      context.finish();
      
-     BlockContext pc=null;
+//     BlockContext pc=null;
      
-     if( context.getBlockType() == BlockType.SUBMISSION || context.getBlockType() == BlockType.SECTION )
-      pc = context;
-     else
-      pc = context.getParentContext();
+//     if( context.getBlockType() == BlockType.SUBMISSION || context.getBlockType() == BlockType.SECTION )
+//      pc = context;
+//     else
+//      pc = context.getParentContext();
       
-     context = new VoidContext( pc.getContextLogNode(), pc );
+     context = new VoidContext( );
     }
 
     continue;
    }
 
-   if(context.getBlockType() == BlockType.NONE)
+   if(context.getBlockType() == BlockType.NONE) // we are not processing any block and found first non empty line
    {
     String c0 = parts.get(0).trim();
 
     if(c0.length() == 0)
-     context.getContextLogNode().log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
+     submInf.getLogNode().log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
 
     if(c0.equals(SubmissionKeyword))
     {
-     LogNode ln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
+     LogNode ln = topLn.branch("(R" + lineNo + ",C1) Processing '" + SubmissionKeyword + "' block");
 
-     if(submInf.getSubmission() != null && ! config.isMultipleSubmissions() )
-      ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
+     if(submInf != null )
+     {
+      finalizeSubmission(submInf);
+
+      PreparedSubmission psub = new PreparedSubmission();
+      
+      psub.setSubmission(submInf.getSubmission());
+      psub.setGlobalSections(submInf.getSec2genId());
+      psub.setAcc( submInf.getSubmission().getAccNo() );
+      psub.setAccPrefix( submInf.getAccNoPrefix() );
+      psub.setAccSuffix( submInf.getAccNoSuffix() );
+      
+      res.add(psub);
+      
+      if ( ! config.isMultipleSubmissions() )
+       ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
+     }
 
      Submission subm = new Submission();
      submInf = new SubmissionInfo( subm );
+     submInf.setLogNode(ln);
 
-     lastSubmissionContext = new SubmissionContext(subm, this, ln, context);
+     lastSubmissionContext = new SubmissionContext(submInf, pstate, ln);
      context=lastSubmissionContext;
 
      context.parseFirstLine(parts, lineNo);
@@ -159,63 +198,71 @@ public class PageTabSyntaxParser2
        submInf.setAccNoPrefix(genAccNoMtch.group("pfx"));
        submInf.setAccNoSuffix(genAccNoMtch.group("sfx"));
       }
-     
      }
       
-     lastSecContext = null;
+     lastSectionOccurance = null;
      
-     res.add(submInf);
     }
     else if(c0.equals(FileKeyword))
     {
-     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + FileKeyword + "' block");
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     
+     LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + FileKeyword + "' block");
 
-     if(lastSecContext == null)
+     if(lastSectionOccurance == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) '" + FileKeyword + "' block should follow any section block");
+
 
      FileRef fr = new FileRef();
 
-     context = new FileContext(fr, this, sln, context.getParentContext());
+     context = new FileContext(fr, submInf, pstate, sln);
 
      context.parseFirstLine(parts, lineNo);
      
-     if(lastSecContext != null)
-      lastSecContext.getSection().addFileRef(fr);
+     if(lastSectionOccurance != null)
+      lastSectionOccurance.getSection().addFileRef(fr);
     }
     else if(c0.equals(LinkKeyword))
     {
-     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + LinkKeyword + "' block");
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     
+     LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + LinkKeyword + "' block");
 
-     if(lastSecContext == null)
+     if(lastSectionOccurance == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) '" + LinkKeyword + "' block should follow any section block");
 
      Link lnk = new Link();
 
-     context = new LinkContext(lnk, this, sln, context.getParentContext());
+     context = new LinkContext(lnk, submInf, pstate, sln);
 
      context.parseFirstLine(parts, lineNo);
      
-     if(lastSecContext != null)
-      lastSecContext.getSection().addLink(lnk);
+     if(lastSectionOccurance != null)
+      lastSectionOccurance.getSection().addLink(lnk);
     }
     else if(c0.equals(LinkTableKeyword))
     {
-     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing links table block");
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     
+     LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing links table block");
 
-     if(lastSecContext == null)
+     if(lastSectionOccurance == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Link table must follow section block");
 
-     context = new LinkTableContext(lastSecContext!=null?lastSecContext.getSection():null, this, sln, context.getParentContext());
+
+     context = new LinkTableContext(lastSectionOccurance!=null?lastSectionOccurance.getSection():null, submInf, pstate, sln);
      context.parseFirstLine(parts, lineNo);
     }
     else if(c0.equals(FileTableKeyword))
     {
-     LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing files table block");
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     
+     LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing files table block");
 
-     if(lastSecContext == null)
+     if(lastSectionOccurance == null)
       sln.log(Level.ERROR, "(R" + lineNo + ",C1) File table must follow section block");
 
-     context = new FileTableContext(lastSecContext!=null?lastSecContext.getSection():null, this, sln, context.getParentContext());
+     context = new FileTableContext(lastSectionOccurance!=null?lastSectionOccurance.getSection():null, submInf, pstate, sln);
      context.parseFirstLine(parts, lineNo);
     }
     else
@@ -230,47 +277,49 @@ public class PageTabSyntaxParser2
       if( pAcc != null )
        pAcc = pAcc.trim();
 
-      LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
+      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+      
+      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
 
-      if(lastSecContext == null)
-       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Sections table must follow section block");
+      if(lastSectionOccurance == null)
+       sln.log(Level.ERROR, "(R" + lineNo + ",C1) Sections table must follow any section block");
 
-      SectionContext pSecCtx = lastSecContext;
 
+      SectionOccurance parentSecOcc = lastSectionOccurance;
+      
       if(pAcc != null && pAcc.length() > 0)
       {
-       pSecCtx = secMap.get(pAcc);
-
-       if(pSecCtx == null)
-        sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
-       else if( context.getContextLogNode() != pSecCtx.getContextLogNode() )
-       {
-        sln.move(context.getContextLogNode(), pSecCtx.getContextLogNode());
-       }
+       parentSecOcc = submInf.getParentSection(pAcc);
+       
+       if(parentSecOcc == null)
+        sln.log(Level.ERROR, "(R" + lineNo + ",C1) Parent section '" + pAcc + "' not found");
+       else if( pln != parentSecOcc.getSecLogNode() )
+        sln.move(pln, parentSecOcc.getSecLogNode());
 
       }
 
-      context = new SectionTableContext(sName, pSecCtx==null?null:pSecCtx.getSection(), submInf, this, sln, pSecCtx);
+      context = new SectionTableContext(sName, parentSecOcc, submInf, pstate, sln);
       context.parseFirstLine(parts, lineNo);
 
      }
      else
      {
-      BlockContext curCtx = context;
       
-      LogNode sln = context.getContextLogNode().branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
+      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+
+      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
       
       Section s = new Section();
 
-      if(lastSecContext == null)
+      if(lastSectionOccurance == null)
       {
-       if(lastSubmissionContext == null )
+       if(submInf == null )
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
        else 
-        lastSubmissionContext.getSubmission().setRootSection(s);
+        submInf.getSubmission().setRootSection(s);
       }
 
-      context = new SectionContext(s, this, sln, context);
+      context = new SectionContext(s, submInf, pstate, sln);
 
       context.parseFirstLine(parts, lineNo);
       
@@ -293,6 +342,7 @@ public class PageTabSyntaxParser2
         sr.setSuffix(sfx);
         
         sr.setAccNo(genAccNoMtch.group("tmpid"));
+        
         s.setAccNo(sr.getAccNo());
         
         boolean gen=false;
@@ -316,48 +366,48 @@ public class PageTabSyntaxParser2
         if( gen )
          submInf.addSec2genId(sr);
        }
-       else
-        s.setAccNo(null);
 
-       
-       if( sr.getAccNo() != null && sr.getAccNo().length() > 0 )
-       {
-        if(submInf.getSectionMap().containsKey(sr.getAccNo()))
-         sln.log(Level.ERROR, "(R" + lineNo + ",C2) Section accession number '" + sr.getAccNo() + "' is arleady used for another object");
-        else
-         submInf.getSectionMap().put(sr.getAccNo(), sr);
-       }
-       
       }
-
+      
       String pAcc = s.getParentAccNo();
-      SectionContext pSecCtx = lastSecContext;
+      SectionOccurance pSecCtx = lastSectionOccurance;
       
       if(pAcc != null && pAcc.length() > 0)
       {
-       pSecCtx = secMap.get(pAcc);
+       pSecCtx = submInf.getParentSection(pAcc);
 
        if(pSecCtx == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
-       else if( context.getContextLogNode() != pSecCtx.getContextLogNode() )
-       {
-        sln.move(curCtx.getContextLogNode(), pSecCtx.getContextLogNode());
-        
-        context.setParentContext(pSecCtx);
-       }
+       else if( pln != pSecCtx.getSecLogNode() )
+        sln.move(pln, pSecCtx.getSecLogNode());
       }
       
 
       
       if( pSecCtx != null )
        pSecCtx.getSection().addSection(s);
-
-      lastSecContext = (SectionContext)context;
-
-      if( s.getAccNo() != null && s.getAccNo().length() > 0 )
+      
+      SectionOccurance secOc =null;
+      
+      if( s.getAccNo() != null  )
       {
-       secMap.put(s.getAccNo(), lastSecContext);
+       secOc = submInf.getSectionOccurance( s.getAccNo() );
+       
+       if( secOc != null )
+        sln.log(Level.ERROR, "Accession number '"+s.getAccNo()+"' is used by other section at (R" + secOc.getRow() + ",C"+secOc.getCol()+")");
       }
+      
+      secOc = new SectionOccurance();
+
+      secOc.setRow(lineNo);
+      secOc.setCol(1);
+      secOc.setSection(s);
+      secOc.setSecLogNode(sln);
+
+      submInf.addSectionOccurance(secOc);
+      submInf.addParentEligibleSection(secOc);
+      
+      lastSectionOccurance=secOc;
 
      }
     }
@@ -370,31 +420,35 @@ public class PageTabSyntaxParser2
 
   }
 
+  if( submInf != null )
+  {
+   finalizeSubmission(submInf);
+  
+   PreparedSubmission psub = new PreparedSubmission();
+   
+   psub.setSubmission(submInf.getSubmission());
+   psub.setGlobalSections(submInf.getSec2genId());
+   psub.setAcc( submInf.getSubmission().getAccNo() );
+   psub.setAccPrefix( submInf.getAccNoPrefix() );
+   psub.setAccSuffix( submInf.getAccNoSuffix() );
+   
+   res.add(psub);
+  }
+  
   SimpleLogNode.setLevels(topLn);
+  
   
   return res;
  }
  
- 
- private void checkSubmRefs( SubmissionContext sctx )
+ private void finalizeSubmission( SubmissionInfo si )
  {
-  sctx.getSubmission().getRootSection();
-  
- }
- 
- private void checkSecRefs( Section sec, Map<String,Section> secMap, LogNode ln )
- {
-  if( sec.getAttributes() == null )
-   return;
-  
-  for( SectionAttribute at : sec.getAttributes() )
+  if( si.getReferenceOccurrences() != null )
   {
-   if( ! at.isReference() )
-    return;
-   
-   if( ! secMap.containsKey(at.getValue()) )
+   for( ReferenceOccurrence r : si.getReferenceOccurrences() )
    {
-    ln.log(Level.ERROR, "Invalid reference. Target doesn't exist: "+at.getValue());
+    if( si.getSectionOccurance(r.getRef()) == null )
+     r.getLogNode().log(Level.ERROR, "(R" + r.getRow() + ",C"+r.getCol()+")"+"Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
    }
   }
  }
@@ -476,6 +530,8 @@ public class PageTabSyntaxParser2
     nm=t.substring(0,pos).trim();
     val=t.substring(pos+1).trim();
    }
+   else
+    nm = t;
    
    
    String[] clsTg = nm.split(ClassifierSeparatorRX);

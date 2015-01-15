@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -16,17 +17,27 @@ public abstract class TableBlockContext extends BlockContext
  
  private final Matcher nameQualifierMatcher;
  private final Matcher valueQualifierMatcher;
+ private final Matcher referenceMatcher;
 
  private List<AttrRef> atRefs;
- 
- protected TableBlockContext(BlockType typ, PageTabSyntaxParser2 parser, LogNode ln , BlockContext pc )
+ private SubmissionInfo submInfo;
+
+ protected TableBlockContext(BlockType typ, SubmissionInfo si, ParserState ps, LogNode ln )
  {
-  super(typ, parser, ln, pc);
+  super(typ, ps, ln);
   
-  nameQualifierMatcher = PageTabSyntaxParser2.NameQualifierPattern.matcher("");
-  valueQualifierMatcher = PageTabSyntaxParser2.ValueQualifierPattern.matcher("");
+  nameQualifierMatcher = ps.getNameQualifierMatcher();
+  valueQualifierMatcher = ps.getValueQualifierMatcher();
+  referenceMatcher = ps.getReferenceMatcher();
+  
+  submInfo = si;
  }
 
+ public SubmissionInfo getSubmissionInfo()
+ {
+  return submInfo;
+ }
+ 
  @Override
  public void parseFirstLine(List<String> parts, int lineNo)
  {
@@ -83,8 +94,18 @@ public abstract class TableBlockContext extends BlockContext
     atr.classifier=true;
    }
    else
+   {
+    referenceMatcher.reset(nm);
+    
+    if( referenceMatcher.matches() )
+    {
+     nm = referenceMatcher.group("name").trim();
+     atr.reference = true;
+    }
+    
     hasAttr = true;
-
+   }
+   
    atr.name = nm;
    atRefs.add( atr );
   }
@@ -115,6 +136,11 @@ public abstract class TableBlockContext extends BlockContext
    
    if( atr.classifier )
     prevAttr.addValueQualifier( new Qualifier(atr.name,val) );
+   else if( atr.reference )
+   {
+    prevAttr = addReference(atr.name,val,null);
+    submInfo.addReferenceOccurance(lineNo, i+1, val, log);
+   }
    else
     prevAttr = addAttribute(atr.name,val,null);
   }
@@ -131,6 +157,7 @@ public abstract class TableBlockContext extends BlockContext
  {
   String name;
   boolean classifier = false;
+  boolean reference = false;
  }
 
 }

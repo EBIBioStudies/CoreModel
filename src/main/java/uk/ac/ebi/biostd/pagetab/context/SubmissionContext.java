@@ -12,22 +12,20 @@ import uk.ac.ebi.biostd.model.SubmissionAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.SubmissionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.SubmissionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.pagetab.ParserState;
+import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
 public class SubmissionContext extends VerticalBlockContext
 {
 
- private final Submission submission;
  
  private List<SectionContext> sections = new ArrayList<SectionContext>();
 
- public SubmissionContext(Submission sbm, PageTabSyntaxParser2 pars, LogNode sln, BlockContext pc )
+ public SubmissionContext(SubmissionInfo si, ParserState pars, LogNode sln /*, BlockContext pc */ )
  {
-  super(BlockType.SUBMISSION, pars, sln, pc);
- 
-  submission = sbm;
+  super(BlockType.SUBMISSION, si, pars, sln);
  }
 
  public void addSection( SectionContext sc )
@@ -43,6 +41,8 @@ public class SubmissionContext extends VerticalBlockContext
  @Override
  public void parseFirstLine( List<String> cells, int ln )
  {
+  Submission submission = getSubmissionInfo().getSubmission();
+  
   LogNode log = getContextLogNode();
 
   String acc = null;
@@ -55,20 +55,18 @@ public class SubmissionContext extends VerticalBlockContext
    else
     log.log(Level.ERROR, "(R"+ln+",C2) Missing submission ID");
 
-   submission.setAccessTags( getParser().processAccessTags(cells, ln, 3, log) );
-   submission.setTagRefs( getParser().processTags(cells, ln, 4, SubmissionTagRefFactory.getInstance(),log) );
+   submission.setAccessTags( getParserState().getParser().processAccessTags(cells, ln, 3, log) );
+   submission.setTagRefs( getParserState().getParser().processTags(cells, ln, 4, SubmissionTagRefFactory.getInstance(),log) );
 
  }
  
- public Submission getSubmission()
- {
-  return submission;
- }
  
  @SuppressWarnings("unchecked")
  @Override
  public AbstractAttribute addAttribute(String nm, String val, Collection< ? extends TagRef> tags)
  {
+  Submission submission = getSubmissionInfo().getSubmission();
+
   SubmissionAttribute attr = new SubmissionAttribute();
   
   attr.setName(nm);

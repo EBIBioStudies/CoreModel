@@ -1,6 +1,5 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.model;
 
-import uk.ac.ebi.biostd.model.Section;
 
 public class SectionRef
 {
