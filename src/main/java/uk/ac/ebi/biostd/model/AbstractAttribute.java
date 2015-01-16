@@ -61,6 +61,11 @@ abstract public class AbstractAttribute
   this.id = id;
  }
 
+ public boolean isReference()
+ {
+  return false;
+ }
+ 
  public String getName()
  {
   return name;

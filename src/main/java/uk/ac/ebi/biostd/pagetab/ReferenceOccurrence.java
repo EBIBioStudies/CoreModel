@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.pagetab;
 
+import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
@@ -8,7 +9,7 @@ public class ReferenceOccurrence
  private int row;
  private int col;
  
- private String ref;
+ private AbstractAttribute ref;
  private LogNode logNode;
  private Section section;
 
@@ -45,12 +46,12 @@ public class ReferenceOccurrence
   this.col = col;
  }
 
- public String getRef()
+ public AbstractAttribute getRef()
  {
   return ref;
  }
 
- public void setRef(String ref)
+ public void setRef(AbstractAttribute ref)
  {
   this.ref = ref;
  }

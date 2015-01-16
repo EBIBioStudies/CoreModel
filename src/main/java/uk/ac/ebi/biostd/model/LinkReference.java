@@ -9,14 +9,14 @@ import javax.persistence.Transient;
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorValue(value="1")
-public class Reference extends SectionAttribute
+public class LinkReference extends LinkAttribute
 {
- public Reference()
+ public LinkReference()
  {
   super();
  }
  
- public Reference(String name, String value)
+ public LinkReference(String name, String value)
  {
   super(name,value);
  }
@@ -25,6 +25,6 @@ public class Reference extends SectionAttribute
  @Transient
  public boolean isReference()
  {
-  return false;
+  return true;
  }
 }

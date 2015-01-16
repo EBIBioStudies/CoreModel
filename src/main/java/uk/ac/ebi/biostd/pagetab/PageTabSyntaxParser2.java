@@ -12,7 +12,6 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
-import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.context.BlockContext;
@@ -430,7 +429,7 @@ public class PageTabSyntaxParser2
   {
    for( ReferenceOccurrence r : si.getReferenceOccurrences() )
    {
-    SectionOccurance soc = si.getSectionOccurance(r.getRef());
+    SectionOccurance soc = si.getSectionOccurance(r.getRef().getValue());
     if( soc == null )
      r.getLogNode().log(Level.ERROR, "(R" + r.getRow() + ",C"+r.getCol()+")"+"Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
     else

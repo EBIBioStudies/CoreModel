@@ -1,11 +1,13 @@
 package uk.ac.ebi.biostd.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
+
+
 
 public class FileUtil
 {
@@ -19,7 +21,7 @@ public class FileUtil
  {
   FileInputStream fis = new FileInputStream(f);
   
-  ByteOutputStream baos = new ByteOutputStream( (int)f.length() );
+  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
   try
   {
    byte[] buff = new byte[4096];
@@ -28,7 +30,7 @@ public class FileUtil
    while( (n=fis.read(buff)) != -1 )
     baos.write(buff, 0, n);
    
-   return new String(baos.getBytes(),chst);
+   return new String(baos.toByteArray(),chst);
   }
   finally
   {
@@ -52,7 +54,7 @@ public class FileUtil
  {
   FileInputStream fis = new FileInputStream(f);
   
-  ByteOutputStream baos = new ByteOutputStream( (int)f.length() );
+  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
   try
   {
    byte[] buff = new byte[4096];
@@ -87,7 +89,7 @@ public class FileUtil
    while( (n=fis.read(buff)) != -1 )
     baos.write(buff, 0, n);
    
-   return new String(baos.getBytes(),cs);
+   return new String(baos.toByteArray(),cs);
   }
   finally
   {

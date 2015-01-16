@@ -1,9 +1,11 @@
-package uk.ac.ebi.biostd.model;
+package uk.ac.ebi.biostd.pagetab;
+
+import uk.ac.ebi.biostd.model.Section;
 
 
 public class SectionRef
 {
- private Section section;
+ private Section target;
  private String  accNo;
  private String  prefix;
  private String  suffix;
@@ -11,18 +13,18 @@ public class SectionRef
 
  public SectionRef(Section s)
  {
-  section = s;
+  target = s;
   accNo = s.getAccNo();
  }
 
  public Section getSection()
  {
-  return section;
+  return target;
  }
 
  public void setSection(Section section)
  {
-  this.section = section;
+  this.target = section;
  }
 
  public String getAccNo()

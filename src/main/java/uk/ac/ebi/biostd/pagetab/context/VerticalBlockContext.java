@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
-import uk.ac.ebi.biostd.model.Reference;
 import uk.ac.ebi.biostd.pagetab.ParserState;
 import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -91,7 +90,7 @@ public abstract class VerticalBlockContext extends BlockContext
     {
      atName = referenceMatcher.group("name").trim();
      
-     Reference ref = addReference(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+     AbstractAttribute ref = addReference(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
      
      if( ref == null )
       log.log(Level.ERROR, "(R" + lineNo + ",C1) References are not allowed in this context");
@@ -99,7 +98,7 @@ public abstract class VerticalBlockContext extends BlockContext
      {
       lastAttr = ref;
      
-      submInfo.addReferenceOccurance(lineNo, 2, val, log);
+      submInfo.addReferenceOccurance(lineNo, 2, ref, log);
      }
     }
     else

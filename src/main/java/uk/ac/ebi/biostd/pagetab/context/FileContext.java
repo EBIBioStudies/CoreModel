@@ -8,6 +8,7 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.FileAttribute;
 import uk.ac.ebi.biostd.model.FileAttributeTagRef;
 import uk.ac.ebi.biostd.model.FileRef;
+import uk.ac.ebi.biostd.model.FileReference;
 import uk.ac.ebi.biostd.model.trfactory.FileAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.FileTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
@@ -70,6 +71,24 @@ public class FileContext extends VerticalBlockContext
   return attr;
  }
 
+ @SuppressWarnings("unchecked")
+ @Override
+ public FileReference addReference(String nm, String val, Collection< ? extends TagRef> tags)
+ {
+  FileReference ref =  new FileReference();
+  
+  
+  ref.setName(nm);
+  ref.setValue(val);
+
+  ref.setTagRefs((Collection<FileAttributeTagRef>)tags);
+
+  ref.setHost(fileRef);
+  fileRef.addAttribute(ref);
+  
+  return ref;
+ }
+ 
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {

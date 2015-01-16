@@ -9,11 +9,12 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
-import uk.ac.ebi.biostd.model.SectionRef;
+import uk.ac.ebi.biostd.model.SectionReference;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.pagetab.ParserState;
 import uk.ac.ebi.biostd.pagetab.SectionOccurance;
+import uk.ac.ebi.biostd.pagetab.SectionRef;
 import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
@@ -52,6 +53,24 @@ public class SectionTableContext extends TableBlockContext
   return attr;
  }
 
+ @SuppressWarnings("unchecked")
+ @Override
+ public SectionReference addReference(String nm, String val, Collection< ? extends TagRef> tags)
+ {
+  SectionReference ref =  new SectionReference();
+  
+  
+  ref.setName(nm);
+  ref.setValue(val);
+
+  ref.setTagRefs((Collection<SectionAttributeTagRef>)tags);
+
+  ref.setHost(current);
+  current.addAttribute(ref);
+  
+  return ref;
+ }
+ 
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {

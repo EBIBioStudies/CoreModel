@@ -71,7 +71,7 @@ public class PageMLFormatter implements Formatter
     if( first )
      first = false;
     else
-     out.append(';');
+     out.append(',');
     
     xmlEscaped(at.getName(),out);
    }
@@ -84,8 +84,6 @@ public class PageMLFormatter implements Formatter
 
   formatAttributes(sec, out, contShift);
 
-  out.append("\n");
-  
   if( sec.getFileRefs() != null && sec.getFileRefs().size() > 0 )
   {
    formatFileRefs(sec, out, contShift);
@@ -365,7 +363,10 @@ public class PageMLFormatter implements Formatter
    out.append('<').append(ATTRIBUTE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
    xmlEscaped(at.getName(),out);
 
- 
+   if( at.isReference() )
+    out.append("\" reference=\"true");
+   
+   
    String str = at.getEntityClass();
    if( str != null && str.length() > 0 )
    {

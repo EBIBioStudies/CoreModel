@@ -139,7 +139,7 @@ public abstract class TableBlockContext extends BlockContext
    else if( atr.reference )
    {
     prevAttr = addReference(atr.name,val,null);
-    submInfo.addReferenceOccurance(lineNo, i+1, val, log);
+    submInfo.addReferenceOccurance(lineNo, i+1, prevAttr, log);
    }
    else
     prevAttr = addAttribute(atr.name,val,null);

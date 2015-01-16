@@ -6,7 +6,7 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
-import uk.ac.ebi.biostd.model.Reference;
+import uk.ac.ebi.biostd.model.SectionReference;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
@@ -64,9 +64,9 @@ public class SectionContext extends VerticalBlockContext
 
  @SuppressWarnings("unchecked")
  @Override
- public Reference addReference(String nm, String val, Collection< ? extends TagRef> tags)
+ public SectionReference addReference(String nm, String val, Collection< ? extends TagRef> tags)
  {
-  Reference ref =  new Reference();
+  SectionReference ref =  new SectionReference();
   
   
   ref.setName(nm);

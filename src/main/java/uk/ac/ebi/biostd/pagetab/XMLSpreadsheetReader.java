@@ -32,6 +32,7 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
  private boolean inRow = false;
  private boolean inCell = false;
  private boolean inData = false;
+ private boolean hasDataInCell = false;
  
  private boolean worksheetPassed = false;
  
@@ -126,7 +127,7 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
 
      for( int i=lineNo; i < n; i++ )
      {
-      sheet.add(Collections.emptyList());
+      sheet.add(Collections.<String>emptyList());
       lineNo++;
      }
     }
@@ -142,6 +143,7 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
   else if( CELL.equals(qName) && inRow )
   {
    inCell = true;
+   hasDataInCell = false;
    
    col++;
    
@@ -168,8 +170,10 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
    }
   }
   else if( DATA.equals(qName) && inCell )
+  {
    inData = true;
-
+   hasDataInCell = true;
+  }
   
  }
  
@@ -203,6 +207,9 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
   {
    inCell = false;
    inData = false;
+   
+   if( ! hasDataInCell )
+    cRow.add("");
   }
   else if( DATA.equals(qName) && inCell )
    inData = false;

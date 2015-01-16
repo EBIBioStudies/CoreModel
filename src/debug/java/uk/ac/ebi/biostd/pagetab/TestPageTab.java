@@ -9,8 +9,6 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.export.PageMLFormatter;
 import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
-import uk.ac.ebi.biostd.model.PreparedSubmission;
-import uk.ac.ebi.biostd.model.SectionRef;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -62,7 +60,7 @@ public class TestPageTab
   SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   
   
-  List<PreparedSubmission> sbm = null ;
+  List<SubmissionInfo> sbm = null ;
 
   try
   {
@@ -80,13 +78,13 @@ public class TestPageTab
    IdGen idGen = new IdGen();
 
    
-   for(PreparedSubmission s : sbm)
+   for(SubmissionInfo s : sbm)
    {
-    if(s.getAccPrefix() != null || s.getAccSuffix() != null)
+    if(s.getAccNoPrefix() != null || s.getAccNoSuffix() != null)
      s.getSubmission().setAccNo(
-       (s.getAccPrefix() != null ? s.getAccPrefix() : "") + idGen.getId() + (s.getAccSuffix() != null ? s.getAccSuffix() : ""));
+       (s.getAccNoPrefix() != null ? s.getAccNoPrefix() : "") + idGen.getId() + (s.getAccNoSuffix() != null ? s.getAccNoSuffix() : ""));
     
-    for( SectionRef sr : s.getGlobalSections() )
+    for( SectionRef sr : s.getSec2genId() )
     {
       String accNo = (sr.getPrefix() != null ? sr.getPrefix() : "") + idGen.getId() + (sr.getSuffix() != null ? sr.getSuffix() : "");
       
@@ -110,7 +108,7 @@ public class TestPageTab
    
    out.append("<data>\n");
    
-   for( PreparedSubmission s : sbm )
+   for( SubmissionInfo s : sbm )
     fmt.format(s.getSubmission(), out);
    
    out.append("</data>\n");
