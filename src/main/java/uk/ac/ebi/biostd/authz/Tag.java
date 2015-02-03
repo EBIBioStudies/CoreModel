@@ -5,13 +5,12 @@ import java.util.Collection;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-
-import org.hibernate.annotations.ForeignKey;
 
 @Entity
 public class Tag
@@ -66,8 +65,7 @@ public class Tag
  }
 
  @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="parent_tag_id")
- @ForeignKey(name="parent_tag_fk")
+ @JoinColumn(name="parent_tag_id",foreignKey = @ForeignKey(name = "parent_tag_fk"))
  public Tag getParentTag()
  {
   return parentTag;
@@ -91,8 +89,7 @@ public class Tag
  }
  
  @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="classifier_id")
- @ForeignKey(name="classifier_fk")
+ @JoinColumn(name="classifier_id",foreignKey = @ForeignKey(name = "classifier_fk"))
  public Classifier getClassifier()
  {
   return classifier;

@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import uk.ac.ebi.biostd.authz.Tag;
+
 @Entity
 @DiscriminatorColumn(name="ref", discriminatorType=DiscriminatorType.INTEGER)
 @DiscriminatorValue(value="0")
@@ -52,6 +54,20 @@ public class FileAttribute extends AbstractAttribute
  public void setTagRefs(Collection<FileAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ 
+ @Override
+ public FileAttributeTagRef addTagRef( Tag t, String val )
+ {
+  FileAttributeTagRef ftr = new FileAttributeTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( FileAttributeTagRef tr )

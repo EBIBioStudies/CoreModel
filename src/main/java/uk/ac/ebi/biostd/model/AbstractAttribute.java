@@ -16,7 +16,7 @@ import javax.persistence.Transient;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @MappedSuperclass
-abstract public class AbstractAttribute
+abstract public class AbstractAttribute implements Classified
 {
  private final static String QUALIFIERS_SEPARATOR = ";";
  private final static String QUALIFIER_VALUE_SEPARATOR = "=";
@@ -61,6 +61,7 @@ abstract public class AbstractAttribute
   this.id = id;
  }
 
+ @Transient
  public boolean isReference()
  {
   return false;
@@ -246,9 +247,11 @@ abstract public class AbstractAttribute
  }
  
  
+ @Override
  @Transient
  public abstract Collection<? extends TagRef> getTagRefs();
  
+ @Override
  @Transient
  public String getEntityClass()
  {

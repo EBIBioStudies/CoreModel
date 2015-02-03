@@ -17,10 +17,11 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class FileRef implements Annotated, Classified, SecurityObject
+public class FileRef implements Node
 { 
  
  @Id
@@ -135,6 +136,19 @@ public class FileRef implements Annotated, Classified, SecurityObject
   this.tagRefs = tags;
  }
  
+ @Override
+ public FileTagRef addTagRef( Tag t, String val )
+ {
+  FileTagRef ftr = new FileTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
+ }
+
  public void addTagRef( FileTagRef tr )
  {
   if( tagRefs == null )

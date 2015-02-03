@@ -123,13 +123,21 @@ public abstract class TableBlockContext extends BlockContext
   
   for( int i=0; i < n; i++ )
   {
+   String val = parts.get(i+1).trim();
+   
+   if( i >= atRefs.size() )
+   {
+    if( val.length() != 0 )
+     log.log(Level.ERROR, "(R" + lineNo + ",C"+(i+1)+") Unexpected value");
+    
+    continue;
+   }
    
    AttrRef atr = atRefs.get(i);
    
    if( atr.name == null )
     continue;
    
-   String val = parts.get(i+1).trim();
    
    if( val.length() == 0 )
     continue;
@@ -145,11 +153,11 @@ public abstract class TableBlockContext extends BlockContext
     prevAttr = addAttribute(atr.name,val,null);
   }
   
-  for( int i = atRefs.size()+1; i < parts.size(); i++ )
-  {
-   if( parts.get(i).trim().length() != 0 )
-    log.log(Level.ERROR, "(R" + lineNo + ",C"+(i+1)+") Unexpected value");
-  }
+//  for( int i = atRefs.size()+1; i < parts.size(); i++ )
+//  {
+//   if( parts.get(i).trim().length() != 0 )
+//    log.log(Level.ERROR, "(R" + lineNo + ",C"+(i+1)+") Unexpected value");
+//  }
   
  }
 

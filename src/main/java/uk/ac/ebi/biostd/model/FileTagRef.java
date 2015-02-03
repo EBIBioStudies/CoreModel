@@ -23,9 +23,9 @@ public class FileTagRef extends TagRef
  {
   this.fileRef = fileRef;
  }
-
- public void setSubmission(FileRef fileRef)
- {
-  this.fileRef = fileRef;
- }
+//
+// public void setSubmission(FileRef fileRef)
+// {
+//  this.fileRef = fileRef;
+// }
 }

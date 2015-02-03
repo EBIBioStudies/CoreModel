@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.export;
+package uk.ac.ebi.biostd.out;
 
 import java.io.IOException;
 

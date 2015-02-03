@@ -19,11 +19,12 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.authz.User;
 
 @Entity
-public class Submission implements Annotated, SecurityObject, Classified, Accessible
+public class Submission implements Node, Accessible
 {
  @Id
  @GeneratedValue
@@ -188,6 +189,19 @@ public class Submission implements Annotated, SecurityObject, Classified, Access
  public void setTagRefs(Collection<SubmissionTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ @Override
+ public SubmissionTagRef addTagRef( Tag t, String val )
+ {
+  SubmissionTagRef ftr = new SubmissionTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( SubmissionTagRef tr )

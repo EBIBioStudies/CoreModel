@@ -38,9 +38,9 @@ public class PageTabSyntaxParser2
  public static final String CommentPrefix   = "#";
 
  public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)?(?:,(?<sfx>[^}]+))?\\})?\\s*";
- public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\s>]+)\\s*\\)\\s*";
- public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\s>]+)\\s*\\]\\s*";
- public static final String ReferenceRx = "\\s*\\<\\s*(?<name>[^\\s>]+)\\s*\\>\\s*";
+ public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\)]+)\\s*\\)\\s*";
+ public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\]]+)\\s*\\]\\s*";
+ public static final String ReferenceRx = "\\s*\\<\\s*(?<name>[^\\>]+)\\s*\\>\\s*";
  public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
 
  public static final String SubmissionKeyword     = "Submission";

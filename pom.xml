@@ -1,61 +1,97 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>uk.ac.ebi.biostd</groupId>
-  <artifactId>BioStdCoreModel</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  
-  <dependencies>
-	
+	<groupId>uk.ac.ebi.biostd</groupId>
+	<artifactId>BioStdCoreModel</artifactId>
+	<version>0.0.2</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.7.5</version>
+			<version>[1.7,)</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>4.2.0.Final</version>
+			<version>4.3.8.Final</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>4.3.1.Final</version>
+			<version>[5.1.3.Final,6)</version>
+		</dependency> 
+		
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>4.3.8.Final</version>
 		</dependency>
-  
-  </dependencies>
-  
-  <!-- build>
-    <sourceDirectory>src</sourceDirectory>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source/>
-          <target/>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build-->
-  
-    <repositories>
+		
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20141113</version>
+		</dependency>
+
+	</dependencies>
+
+	<!-- build> <sourceDirectory>src</sourceDirectory> <plugins> <plugin> <artifactId>maven-compiler-plugin</artifactId> 
+		<version>2.3.2</version> <configuration> <source/> <target/> </configuration> 
+		</plugin> </plugins> </build -->
+
+	<repositories>
 
 		<repository>
 			<id>ebi-repo</id>
 			<name>EBI repo</name>
 			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 		</repository>
-		
+
 		<repository>
 			<id>ebi-repo-snapshots</id>
 			<name>EBI Repo Snapshots</name>
 			<url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
-			<snapshots><enabled>true</enabled></snapshots>
-		</repository> 
-  
-  </repositories>
-  
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
+	</repositories>
+
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>uk/ac/ebi/biostd/model/**/*.java</include>
+					<include>uk/ac/ebi/biostd/treelog/**/*.java</include>
+					<include>uk/ac/ebi/biostd/authz/**/*.java</include>
+				</includes>
+
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

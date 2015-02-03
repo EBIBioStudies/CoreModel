@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import uk.ac.ebi.biostd.export.PageMLFormatter;
-import uk.ac.ebi.biostd.export.SubmissionPageMLFormatter;
+import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
+import uk.ac.ebi.biostd.out.pageml.SubmissionPageMLFormatter;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.LogNode;

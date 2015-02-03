@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import uk.ac.ebi.biostd.authz.Tag;
+
 @Entity
 @DiscriminatorColumn(name="ref", discriminatorType=DiscriminatorType.INTEGER)
 @DiscriminatorValue(value="0")
@@ -52,6 +54,19 @@ public class LinkAttribute extends AbstractAttribute
  public void setTagRefs(Collection<LinkAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ @Override
+ public LinkAttributeTagRef addTagRef( Tag t, String val )
+ {
+  LinkAttributeTagRef ftr = new LinkAttributeTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( LinkAttributeTagRef tr )

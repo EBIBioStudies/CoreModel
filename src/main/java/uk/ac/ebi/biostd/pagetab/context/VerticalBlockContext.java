@@ -56,8 +56,10 @@ public abstract class VerticalBlockContext extends BlockContext
   int nRead=2;
   
   if( val == null )
+  {
    log.log(Level.WARN, "(R" + lineNo + ",C2) Empty value");
-  
+   return;
+  }
   nameQualifierMatcher.reset(atName);
   
   if( nameQualifierMatcher.matches() )

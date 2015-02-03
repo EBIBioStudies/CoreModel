@@ -17,10 +17,11 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class Link implements Annotated, Classified, SecurityObject
+public class Link implements Node
 {
 
  @Id
@@ -146,6 +147,19 @@ public class Link implements Annotated, Classified, SecurityObject
  public void setTagRefs(Collection<LinkTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ @Override
+ public LinkTagRef addTagRef( Tag t, String val )
+ {
+  LinkTagRef ftr = new LinkTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( LinkTagRef tr )

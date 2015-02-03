@@ -24,15 +24,15 @@ public class ModTest
   Map<String, Object> conf = new TreeMap<String, Object>();
   
   conf.put("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-  conf.put("hibernate.connection.username", "mike");
-  conf.put("hibernate.connection.password", "mike");
-  conf.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/biostd");
+  conf.put("hibernate.connection.username", "biostd");
+  conf.put("hibernate.connection.password", "biostd");
+  conf.put("hibernate.connection.url", "jdbc:mysql://mysql-fg-biostudy.ebi.ac.uk:4469/biostd_test");
   conf.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
   conf.put("hibernate.hbm2ddl.auto", "update");
   conf.put("hibernate.show_sql", "true");
 //  conf.put("hibernate.archive.autodetection", "class, hbm");
   
-  EntityManagerFactory fact = Persistence.createEntityManagerFactory ( "BioStd", conf );
+  EntityManagerFactory fact = Persistence.createEntityManagerFactory ( "BioStdCoreModel", conf );
   
   EntityManager em = fact.createEntityManager();
   
@@ -76,6 +76,6 @@ public class ModTest
   
   em.close();
   
-  
+  fact.close();
  }
 }

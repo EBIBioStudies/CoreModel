@@ -16,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import uk.ac.ebi.biostd.authz.Tag;
+
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="ref", discriminatorType=DiscriminatorType.INTEGER)
@@ -59,6 +61,19 @@ public class SectionAttribute extends AbstractAttribute
   this.tagRefs = tags;
  }
  
+ @Override
+ public SectionAttributeTagRef addTagRef( Tag t, String val )
+ {
+  SectionAttributeTagRef ftr = new SectionAttributeTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
+ }
+ 
  public void addTagRef( SectionAttributeTagRef tr )
  {
   if( tagRefs == null )
@@ -67,6 +82,7 @@ public class SectionAttribute extends AbstractAttribute
   tagRefs.add(tr);
  }
 
+ @Override
  @Transient
  public boolean isReference()
  {

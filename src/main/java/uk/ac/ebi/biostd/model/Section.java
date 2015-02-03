@@ -17,10 +17,11 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-public class Section implements Annotated, Classified, SecurityObject, Accessible
+public class Section implements Node, Accessible
 {
  @Id
  @GeneratedValue
@@ -285,6 +286,19 @@ public class Section implements Annotated, Classified, SecurityObject, Accessibl
  public void setTagRefs(Collection<SectionTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ @Override
+ public SectionTagRef addTagRef( Tag t, String val )
+ {
+  SectionTagRef ftr = new SectionTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( SectionTagRef tr )

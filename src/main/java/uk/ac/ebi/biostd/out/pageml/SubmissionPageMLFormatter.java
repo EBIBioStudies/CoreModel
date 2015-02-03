@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.export;
+package uk.ac.ebi.biostd.out.pageml;
 
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ACCESS;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.CLASS;

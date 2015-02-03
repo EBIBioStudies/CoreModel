@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.export;
+package uk.ac.ebi.biostd.out.pageml;
 
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ACCESS;
 import static uk.ac.ebi.biostd.pageml.PageMLAttributes.CLASS;
@@ -28,6 +28,7 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.out.Formatter;
 import uk.ac.ebi.biostd.pageml.PageMLElements;
 
 public class PageMLFormatter implements Formatter

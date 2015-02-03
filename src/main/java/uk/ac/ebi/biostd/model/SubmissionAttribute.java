@@ -10,6 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import uk.ac.ebi.biostd.authz.Tag;
+
 @Entity
 public class SubmissionAttribute extends AbstractAttribute
 {
@@ -46,6 +48,19 @@ public class SubmissionAttribute extends AbstractAttribute
  public void setTagRefs(Collection<SubmissionAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+ }
+ 
+ @Override
+ public SubmissionAttributeTagRef addTagRef( Tag t, String val )
+ {
+  SubmissionAttributeTagRef ftr = new SubmissionAttributeTagRef();
+  
+  ftr.setTag(t);
+  ftr.setParameter(val);
+  
+  addTagRef(ftr);
+  
+  return ftr;
  }
  
  public void addTagRef( SubmissionAttributeTagRef tr )
