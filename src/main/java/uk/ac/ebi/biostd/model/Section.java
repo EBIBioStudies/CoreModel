@@ -66,6 +66,15 @@ public class Section implements Node, Accessible
   nd.setHost(this);
  }
  
+ @Override
+ public boolean removeAttribute(AbstractAttribute at)
+ {
+  if( attributes == null )
+   return false;
+  
+  return attributes.remove(at);
+ }
+ 
  public void setAttributes( List<SectionAttribute> sn )
  {
   attributes = sn;
@@ -322,7 +331,8 @@ public class Section implements Node, Accessible
   this.accessTags = accessTags;
  }
  
- public void addAccessTags( AccessTag t )
+ @Override
+ public void addAccessTag( AccessTag t )
  {
   if( accessTags == null )
    accessTags = new ArrayList<>();

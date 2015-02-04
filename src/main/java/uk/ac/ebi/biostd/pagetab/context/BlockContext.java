@@ -63,10 +63,8 @@ public abstract class BlockContext
  }
  
  public abstract AbstractAttribute addAttribute( String nm, String val, Collection<? extends TagRef> tags );
- public AbstractAttribute addReference( String nm, String val, Collection<? extends TagRef> tags )
- {
-  return null;
- }
+// public abstract AbstractAttribute addReference( String nm, String val, Collection<? extends TagRef> tags );
+
 
  public abstract TagReferenceFactory<?> getAttributeTagRefFactory();
 

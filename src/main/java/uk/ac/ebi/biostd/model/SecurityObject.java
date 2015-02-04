@@ -7,4 +7,6 @@ import uk.ac.ebi.biostd.authz.AccessTag;
 public interface SecurityObject
 {
  Collection<AccessTag> getAccessTags();
+ 
+ void addAccessTag( AccessTag atg );
 }

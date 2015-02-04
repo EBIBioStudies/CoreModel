@@ -53,14 +53,11 @@
 		<class>uk.ac.ebi.biostd.model.LinkTagRef</class>
 		<class>uk.ac.ebi.biostd.model.Section</class>
 		<class>uk.ac.ebi.biostd.model.SectionAttribute</class>
-		<class>uk.ac.ebi.biostd.model.SectionReference</class>
 		<class>uk.ac.ebi.biostd.model.SectionAttributeTagRef</class>
 		<class>uk.ac.ebi.biostd.model.SectionTagRef</class>
 		<class>uk.ac.ebi.biostd.model.Submission</class>
 		<class>uk.ac.ebi.biostd.model.SubmissionAttribute</class>
 		<class>uk.ac.ebi.biostd.model.SubmissionAttributeTagRef</class>
 		<class>uk.ac.ebi.biostd.model.SubmissionTagRef</class>
-		<class>uk.ac.ebi.biostd.model.LinkReference</class>
-		<class>uk.ac.ebi.biostd.model.FileReference</class>
 	</persistence-unit>
 </persistence>

@@ -153,6 +153,15 @@ public class Submission implements Node, Accessible
  }
  
  @Override
+ public boolean removeAttribute(AbstractAttribute at)
+ {
+  if( attributes == null )
+   return false;
+  
+  return attributes.remove(at);
+ }
+ 
+ @Override
  @Transient
  public String getEntityClass()
  {
@@ -225,7 +234,8 @@ public class Submission implements Node, Accessible
   this.accessTags = accessTags;
  }
  
- public void addAccessTags( AccessTag t )
+ @Override
+ public void addAccessTag( AccessTag t )
  {
   if( accessTags == null )
    accessTags = new ArrayList<>();

@@ -146,7 +146,8 @@ public abstract class TableBlockContext extends BlockContext
     prevAttr.addValueQualifier( new Qualifier(atr.name,val) );
    else if( atr.reference )
    {
-    prevAttr = addReference(atr.name,val,null);
+    prevAttr = addAttribute(atr.name,val,null);
+    prevAttr.setReferenece(true);
     submInfo.addReferenceOccurance(lineNo, i+1, prevAttr, log);
    }
    else

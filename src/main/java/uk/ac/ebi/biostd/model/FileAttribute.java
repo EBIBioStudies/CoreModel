@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -16,8 +13,6 @@ import javax.persistence.OneToMany;
 import uk.ac.ebi.biostd.authz.Tag;
 
 @Entity
-@DiscriminatorColumn(name="ref", discriminatorType=DiscriminatorType.INTEGER)
-@DiscriminatorValue(value="0")
 public class FileAttribute extends AbstractAttribute
 {
  public FileAttribute()

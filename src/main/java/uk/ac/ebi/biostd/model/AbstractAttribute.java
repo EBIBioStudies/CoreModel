@@ -27,6 +27,7 @@ abstract public class AbstractAttribute implements Classified
  private static final Pattern escQS = Pattern.compile(QUALIFIERS_SEPARATOR);
  private static final Pattern escQV = Pattern.compile(QUALIFIER_VALUE_SEPARATOR);
  
+ private boolean isReference=false;
  private List<Qualifier> nameQualifiers;
  private List<Qualifier> valueQualifiers;
  
@@ -61,10 +62,14 @@ abstract public class AbstractAttribute implements Classified
   this.id = id;
  }
 
- @Transient
  public boolean isReference()
  {
-  return false;
+  return isReference;
+ }
+ 
+ public void setReferenece(boolean rf)
+ {
+  isReference = rf;
  }
  
  public String getName()

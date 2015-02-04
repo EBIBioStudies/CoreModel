@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.db;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;

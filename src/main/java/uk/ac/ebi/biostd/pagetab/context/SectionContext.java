@@ -6,7 +6,6 @@ import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
-import uk.ac.ebi.biostd.model.SectionReference;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
@@ -62,24 +61,7 @@ public class SectionContext extends VerticalBlockContext
   return attr;
  }
 
- @SuppressWarnings("unchecked")
- @Override
- public SectionReference addReference(String nm, String val, Collection< ? extends TagRef> tags)
- {
-  SectionReference ref =  new SectionReference();
-  
-  
-  ref.setName(nm);
-  ref.setValue(val);
 
-  ref.setTagRefs((Collection<SectionAttributeTagRef>)tags);
-
-  ref.setHost(section);
-  section.addAttribute(ref);
-  
-  return ref;
- }
- 
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {

@@ -170,7 +170,8 @@ public class FileRef implements Node
   this.accessTags = accessTags;
  }
  
- public void addAccessTags( AccessTag t )
+ @Override
+ public void addAccessTag( AccessTag t )
  {
   if( accessTags == null )
    accessTags = new ArrayList<>();
@@ -188,5 +189,14 @@ public class FileRef implements Node
  public void setTableIndex(int tableIndex)
  {
   this.tableIndex = tableIndex;
+ }
+
+ @Override
+ public boolean removeAttribute(AbstractAttribute at)
+ {
+  if( attributes == null )
+   return false;
+  
+  return attributes.remove(at);
  }
 }

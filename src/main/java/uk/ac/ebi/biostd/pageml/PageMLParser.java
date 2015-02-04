@@ -19,7 +19,6 @@ import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.TagResolver;
 
 public class PageMLParser extends DefaultHandler
 {

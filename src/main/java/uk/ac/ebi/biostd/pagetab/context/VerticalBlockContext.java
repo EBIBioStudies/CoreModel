@@ -92,12 +92,13 @@ public abstract class VerticalBlockContext extends BlockContext
     {
      atName = referenceMatcher.group("name").trim();
      
-     AbstractAttribute ref = addReference(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
+     AbstractAttribute ref = addAttribute(atName,val,getParserState().getParser().processTags(cells, lineNo, 3, getAttributeTagRefFactory(),log));
      
      if( ref == null )
       log.log(Level.ERROR, "(R" + lineNo + ",C1) References are not allowed in this context");
      else
      {
+      ref.setReferenece(true);
       lastAttr = ref;
      
       submInfo.addReferenceOccurance(lineNo, 2, ref, log);

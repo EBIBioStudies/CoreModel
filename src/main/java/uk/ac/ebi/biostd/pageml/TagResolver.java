@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.out;
+package uk.ac.ebi.biostd.pageml;
 
 import java.util.Collection;
 

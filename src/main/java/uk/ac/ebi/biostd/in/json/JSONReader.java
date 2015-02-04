@@ -10,10 +10,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.Tag;
+import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
+import uk.ac.ebi.biostd.model.Classified;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Node;
+import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
@@ -23,9 +27,18 @@ import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
 public class JSONReader
 {
- interface NodeProcessor
+ interface NodeProcessor<NT>
  {
-  void process( Object jsno, Node nd, LogNode ln, Stack<String> path);
+  boolean process( Object jsno, NT nd, LogNode ln, Stack<String> path);
+ }
+ 
+ private TagResolver tagResolver;
+ private boolean strictTags;
+ 
+ public JSONReader( TagResolver tgResl, boolean stctTags )
+ {
+  tagResolver = tgResl;
+  strictTags = stctTags;
  }
  
  public List<SubmissionInfo> readJSON( String txt, LogNode rln )
@@ -179,13 +192,15 @@ public class JSONReader
  }
  
  
- void processArray( Object val, Node nd, LogNode ln, Stack<String> path, NodeProcessor np )
+ <NT> boolean processArray( Object val, NT nd, LogNode ln, Stack<String> path, NodeProcessor<NT> np )
  {
   if( !(val instanceof JSONArray ) ) 
   {
    ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: array expected here");
-   return;
+   return false;
   }
+  
+  boolean res = true;
   
   for( int j=0; j < ((JSONArray)val).length(); j++ )
   {
@@ -195,13 +210,13 @@ public class JSONReader
     
     Object sso = ((JSONArray) val).get(j);
 
-    if( !( sso instanceof JSONObject ) )
-    {
-     ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: JSON object expected here" );
-     continue;
-    }
+//    if( !( sso instanceof JSONObject ) )
+//    {
+//     ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: JSON object expected here" );
+//     continue;
+//    }
      
-    np.process(sso,nd,ln,path);
+    res = res && np.process(sso,nd,ln,path);
 
    }
    finally
@@ -209,6 +224,8 @@ public class JSONReader
     path.pop();
    }
   }
+  
+  return res;
  }
  
  private boolean processCommon(String key, Object val, Node obj, LogNode ln, Stack<String> path)
@@ -241,19 +258,347 @@ public class JSONReader
   return true;
  }
 
- AccessTag processAccessTag(Object val, Node nd, LogNode ln, Stack<String> path)
+ private Qualifier processQualifier( Object tgjo, LogNode ln, Stack<String> path )
  {
-  return null;
+  if(!(tgjo instanceof JSONObject))
+  {
+   ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: JSON object expected here");
+   return null;
+  }
+  
+  Iterator<String> kitr = ((JSONObject)tgjo).keys();
+
+  boolean res = true;
+  
+  Qualifier q = new Qualifier();
+  
+  while(kitr.hasNext())
+  {
+   String key = kitr.next();
+   Object val = ((JSONObject)tgjo).get(key);
+   try
+   {
+    path.push(key);
+
+    
+    switch(key)
+    {
+     case JSONFormatter.nameProperty:
+      
+      if( ! (val instanceof String ) )
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+       res = false;
+      }
+      else
+       q.setName((String)val);
+      
+      break;
+     
+     case JSONFormatter.valueProperty:
+      
+      if( ! (val instanceof String ) )
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+       res = false;
+      }
+      else
+       q.setValue((String)val);
+      
+      break;
+      
+     default:
+
+       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
+       res = false;
+      break;
+    }
+
+   }
+   finally
+   {
+    path.pop();
+   }
+  }
+  
+  if( q.getName() == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.nameProperty+"' property missing");
+   res = false;
+  }
+  
+  if( q.getValue() == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.valueProperty+"' property missing");
+   res = false;
+  }
+  
+  if( ! res )
+   return null;
+  
+  return q;
  }
  
- AbstractAttribute processAttribute(Object val, Node nd, LogNode ln, Stack<String> path)
+ private boolean  processNameQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path)
  {
-  return null;
+  Qualifier q = processQualifier(val, ln, path);
+  
+  if( q == null )
+   return false;
+  
+  at.addNameQualifier(q);
+  
+  return true;
+ }
+ 
+ private boolean  processValueQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path)
+ {
+  Qualifier q = processQualifier(val, ln, path);
+  
+  if( q == null )
+   return false;
+  
+  at.addValueQualifier(q);
+  
+  return true;
  }
 
- AbstractAttribute processClassTag(Object val, Node nd, LogNode ln, Stack<String> path)
+ private boolean processAccessTag(Object val, Node nd, LogNode ln, Stack<String> path)
  {
-  return null;
+  if( !( val instanceof String ))
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+   return false;
+  }
+  
+  AccessTag at = tagResolver.getAccessTagByName((String)val);
+  
+  if( at == null )
+  {
+   ln.log(strictTags?Level.ERROR:Level.WARN, "Path '"+pathToString(path)+"' error: access tag '"+val+"' can't be resolved" );
+  
+   return ! strictTags;
+  }
+  else
+  {
+//   ln.log(Level.INFO, "Access tag '" +val+"' resolved");
+
+   nd.addAccessTag(at);
+  }
+  
+  return true;
+ }
+ 
+ private boolean processAttribute(Object tgjo, Node nd, LogNode ln, Stack<String> path)
+ {
+  if(!(tgjo instanceof JSONObject))
+  {
+   ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: JSON object expected here");
+   return false;
+  }
+  
+  Iterator<String> kitr = ((JSONObject)tgjo).keys();
+
+  boolean res = true;
+  
+  AbstractAttribute atr = nd.addAttribute(null, null);
+
+  while(kitr.hasNext())
+  {
+   String key = kitr.next();
+   Object val = ((JSONObject)tgjo).get(key);
+   try
+   {
+    path.push(key);
+
+    
+    switch(key)
+    {
+     case JSONFormatter.nameProperty:
+      
+      if( ! (val instanceof String ) )
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+       res = false;
+      }
+      else
+       atr.setName((String)val);
+      
+      break;
+     
+     case JSONFormatter.valueProperty:
+      
+      if( ! (val instanceof String ) )
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+       res = false;
+      }
+      else
+       atr.setValue((String)val);
+      
+      break;
+      
+     case JSONFormatter.isRefProperty:
+      
+      if( val instanceof Boolean )
+       atr.setReferenece((Boolean)val);
+      else if( val instanceof String )
+      {
+       if( "true".equalsIgnoreCase((String)val) )
+        atr.setReferenece(true);
+       else if( "false".equalsIgnoreCase((String)val) )
+        atr.setReferenece(false);
+       else
+       {
+        ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid value. Boolean expected" );
+        res = false;
+       }
+      }
+      else
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid value. Boolean expected" );
+       res = false;
+      }
+       
+     
+     case JSONFormatter.classTagsProperty:
+      
+      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processClassTag(v, o, l, p) );
+      
+      break;
+      
+     case JSONFormatter.nmQualProperty:
+      
+      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processNameQualifier(v, o, l, p) );
+      
+      break;
+
+     case JSONFormatter.vlQualProperty:
+      
+      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processValueQualifier(v, o, l, p) );
+      
+      break;
+  
+     default:
+
+       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
+       res = false;
+      break;
+    }
+
+   }
+   finally
+   {
+    path.pop();
+   }
+  }
+  
+  if( atr.getName() == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.nameProperty+"' property missing");
+   res = false;
+  }
+  
+  if( atr.getValue() == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.valueProperty+"' property missing");
+   res = false;
+  }
+  
+  if( ! res )
+   nd.removeAttribute(atr);
+  
+  return res;
+ }
+
+
+ boolean processClassTag(Object tgjo, Classified nd, LogNode ln, Stack<String> path)
+ {
+  if(!(tgjo instanceof JSONObject))
+  {
+   ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: JSON object expected here");
+   return false;
+  }
+  
+//  ln = ln.branch("Processing tag");
+
+  Iterator<String> kitr = ((JSONObject)tgjo).keys();
+
+  String tagName = null;
+  String clsfrName = null;
+  String tgVal = null;
+
+  while(kitr.hasNext())
+  {
+   String key = kitr.next();
+   Object val = ((JSONObject)tgjo).get(key);
+   try
+   {
+    path.push(key);
+
+    if( ! (val instanceof String ) )
+    {
+     ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: string value expected" );
+     return false;
+    }
+    
+    switch(key)
+    {
+     case JSONFormatter.tagProperty:
+      
+      tagName = (String)val;
+      
+      break;
+     
+     case JSONFormatter.classifierProperty:
+      
+      clsfrName = (String)val;
+      
+      break;
+     
+     case JSONFormatter.valueProperty:
+      
+      tgVal = (String)val;
+      
+      break;
+      
+     default:
+
+       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
+      break;
+    }
+
+   }
+   finally
+   {
+    path.pop();
+   }
+  }
+  
+  if( tagName == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.tagProperty+"' property missing");
+   return false;
+  }
+
+  if( clsfrName == null )
+  {
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: '"+JSONFormatter.classifierProperty+"' property missing");
+   return false;
+  }
+
+  Tag tg = tagResolver.getTagByName(clsfrName, tagName);
+  
+  if(tg == null)
+   ln.log(strictTags ? Level.ERROR : Level.WARN, "Path '" + pathToString(path) + "' error: tag '" + clsfrName +":"+tagName+"' can't be resolved");
+  else
+  {
+//   ln.log(Level.INFO, "Tag '" + clsfrName +":"+tagName+"' resolved");
+   
+   nd.addTagRef(tg, tgVal);
+  }
+  
+  return true;
  }
 
  
@@ -295,7 +640,7 @@ public class JSONReader
 
       if(!processCommon(key, val, fr, ln, path))
       {
-       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property");
+       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
        continue;
       }
 
@@ -353,7 +698,7 @@ public class JSONReader
 
       if(!processCommon(key, val, lnk, ln, path))
       {
-       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property");
+       ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
        continue;
       }
 
@@ -604,7 +949,7 @@ public class JSONReader
       
       if( ! processCommon(key,val,sec,ln,path) )
       {
-       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid property");
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid property '"+key+"'");
        continue;
       }
       

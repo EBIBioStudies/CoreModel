@@ -8,7 +8,6 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.LinkAttribute;
 import uk.ac.ebi.biostd.model.LinkAttributeTagRef;
-import uk.ac.ebi.biostd.model.LinkReference;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.trfactory.LinkAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
@@ -48,25 +47,6 @@ public class LinkTableContext extends TableBlockContext
   return attr;
  }
 
- @SuppressWarnings("unchecked")
- @Override
- public LinkReference addReference(String nm, String val, Collection< ? extends TagRef> tags)
- {
-  LinkReference ref =  new LinkReference();
-  
-  
-  ref.setName(nm);
-  ref.setValue(val);
-
-  ref.setTagRefs((Collection<LinkAttributeTagRef>)tags);
-
-  ref.setHost(current);
-  current.addAttribute(ref);
-  
-  return ref;
- }
- 
- 
  @Override
  public TagReferenceFactory< ? > getAttributeTagRefFactory()
  {
