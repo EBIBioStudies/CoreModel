@@ -1,10 +1,12 @@
-package uk.ac.ebi.biostd.pagetab.context;
+package uk.ac.ebi.biostd.in.pagetab.context;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.pagetab.ParserState;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
@@ -12,8 +14,6 @@ import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.SectionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.ParserState;
-import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SectionContext extends VerticalBlockContext

@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import uk.ac.ebi.biostd.in.ParserException;
+import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
+import uk.ac.ebi.biostd.in.pagetab.ParserConfig;
+import uk.ac.ebi.biostd.in.pagetab.SectionRef;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
 import uk.ac.ebi.biostd.out.pageml.SubmissionPageMLFormatter;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
@@ -53,7 +58,7 @@ public class TestPageTab
   String text = FileUtil.readFile( in, cs );
 
   ParserConfig cfg = new ParserConfig();
-  PageTabSyntaxParser2 pars = new PageTabSyntaxParser2( null, cfg );
+  PageTabSyntaxParser pars = new PageTabSyntaxParser( null, cfg );
   
   ErrorCounter cnt = new ErrorCounterImpl();
   

@@ -1,7 +1,10 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in;
 
 public class ParserException extends Exception
 {
+
+ private static final long serialVersionUID = 1L;
+
  private int lineNumber;
  private int columnNumber;
  

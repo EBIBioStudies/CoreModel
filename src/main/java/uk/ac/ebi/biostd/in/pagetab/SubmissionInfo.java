@@ -1,10 +1,11 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -104,15 +105,14 @@ public class SubmissionInfo
   this.logNode = logNode;
  }
 
- public void addReferenceOccurance(int row, int col, AbstractAttribute ref, LogNode ln )
+ public void addReferenceOccurance(ElementPointer ep, AbstractAttribute ref, LogNode ln )
  {
   if( refs == null )
    refs = new ArrayList<ReferenceOccurrence>();
   
   ReferenceOccurrence ro = new ReferenceOccurrence();
   
-  ro.setCol(col);
-  ro.setRow(row);
+  ro.setElementPointer(ep);
   ro.setRef(ref);
   ro.setLogNode(ln);
   

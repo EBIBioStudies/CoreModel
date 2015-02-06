@@ -1,13 +1,14 @@
-package uk.ac.ebi.biostd.pagetab.context;
+package uk.ac.ebi.biostd.in.pagetab.context;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import uk.ac.ebi.biostd.in.CellPointer;
+import uk.ac.ebi.biostd.in.pagetab.ParserState;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
-import uk.ac.ebi.biostd.pagetab.ParserState;
-import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -148,7 +149,7 @@ public abstract class TableBlockContext extends BlockContext
    {
     prevAttr = addAttribute(atr.name,val,null);
     prevAttr.setReferenece(true);
-    submInfo.addReferenceOccurance(lineNo, i+1, prevAttr, log);
+    submInfo.addReferenceOccurance( new CellPointer(lineNo, i+1), prevAttr, log);
    }
    else
     prevAttr = addAttribute(atr.name,val,null);

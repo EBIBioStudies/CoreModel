@@ -1,13 +1,15 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
+import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class ReferenceOccurrence
 {
- private int row;
- private int col;
+
+
+ private ElementPointer elementPointer;
  
  private AbstractAttribute ref;
  private LogNode logNode;
@@ -26,24 +28,14 @@ public class ReferenceOccurrence
   this.logNode = logNode;
  }
 
- public int getRow()
+ public ElementPointer getElementPointer()
  {
-  return row;
+  return elementPointer;
  }
 
- public void setRow(int row)
+ public void setElementPointer(ElementPointer elementPointer)
  {
-  this.row = row;
- }
-
- public int getCol()
- {
-  return col;
- }
-
- public void setCol(int col)
- {
-  this.col = col;
+  this.elementPointer = elementPointer;
  }
 
  public AbstractAttribute getRef()

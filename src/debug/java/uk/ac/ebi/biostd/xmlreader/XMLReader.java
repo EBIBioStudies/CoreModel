@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import uk.ac.ebi.biostd.pagetab.XMLSpreadsheetReader;
+import uk.ac.ebi.biostd.in.pagetab.XMLSpreadsheetReader;
 import uk.ac.ebi.biostd.util.FileUtil;
 
 public class XMLReader

@@ -1,10 +1,10 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
 import java.util.regex.Matcher;
 
 public class ParserState
 {
- private PageTabSyntaxParser2 parser;
+ private PageTabSyntaxParser parser;
  
  private Matcher   nameQualifierMatcher;
  private Matcher   valueQualifierMatcher;
@@ -13,7 +13,7 @@ public class ParserState
 
 
 
- public void setParser(PageTabSyntaxParser2 parser)
+ public void setParser(PageTabSyntaxParser parser)
  {
   this.parser = parser;
  }
@@ -60,7 +60,7 @@ public class ParserState
   this.generatedAccNoMatcher = generatedAccNoMatcher;
  }
 
- public PageTabSyntaxParser2 getParser()
+ public PageTabSyntaxParser getParser()
  {
   return parser;
  }

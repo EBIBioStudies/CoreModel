@@ -1,12 +1,13 @@
-package uk.ac.ebi.biostd.pagetab.context;
+package uk.ac.ebi.biostd.in.pagetab.context;
 
 import java.util.List;
 import java.util.regex.Matcher;
 
+import uk.ac.ebi.biostd.in.CellPointer;
+import uk.ac.ebi.biostd.in.pagetab.ParserState;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Qualifier;
-import uk.ac.ebi.biostd.pagetab.ParserState;
-import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -101,7 +102,7 @@ public abstract class VerticalBlockContext extends BlockContext
       ref.setReferenece(true);
       lastAttr = ref;
      
-      submInfo.addReferenceOccurance(lineNo, 2, ref, log);
+      submInfo.addReferenceOccurance(new CellPointer(lineNo, 2), ref, log);
      }
     }
     else

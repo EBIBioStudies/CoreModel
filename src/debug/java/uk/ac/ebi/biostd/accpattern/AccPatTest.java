@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.ac.ebi.biostd.pagetab.PageTabSyntaxParser2;
+import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
 
 public class AccPatTest
 {
@@ -21,11 +21,11 @@ public class AccPatTest
   
   String str = "[a]";
   
-  System.out.println(str+" matches "+PageTabSyntaxParser2.ValueQualifierRx+" : "+Pattern.compile(PageTabSyntaxParser2.ValueQualifierRx).matcher(str).matches());
+  System.out.println(str+" matches "+PageTabSyntaxParser.ValueQualifierRx+" : "+Pattern.compile(PageTabSyntaxParser.ValueQualifierRx).matcher(str).matches());
 
   str = "aa[ bb ]";
   
-  System.out.println(str+" matches "+PageTabSyntaxParser2.TableBlockRx+" : "+Pattern.compile(PageTabSyntaxParser2.TableBlockRx).matcher(str).matches());
+  System.out.println(str+" matches "+PageTabSyntaxParser.TableBlockRx+" : "+Pattern.compile(PageTabSyntaxParser.TableBlockRx).matcher(str).matches());
 
   
   Pattern pat = Pattern.compile(GeneratedAccNoPattern);

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
 
 public class CellValue

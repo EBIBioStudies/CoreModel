@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pagetab.context;
+package uk.ac.ebi.biostd.in.pagetab.context;
 
 import java.util.Collection;
 import java.util.List;

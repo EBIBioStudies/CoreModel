@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,27 +10,30 @@ import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.db.TagResolver;
+import uk.ac.ebi.biostd.in.CellPointer;
+import uk.ac.ebi.biostd.in.Parser;
+import uk.ac.ebi.biostd.in.ParserException;
+import uk.ac.ebi.biostd.in.pagetab.context.BlockContext;
+import uk.ac.ebi.biostd.in.pagetab.context.FileContext;
+import uk.ac.ebi.biostd.in.pagetab.context.FileTableContext;
+import uk.ac.ebi.biostd.in.pagetab.context.LinkContext;
+import uk.ac.ebi.biostd.in.pagetab.context.LinkTableContext;
+import uk.ac.ebi.biostd.in.pagetab.context.SectionContext;
+import uk.ac.ebi.biostd.in.pagetab.context.SectionTableContext;
+import uk.ac.ebi.biostd.in.pagetab.context.SubmissionContext;
+import uk.ac.ebi.biostd.in.pagetab.context.VoidContext;
+import uk.ac.ebi.biostd.in.pagetab.context.BlockContext.BlockType;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.context.BlockContext;
-import uk.ac.ebi.biostd.pagetab.context.BlockContext.BlockType;
-import uk.ac.ebi.biostd.pagetab.context.FileContext;
-import uk.ac.ebi.biostd.pagetab.context.FileTableContext;
-import uk.ac.ebi.biostd.pagetab.context.LinkContext;
-import uk.ac.ebi.biostd.pagetab.context.LinkTableContext;
-import uk.ac.ebi.biostd.pagetab.context.SectionContext;
-import uk.ac.ebi.biostd.pagetab.context.SectionTableContext;
-import uk.ac.ebi.biostd.pagetab.context.SubmissionContext;
-import uk.ac.ebi.biostd.pagetab.context.VoidContext;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.util.StringUtils;
 
-public class PageTabSyntaxParser2
+public class PageTabSyntaxParser extends Parser
 {
 
  public static final String TagSeparatorRX        = "[,;]";
@@ -38,7 +41,6 @@ public class PageTabSyntaxParser2
  public static final String ValueTagSeparatorRX   = "=";
  public static final String CommentPrefix   = "#";
 
- public static final String GeneratedAccNoRx = "\\s*!(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)?(?:,(?<sfx>[^}]+))?\\})?\\s*";
  public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\)]+)\\s*\\)\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\]]+)\\s*\\]\\s*";
  public static final String ReferenceRx = "\\s*\\<\\s*(?<name>[^\\>]+)\\s*\\>\\s*";
@@ -61,7 +63,7 @@ public class PageTabSyntaxParser2
  public static final Pattern GeneratedAccNo = Pattern.compile(GeneratedAccNoRx);
 
 
- public PageTabSyntaxParser2(TagResolver tr, ParserConfig pConf)
+ public PageTabSyntaxParser(TagResolver tr, ParserConfig pConf)
  {
   tagRslv = tr;
 
@@ -385,13 +387,12 @@ public class PageTabSyntaxParser2
        secOc = submInf.getSectionOccurance( s.getAccNo() );
        
        if( secOc != null )
-        sln.log(Level.ERROR, "Accession number '"+s.getAccNo()+"' is used by other section at (R" + secOc.getRow() + ",C"+secOc.getCol()+")");
+        sln.log(Level.ERROR, "Accession number '"+s.getAccNo()+"' is used by other section at "+secOc.getElementPointer());
       }
       
       secOc = new SectionOccurance();
-
-      secOc.setRow(lineNo);
-      secOc.setCol(1);
+      
+      secOc.setElementPointer( new CellPointer(lineNo, 1));
       secOc.setSection(s);
       secOc.setSecLogNode(sln);
 
@@ -432,7 +433,7 @@ public class PageTabSyntaxParser2
    {
     SectionOccurance soc = si.getSectionOccurance(r.getRef().getValue());
     if( soc == null )
-     r.getLogNode().log(Level.ERROR, "(R" + r.getRow() + ",C"+r.getCol()+")"+"Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
+     r.getLogNode().log(Level.ERROR, r.getElementPointer()+" Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
     else
      r.setSection( soc.getSection() );
    }

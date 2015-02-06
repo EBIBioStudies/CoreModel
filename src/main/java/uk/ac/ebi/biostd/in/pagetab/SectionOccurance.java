@@ -1,35 +1,27 @@
-package uk.ac.ebi.biostd.pagetab;
+package uk.ac.ebi.biostd.in.pagetab;
 
+import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SectionOccurance
 {
- private int col;
- private int row;
+
+
+ private ElementPointer elementPointer;
  
  private Section section;
  
  private LogNode secLogNode;
  
- public int getCol()
+ public ElementPointer getElementPointer()
  {
-  return col;
+  return elementPointer;
  }
 
- public void setCol(int col)
+ public void setElementPointer(ElementPointer elementPointer)
  {
-  this.col = col;
- }
-
- public int getRow()
- {
-  return row;
- }
-
- public void setRow(int row)
- {
-  this.row = row;
+  this.elementPointer = elementPointer;
  }
 
  public Section getSection()

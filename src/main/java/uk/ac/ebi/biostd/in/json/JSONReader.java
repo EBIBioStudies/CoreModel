@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.db.TagResolver;
+import uk.ac.ebi.biostd.in.Parser;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Classified;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -21,11 +23,11 @@ import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
-import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
+import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 
-public class JSONReader
+public class JSONReader extends Parser
 {
  interface NodeProcessor<NT>
  {
@@ -41,7 +43,8 @@ public class JSONReader
   strictTags = stctTags;
  }
  
- public List<SubmissionInfo> readJSON( String txt, LogNode rln )
+ @Override
+ public List<SubmissionInfo> parse( String txt, LogNode rln )
  {
   
   LogNode sln = rln.branch("Parsing JSON body");
@@ -87,6 +90,9 @@ public class JSONReader
    }
    
   }
+  
+  SimpleLogNode.setLevels(rln);
+  
   
   return subms;
   

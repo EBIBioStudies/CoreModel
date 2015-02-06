@@ -1,20 +1,21 @@
-package uk.ac.ebi.biostd.pagetab.context;
+package uk.ac.ebi.biostd.in.pagetab.context;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.CellPointer;
+import uk.ac.ebi.biostd.in.pagetab.ParserState;
+import uk.ac.ebi.biostd.in.pagetab.SectionOccurance;
+import uk.ac.ebi.biostd.in.pagetab.SectionRef;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SectionAttribute;
 import uk.ac.ebi.biostd.model.SectionAttributeTagRef;
 import uk.ac.ebi.biostd.model.trfactory.SectionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
-import uk.ac.ebi.biostd.pagetab.ParserState;
-import uk.ac.ebi.biostd.pagetab.SectionOccurance;
-import uk.ac.ebi.biostd.pagetab.SectionRef;
-import uk.ac.ebi.biostd.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
@@ -135,15 +136,14 @@ public class SectionTableContext extends TableBlockContext
     {
      secOc = new SectionOccurance();
      
-     secOc.setRow(lineNo);
-     secOc.setCol(1);
+     secOc.setElementPointer( new CellPointer(lineNo, 1));
      secOc.setSection(current);
      secOc.setSecLogNode(log);
      
      getSubmissionInfo().addSectionOccurance(secOc);
     }
     else
-     log.log(Level.ERROR, "Accession number '"+current.getAccNo()+"' is used by other section at (R" + secOc.getRow() + ",C"+secOc.getCol()+")");
+     log.log(Level.ERROR, "Accession number '"+current.getAccNo()+"' is used by other section at "+secOc.getElementPointer());
    }
    
   }
