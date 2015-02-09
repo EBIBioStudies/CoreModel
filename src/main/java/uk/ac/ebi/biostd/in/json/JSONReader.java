@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.Parser;
+import uk.ac.ebi.biostd.in.PathPointer;
+import uk.ac.ebi.biostd.in.pagetab.SectionRef;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Classified;
@@ -25,13 +30,16 @@ import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
-import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 
 public class JSONReader extends Parser
 {
+ public static final Pattern GeneratedAccNo = Pattern.compile(GeneratedAccNoRx);
+
+ private Matcher genAccNoMtch = GeneratedAccNo.matcher("");
+
  interface NodeProcessor<NT>
  {
-  boolean process( Object jsno, NT nd, LogNode ln, Stack<String> path);
+  boolean process( Object jsno, NT nd, LogNode ln, Stack<String> path, SubmissionInfo si);
  }
  
  private TagResolver tagResolver;
@@ -49,11 +57,14 @@ public class JSONReader extends Parser
   
   LogNode sln = rln.branch("Parsing JSON body");
   
-  JSONArray sbmarr = null;
+  
+  JSONTokener jtok = new JSONTokener(txt);
+  
+  Object jsroot = null;
   
   try
   {
-   sbmarr = new JSONArray(txt);
+   jsroot = jtok.nextValue();
   }
   catch(JSONException e)
   {
@@ -67,33 +78,43 @@ public class JSONReader extends Parser
   
   path.push("");
   
-  for( int i=0; i < sbmarr.length(); i++ )
+  if( jsroot instanceof JSONArray )
   {
-   try
-   {
-    path.push(String.valueOf(i));
-        
-    Object o = sbmarr.get(i);
-    
-    if( ! (o instanceof JSONObject) )
-    {
-     sln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: expected JSON object");
-     return null;
-    }
-    
-    subms.add( processSubmission( (JSONObject)o, rln, path ) );
-    
-   }
-   finally
-   {
-    path.pop();
-   }
+   JSONArray sbmarr = (JSONArray)jsroot;
    
+   for(int i = 0; i < sbmarr.length(); i++)
+   {
+    try
+    {
+     path.push(String.valueOf(i));
+
+     Object o = sbmarr.get(i);
+
+     if(!(o instanceof JSONObject))
+     {
+      sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: expected JSON object");
+      return null;
+     }
+
+     subms.add(processSubmission((JSONObject) o, rln, path));
+
+    }
+    finally
+    {
+     path.pop();
+    }
+
+   }
   }
-  
-  SimpleLogNode.setLevels(rln);
-  
-  
+  else if( jsroot instanceof JSONObject )
+   subms.add(processSubmission((JSONObject) jsroot, rln, path));
+  else
+  {
+   sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: expected JSON object or array");
+   return null;
+  }
+   
+   
   return subms;
   
  }
@@ -153,7 +174,7 @@ public class JSONReader extends Parser
        continue;
       }
       
-      sbm.setRootSection( processSection( (JSONObject)val, ln, path ) );
+      sbm.setRootSection( processSection( (JSONObject)val, ln, path, si ) );
       
       break;
 
@@ -165,12 +186,22 @@ public class JSONReader extends Parser
        continue;
       }
 
-      sbm.setAccNo(val.toString());
+      genAccNoMtch.reset((String)val);
+      
+      if( genAccNoMtch.matches() )
+      {
+       sbm.setAccNo(genAccNoMtch.group("tmpid"));
+       si.setAccNoPrefix(genAccNoMtch.group("pfx"));
+       si.setAccNoSuffix(genAccNoMtch.group("sfx"));
+      }
+      else
+       sbm.setAccNo((String)val);
+      
       break;
       
      default:
       
-      if( ! processCommon(key,val,sbm,ln,path) )
+      if( ! processCommon(key,val,sbm,ln,path, si) )
       {
        ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid property");
        continue;
@@ -198,7 +229,7 @@ public class JSONReader extends Parser
  }
  
  
- <NT> boolean processArray( Object val, NT nd, LogNode ln, Stack<String> path, NodeProcessor<NT> np )
+ <NT> boolean processArray( Object val, NT nd, LogNode ln, Stack<String> path, SubmissionInfo si, NodeProcessor<NT> np )
  {
   if( !(val instanceof JSONArray ) ) 
   {
@@ -222,7 +253,7 @@ public class JSONReader extends Parser
 //     continue;
 //    }
      
-    res = res && np.process(sso,nd,ln,path);
+    res = res && np.process(sso,nd,ln,path, si);
 
    }
    finally
@@ -234,25 +265,25 @@ public class JSONReader extends Parser
   return res;
  }
  
- private boolean processCommon(String key, Object val, Node obj, LogNode ln, Stack<String> path)
+ private boolean processCommon(String key, Object val, Node obj, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   switch(key)
   {
    case JSONFormatter.attrubutesProperty:
     
-    processArray(val, obj, ln, path, (v, o, l, p) -> processAttribute(v, o, l, p) );
+    processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processAttribute(v, o, l, p, s) );
     
     break;
 
    case JSONFormatter.classTagsProperty:
     
-    processArray(val, obj, ln, path, (v, o, l, p) -> processClassTag(v, o, l, p) );
+    processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processClassTag(v, o, l, p, s) );
     
     break;
 
    case JSONFormatter.accTagsProperty:
     
-     processArray(val, obj, ln, path, (v, o, l, p) -> processAccessTag(v, o, l, p) );
+     processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processAccessTag(v, o, l, p, s) );
     
     break;
 
@@ -345,7 +376,7 @@ public class JSONReader extends Parser
   return q;
  }
  
- private boolean  processNameQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path)
+ private boolean  processNameQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path, SubmissionInfo s)
  {
   Qualifier q = processQualifier(val, ln, path);
   
@@ -357,7 +388,7 @@ public class JSONReader extends Parser
   return true;
  }
  
- private boolean  processValueQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path)
+ private boolean  processValueQualifier(Object val, AbstractAttribute at, LogNode ln, Stack<String> path, SubmissionInfo s)
  {
   Qualifier q = processQualifier(val, ln, path);
   
@@ -369,7 +400,7 @@ public class JSONReader extends Parser
   return true;
  }
 
- private boolean processAccessTag(Object val, Node nd, LogNode ln, Stack<String> path)
+ private boolean processAccessTag(Object val, Node nd, LogNode ln, Stack<String> path, SubmissionInfo s)
  {
   if( !( val instanceof String ))
   {
@@ -395,7 +426,7 @@ public class JSONReader extends Parser
   return true;
  }
  
- private boolean processAttribute(Object tgjo, Node nd, LogNode ln, Stack<String> path)
+ private boolean processAttribute(Object tgjo, Node nd, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   if(!(tgjo instanceof JSONObject))
   {
@@ -469,19 +500,19 @@ public class JSONReader extends Parser
      
      case JSONFormatter.classTagsProperty:
       
-      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processClassTag(v, o, l, p) );
+      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processClassTag(v, o, l, p, s) );
       
       break;
       
      case JSONFormatter.nmQualProperty:
       
-      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processNameQualifier(v, o, l, p) );
+      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processNameQualifier(v, o, l, p, s) );
       
       break;
 
      case JSONFormatter.vlQualProperty:
       
-      res = res && processArray(val, atr, ln, path, (v, o, l, p) -> processValueQualifier(v, o, l, p) );
+      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processValueQualifier(v, o, l, p, s) );
       
       break;
   
@@ -513,12 +544,15 @@ public class JSONReader extends Parser
   
   if( ! res )
    nd.removeAttribute(atr);
+  else if( atr.isReference() )
+   si.addReferenceOccurance(new PathPointer(pathToString(path)), atr, ln);
+   
   
   return res;
  }
 
 
- boolean processClassTag(Object tgjo, Classified nd, LogNode ln, Stack<String> path)
+ boolean processClassTag(Object tgjo, Classified nd, LogNode ln, Stack<String> path, SubmissionInfo s)
  {
   if(!(tgjo instanceof JSONObject))
   {
@@ -608,7 +642,7 @@ public class JSONReader extends Parser
  }
 
  
- private FileRef processFile(JSONObject obj, LogNode ln, Stack<String> path)
+ private FileRef processFile(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   FileRef fr = new FileRef();
 
@@ -644,7 +678,7 @@ public class JSONReader extends Parser
      
      default:
 
-      if(!processCommon(key, val, fr, ln, path))
+      if(!processCommon(key, val, fr, ln, path, si))
       {
        ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
        continue;
@@ -666,7 +700,7 @@ public class JSONReader extends Parser
   return fr;
  }
  
- private Link processLink(JSONObject obj, LogNode ln, Stack<String> path)
+ private Link processLink(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   Link lnk = new Link();
   
@@ -702,7 +736,7 @@ public class JSONReader extends Parser
      
      default:
 
-      if(!processCommon(key, val, lnk, ln, path))
+      if(!processCommon(key, val, lnk, ln, path, si))
       {
        ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: invalid property '"+key+"'");
        continue;
@@ -725,7 +759,7 @@ public class JSONReader extends Parser
  }
 
  
- private Section processSection(JSONObject obj, LogNode ln, Stack<String> path)
+ private Section processSection(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   Section sec = new Section();
   
@@ -769,7 +803,48 @@ public class JSONReader extends Parser
        continue;
       }
       
-      sec.setAccNo(val.toString());
+      genAccNoMtch.reset( (String)val );
+      
+      SectionRef sr = new SectionRef(sec);
+      
+      if( genAccNoMtch.matches() )
+      {
+       sr.setLocal(false);
+       
+       String pfx = genAccNoMtch.group("pfx");
+       String sfx = genAccNoMtch.group("sfx");
+       
+       sr.setPrefix(pfx);
+       sr.setSuffix(sfx);
+       
+       sr.setAccNo(genAccNoMtch.group("tmpid"));
+       
+       sec.setAccNo(sr.getAccNo());
+       
+       boolean gen=false;
+       
+       if( pfx != null && pfx.length() > 0 )
+       { 
+        gen = true;
+        
+        if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
+         ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number prefix can't end with a digit '" + pfx + "'");
+       }
+       
+       if( sfx != null && sfx.length() > 0 ) 
+       { 
+        gen = true;
+        
+        if( Character.isDigit( sfx.charAt(0) ) )
+         ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number suffix can't start with a digit '" + sfx + "'");
+       }
+       
+       if( gen )
+        si.addSec2genId(sr);
+      }
+      else
+       sec.setAccNo((String)val);
+
       break;
 
      case JSONFormatter.subsectionsProperty:
@@ -791,7 +866,7 @@ public class JSONReader extends Parser
         Object sso = ((JSONArray) val).get(j);
 
         if(sso instanceof JSONObject)
-         sec.addSection(processSection((JSONObject) sso, ln, path));
+         sec.addSection(processSection((JSONObject) sso, ln, path, si));
         else if(sso instanceof JSONArray)
         {
          for(int k = 0; k < ((JSONArray) sso).length(); k++)
@@ -805,7 +880,7 @@ public class JSONReader extends Parser
            if( ! (tsso instanceof JSONObject ) )
             ln.log(Level.ERROR, "Path '"+pathToString(path)+"' JSON object expected" );
            
-           Section ss = processSection((JSONObject) tsso, ln, path);
+           Section ss = processSection((JSONObject) tsso, ln, path, si);
            
            if( ss != null )
            {
@@ -849,7 +924,7 @@ public class JSONReader extends Parser
         Object sso = ((JSONArray) val).get(j);
 
         if(sso instanceof JSONObject)
-         sec.addLink(processLink((JSONObject) sso, ln, path));
+         sec.addLink(processLink((JSONObject) sso, ln, path, si));
         else if(sso instanceof JSONArray)
         {
          for(int k = 0; k < ((JSONArray) sso).length(); k++)
@@ -863,7 +938,7 @@ public class JSONReader extends Parser
            if( ! (tsso instanceof JSONObject ) )
             ln.log(Level.ERROR, "Path '"+pathToString(path)+"' JSON object expected" );
            
-           Link lnk = processLink((JSONObject) tsso, ln, path);
+           Link lnk = processLink((JSONObject) tsso, ln, path, si);
            
            if( lnk != null )
            {
@@ -909,7 +984,7 @@ public class JSONReader extends Parser
         Object sso = ((JSONArray) val).get(j);
 
         if(sso instanceof JSONObject)
-         sec.addFileRef(processFile((JSONObject) sso, ln, path));
+         sec.addFileRef(processFile((JSONObject) sso, ln, path, si));
         else if(sso instanceof JSONArray)
         {
          for(int k = 0; k < ((JSONArray) sso).length(); k++)
@@ -923,7 +998,7 @@ public class JSONReader extends Parser
            if( ! (tsso instanceof JSONObject ) )
             ln.log(Level.ERROR, "Path '"+pathToString(path)+"' JSON object expected" );
            
-           FileRef fr = processFile((JSONObject) tsso, ln, path);
+           FileRef fr = processFile((JSONObject) tsso, ln, path, si);
            
            if( fr != null )
            {
@@ -953,7 +1028,7 @@ public class JSONReader extends Parser
       
      default:
       
-      if( ! processCommon(key,val,sec,ln,path) )
+      if( ! processCommon(key,val,sec,ln,path, si) )
       {
        ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid property '"+key+"'");
        continue;
