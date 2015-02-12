@@ -97,4 +97,8 @@ public class Domain implements AuthzObject
  
  private Collection<IdGen> templates;
 
+
+
+
+
 }

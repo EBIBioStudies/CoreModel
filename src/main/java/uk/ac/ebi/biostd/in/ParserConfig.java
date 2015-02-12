@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.in.pagetab;
+package uk.ac.ebi.biostd.in;
 
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;

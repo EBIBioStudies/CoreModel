@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
-import uk.ac.ebi.biostd.in.pagetab.ParserConfig;
 import uk.ac.ebi.biostd.in.pagetab.SectionRef;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;

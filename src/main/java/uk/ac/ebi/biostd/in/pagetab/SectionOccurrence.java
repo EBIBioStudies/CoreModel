@@ -4,7 +4,7 @@ import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
-public class SectionOccurance
+public class SectionOccurrence
 {
 
 
@@ -13,6 +13,9 @@ public class SectionOccurance
  private Section section;
  
  private LogNode secLogNode;
+ 
+ private String  prefix;
+ private String  suffix;
  
  public ElementPointer getElementPointer()
  {
@@ -47,6 +50,26 @@ public class SectionOccurance
  public String getLocalId()
  {
   return section.getAccNo();
+ }
+
+ public String getPrefix()
+ {
+  return prefix;
+ }
+
+ public void setPrefix(String prefix)
+ {
+  this.prefix = prefix;
+ }
+
+ public String getSuffix()
+ {
+  return suffix;
+ }
+
+ public void setSuffix(String suffix)
+ {
+  this.suffix = suffix;
  }
 
 }

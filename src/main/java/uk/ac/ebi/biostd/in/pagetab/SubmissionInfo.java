@@ -7,6 +7,7 @@ import java.util.Map;
 
 import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
+import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
@@ -18,10 +19,11 @@ public class SubmissionInfo
  private String accNoSuffix;
  
 // private Map<String,SectionRef> sectionMap = new HashMap<String, SectionRef>();
- private Collection<SectionRef> id2gen = new ArrayList<>();
- private Map<String,SectionOccurance> localIdMap =  new HashMap<String, SectionOccurance>();
- private Map<String,SectionOccurance> parentSecMap =  new HashMap<String, SectionOccurance>();
+ private Collection<SectionOccurrence> globalSec = new ArrayList<>();
+ private Map<String,SectionOccurrence> localIdMap =  new HashMap<String, SectionOccurrence>();
+ private Map<String,SectionOccurrence> parentSecMap =  new HashMap<String, SectionOccurrence>();
  
+ private Collection<FileOccurrence> files;
  private Collection<ReferenceOccurrence> refs;
 
  
@@ -44,22 +46,22 @@ public class SubmissionInfo
   this.submission = submission;
  }
 
- public void addSectionOccurance( SectionOccurance so )
+ public void addSectionOccurance( SectionOccurrence so )
  {
   localIdMap.put(so.getLocalId(), so);
  }
  
- public SectionOccurance getSectionOccurance(String accNo)
+ public SectionOccurrence getSectionOccurance(String accNo)
  {
   return localIdMap.get(accNo);
  }
  
- public void addParentEligibleSection( SectionOccurance so )
+ public void addNonTableSection( SectionOccurrence so )
  {
   parentSecMap.put(so.getLocalId(), so);
  }
 
- public SectionOccurance getParentSection(String pAcc)
+ public SectionOccurrence getNonTableSection(String pAcc)
  {
   return parentSecMap.get(pAcc);
  }
@@ -85,14 +87,14 @@ public class SubmissionInfo
  }
 
 
- public void addSec2genId( SectionRef sr )
+ public void addGlobalSection( SectionOccurrence sr )
  {
-  id2gen.add(sr);
+  globalSec.add(sr);
  }
  
- public Collection<SectionRef> getSec2genId()
+ public Collection<SectionOccurrence> getGlobalSections()
  {
-  return id2gen;
+  return globalSec;
  }
 
  public LogNode getLogNode()
@@ -119,9 +121,28 @@ public class SubmissionInfo
   refs.add( ro );
  }
  
+ public void addFileOccurance(ElementPointer ep, FileRef ref, LogNode ln )
+ {
+  if( files == null )
+   files = new ArrayList<FileOccurrence>();
+  
+  FileOccurrence ro = new FileOccurrence();
+  
+  ro.setElementPointer(ep);
+  ro.setFileRef(ref);
+  ro.setLogNode(ln);
+  
+  files.add( ro );
+ }
+ 
  public Collection<ReferenceOccurrence> getReferenceOccurrences()
  {
   return refs;
  }
  
+ public Collection<FileOccurrence> getFileOccurrences()
+ {
+  return files;
+ }
+
 }

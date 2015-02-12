@@ -7,8 +7,7 @@ import java.util.regex.Matcher;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.in.CellPointer;
 import uk.ac.ebi.biostd.in.pagetab.ParserState;
-import uk.ac.ebi.biostd.in.pagetab.SectionOccurance;
-import uk.ac.ebi.biostd.in.pagetab.SectionRef;
+import uk.ac.ebi.biostd.in.pagetab.SectionOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
@@ -23,12 +22,12 @@ public class SectionTableContext extends TableBlockContext
 {
 
  private final String secName;
- private final SectionOccurance parent;
+ private final SectionOccurrence parent;
  
  private Section current;
  private int tableIdx=-1;
  
- public SectionTableContext(String sName, SectionOccurance parentSec, SubmissionInfo si, ParserState prs, LogNode sln)
+ public SectionTableContext(String sName, SectionOccurrence parentSec, SubmissionInfo si, ParserState prs, LogNode sln)
  {
   super(BlockType.SECTABLE, si, prs,sln);
   
@@ -89,61 +88,51 @@ public class SectionTableContext extends TableBlockContext
    
    genAccNoMtch.reset( acc );
    
-   SectionRef sr = new SectionRef(current);
+   SectionOccurrence secOc = new SectionOccurrence();
+   
+   secOc.setElementPointer( new CellPointer(lineNo, 1));
+   secOc.setSection(current);
+   secOc.setSecLogNode(log);
+   
    
    if( genAccNoMtch.matches() )
    {
-    sr.setLocal(false);
+    secOc.setGlobal(true);
 
     String pfx = genAccNoMtch.group("pfx");
     String sfx = genAccNoMtch.group("sfx");
     
-    sr.setPrefix(pfx);
-    sr.setSuffix(sfx);
+    secOc.setPrefix(pfx);
+    secOc.setSuffix(sfx);
     
-    sr.setAccNo(genAccNoMtch.group("tmpid"));
-    current.setAccNo(sr.getAccNo());
-    
-    boolean gen=false;
+    current.setAccNo(genAccNoMtch.group("tmpid"));
     
     if( pfx != null && pfx.length() > 0 )
     { 
-     gen = true;
-     
      if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
       log.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number prefix can't end with a digit '" + pfx + "'");
     }
     
     if( sfx != null && sfx.length() > 0 ) 
     { 
-     gen = true;
-     
      if( Character.isDigit( sfx.charAt(0) ) )
       log.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
     }
-    
-    if( gen )
-     getSubmissionInfo().addSec2genId(sr);
+
+    getSubmissionInfo().addGlobalSection(secOc);
    }
    else
+   {
+    secOc.setGlobal(false);
     current.setAccNo(acc);
-
+   }
+   
    if( current.getAccNo() != null  )
    {
-    SectionOccurance secOc = getSubmissionInfo().getSectionOccurance( current.getAccNo() );
-    
-    if( secOc == null )
-    {
-     secOc = new SectionOccurance();
-     
-     secOc.setElementPointer( new CellPointer(lineNo, 1));
-     secOc.setSection(current);
-     secOc.setSecLogNode(log);
-     
-     getSubmissionInfo().addSectionOccurance(secOc);
-    }
-    else
+    if( getSubmissionInfo().getSectionOccurance( current.getAccNo() ) != null )
      log.log(Level.ERROR, "Accession number '"+current.getAccNo()+"' is used by other section at "+secOc.getElementPointer());
+    
+    getSubmissionInfo().addSectionOccurance(secOc);
    }
    
   }

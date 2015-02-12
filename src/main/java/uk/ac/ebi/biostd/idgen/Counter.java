@@ -1,13 +1,13 @@
 package uk.ac.ebi.biostd.idgen;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AuthzObject;
@@ -21,9 +21,8 @@ import uk.ac.ebi.biostd.idgen.acr.CounterProfUsrACR;
 @Entity
 public class Counter implements AuthzObject
 {
- private long maxCount;
  
- private List<IdRange> ranges;
+// private List<IdRange> ranges;
  
  @Id
  @GeneratedValue
@@ -37,6 +36,28 @@ public class Counter implements AuthzObject
  {
   this.id = id;
  }
+ 
+
+ public long getMaxCount()
+ {
+  return maxCount;
+ }
+ private long maxCount;
+
+
+ public void setMaxCount(long maxCount)
+ {
+  this.maxCount = maxCount;
+ }
+ 
+
+ @Transient
+ public long getNextNumber()
+ {
+  return ++maxCount;
+ }
+
+ 
  @Override
  @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
  public Collection<CounterProfGrpACR> getProfileForGroupACRs()
@@ -97,4 +118,7 @@ public class Counter implements AuthzObject
  {
   return Permit.checkPermission(act, user, this);
  }
+
+
+
 }

@@ -16,8 +16,10 @@ import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.Parser;
+import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.PathPointer;
-import uk.ac.ebi.biostd.in.pagetab.SectionRef;
+import uk.ac.ebi.biostd.in.pagetab.ReferenceOccurrence;
+import uk.ac.ebi.biostd.in.pagetab.SectionOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Classified;
@@ -43,12 +45,12 @@ public class JSONReader extends Parser
  }
  
  private TagResolver tagResolver;
- private boolean strictTags;
+ private ParserConfig conf;
  
- public JSONReader( TagResolver tgResl, boolean stctTags )
+ public JSONReader( TagResolver tgResl, ParserConfig pc )
  {
   tagResolver = tgResl;
-  strictTags = stctTags;
+  this.conf = pc;
  }
  
  @Override
@@ -96,7 +98,13 @@ public class JSONReader extends Parser
       return null;
      }
 
-     subms.add(processSubmission((JSONObject) o, rln, path));
+     SubmissionInfo si = processSubmission((JSONObject) o, rln, path);
+     
+     if( si != null )
+     {
+      finalizeSubmission(si);
+      subms.add(si);
+     }
 
     }
     finally
@@ -107,7 +115,16 @@ public class JSONReader extends Parser
    }
   }
   else if( jsroot instanceof JSONObject )
-   subms.add(processSubmission((JSONObject) jsroot, rln, path));
+  {
+   SubmissionInfo si = processSubmission((JSONObject) jsroot, rln, path);
+   
+   if( si != null )
+   {
+    finalizeSubmission(si);
+    subms.add(si);
+   }
+   
+  }
   else
   {
    sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: expected JSON object or array");
@@ -174,7 +191,10 @@ public class JSONReader extends Parser
        continue;
       }
       
-      sbm.setRootSection( processSection( (JSONObject)val, ln, path, si ) );
+      SectionOccurrence rso = processSection( (JSONObject)val, ln, path, si );
+      
+      if( rso != null )
+       sbm.setRootSection( rso.getSection() );
       
       break;
 
@@ -412,9 +432,9 @@ public class JSONReader extends Parser
   
   if( at == null )
   {
-   ln.log(strictTags?Level.ERROR:Level.WARN, "Path '"+pathToString(path)+"' error: access tag '"+val+"' can't be resolved" );
+   ln.log(conf.missedAccessTagLL(), "Path '"+pathToString(path)+"' error: access tag '"+val+"' can't be resolved" );
   
-   return ! strictTags;
+   return conf.missedAccessTagLL() != Level.ERROR;
   }
   else
   {
@@ -497,7 +517,8 @@ public class JSONReader extends Parser
        res = false;
       }
        
-     
+      break;
+      
      case JSONFormatter.classTagsProperty:
       
       res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processClassTag(v, o, l, p, s) );
@@ -630,7 +651,11 @@ public class JSONReader extends Parser
   Tag tg = tagResolver.getTagByName(clsfrName, tagName);
   
   if(tg == null)
-   ln.log(strictTags ? Level.ERROR : Level.WARN, "Path '" + pathToString(path) + "' error: tag '" + clsfrName +":"+tagName+"' can't be resolved");
+  {
+   ln.log(conf.missedTagLL(), "Path '" + pathToString(path) + "' error: tag '" + clsfrName +":"+tagName+"' can't be resolved");
+  
+   return conf.missedTagLL() != Level.ERROR;
+  }
   else
   {
 //   ln.log(Level.INFO, "Tag '" + clsfrName +":"+tagName+"' resolved");
@@ -697,6 +722,8 @@ public class JSONReader extends Parser
   if( ! nameOk )
    ln.log(Level.ERROR, "Path '"+pathToString(path)+"' Object missing '"+JSONFormatter.nameProperty+"' property");
   
+  si.addFileOccurance(new PathPointer(pathToString(path)), fr, ln);
+  
   return fr;
  }
  
@@ -759,9 +786,16 @@ public class JSONReader extends Parser
  }
 
  
- private Section processSection(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
+ private SectionOccurrence processSection(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
  {
   Section sec = new Section();
+  
+  SectionOccurrence secOc = new SectionOccurrence();
+  
+  secOc.setElementPointer( new PathPointer(pathToString(path)) );
+  secOc.setSection(sec);
+  secOc.setSecLogNode(ln);
+  secOc.setGlobal(false);
   
   ln = ln.branch("Processing section");
   
@@ -805,46 +839,45 @@ public class JSONReader extends Parser
       
       genAccNoMtch.reset( (String)val );
       
-      SectionRef sr = new SectionRef(sec);
-      
       if( genAccNoMtch.matches() )
       {
-       sr.setLocal(false);
+       secOc.setGlobal(true);
        
        String pfx = genAccNoMtch.group("pfx");
        String sfx = genAccNoMtch.group("sfx");
        
-       sr.setPrefix(pfx);
-       sr.setSuffix(sfx);
+       secOc.setPrefix(pfx);
+       secOc.setSuffix(sfx);
        
-       sr.setAccNo(genAccNoMtch.group("tmpid"));
+       sec.setAccNo(genAccNoMtch.group("tmpid"));
        
-       sec.setAccNo(sr.getAccNo());
-       
-       boolean gen=false;
        
        if( pfx != null && pfx.length() > 0 )
        { 
-        gen = true;
-        
         if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
          ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number prefix can't end with a digit '" + pfx + "'");
        }
        
        if( sfx != null && sfx.length() > 0 ) 
        { 
-        gen = true;
-        
         if( Character.isDigit( sfx.charAt(0) ) )
          ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number suffix can't start with a digit '" + sfx + "'");
        }
        
-       if( gen )
-        si.addSec2genId(sr);
+       si.addGlobalSection(secOc);
       }
       else
        sec.setAccNo((String)val);
 
+      
+      if( sec.getAccNo() != null  )
+      {
+       if( si.getSectionOccurance( sec.getAccNo() ) != null )
+        ln.log(Level.ERROR, "Accession number '"+sec.getAccNo()+"' is used by other section at "+secOc.getElementPointer());
+
+       si.addSectionOccurance(secOc);      
+      }
+      
       break;
 
      case JSONFormatter.subsectionsProperty:
@@ -866,7 +899,18 @@ public class JSONReader extends Parser
         Object sso = ((JSONArray) val).get(j);
 
         if(sso instanceof JSONObject)
-         sec.addSection(processSection((JSONObject) sso, ln, path, si));
+        {
+         SectionOccurrence sbsec = processSection((JSONObject) sso, ln, path, si);
+         
+         if( sbsec != null )
+         {
+          if( sbsec.getSection().getAccNo() != null )
+           si.addNonTableSection(sbsec);
+
+          sec.addSection(sbsec.getSection());
+         }
+         
+        }
         else if(sso instanceof JSONArray)
         {
          for(int k = 0; k < ((JSONArray) sso).length(); k++)
@@ -880,12 +924,12 @@ public class JSONReader extends Parser
            if( ! (tsso instanceof JSONObject ) )
             ln.log(Level.ERROR, "Path '"+pathToString(path)+"' JSON object expected" );
            
-           Section ss = processSection((JSONObject) tsso, ln, path, si);
+           SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, si);
            
-           if( ss != null )
+           if( sbso != null )
            {
-            ss.setTableIndex(k);
-            sec.addSection(ss);
+            sbso.getSection().setTableIndex(k);
+            sec.addSection(sbso.getSection());
            }
            
           }
@@ -1050,10 +1094,24 @@ public class JSONReader extends Parser
   
   
   
-  return sec;
+  return secOc;
  }
 
-
+ private void finalizeSubmission( SubmissionInfo si )
+ {
+  if( si.getReferenceOccurrences() != null )
+  {
+   for( ReferenceOccurrence r : si.getReferenceOccurrences() )
+   {
+    SectionOccurrence soc = si.getSectionOccurance(r.getRef().getValue());
+    if( soc == null )
+     r.getLogNode().log(Level.ERROR, r.getElementPointer()+" Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
+    else
+     r.setSection( soc.getSection() );
+   }
+  }
+ }
+ 
  private String pathToString( Stack<String> pth )
  {
   StringBuilder sb = new StringBuilder(200);

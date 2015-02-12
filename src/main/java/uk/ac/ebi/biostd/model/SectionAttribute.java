@@ -9,7 +9,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.Tag;
 
@@ -73,13 +72,5 @@ public class SectionAttribute extends AbstractAttribute
    
   tagRefs.add(tr);
  }
-
- @Override
- @Transient
- public boolean isReference()
- {
-  return false;
- }
-
 
 }

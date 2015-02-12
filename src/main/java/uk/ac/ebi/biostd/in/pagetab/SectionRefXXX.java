@@ -3,7 +3,7 @@ package uk.ac.ebi.biostd.in.pagetab;
 import uk.ac.ebi.biostd.model.Section;
 
 
-public class SectionRef
+public class SectionRefXXX
 {
  private Section target;
  private String  accNo;
@@ -11,7 +11,7 @@ public class SectionRef
  private String  suffix;
  private boolean local;
 
- public SectionRef(Section s)
+ public SectionRefXXX(Section s)
  {
   target = s;
   accNo = s.getAccNo();

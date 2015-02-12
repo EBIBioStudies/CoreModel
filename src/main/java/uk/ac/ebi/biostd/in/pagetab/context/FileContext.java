@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.CellPointer;
 import uk.ac.ebi.biostd.in.pagetab.ParserState;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -45,6 +46,8 @@ public class FileContext extends VerticalBlockContext
 
   fileRef.setAccessTags( getParserState().getParser().processAccessTags(cells, ln, 3, log));
   fileRef.setTagRefs(getParserState().getParser().processTags(cells, ln, 4, FileTagRefFactory.getInstance(), log));
+ 
+  getSubmissionInfo().addFileOccurance(new CellPointer(ln, 1), fileRef, log);
  }
  
  public FileRef getFileRef()

@@ -6,7 +6,7 @@ import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.model.Classified;
 
 
-public interface PermissionManager
+public interface AuthorizationManager
 {
 
  Permit checkSystemPermission(SystemAction act);

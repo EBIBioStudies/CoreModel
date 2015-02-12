@@ -6,7 +6,12 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AuthzObject;
@@ -18,6 +23,12 @@ import uk.ac.ebi.biostd.idgen.acr.IdGenProfGrpACR;
 import uk.ac.ebi.biostd.idgen.acr.IdGenProfUsrACR;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name="IdGen.getByPfxSfx",query="SELECT g FROM IdGen g WHERE g.prefix=:prefix AND g.suffix=:suffix")
+})
+@Table(   indexes = {
+  @Index(name = "pfxsfx_idx", columnList = "prefix,suffix", unique=true)
+})
 public class IdGen implements AuthzObject
 {
  @Id
@@ -32,6 +43,47 @@ public class IdGen implements AuthzObject
  {
   this.id = id;
  }
+ 
+ public String getPrefix()
+ {
+  return prefix;
+ }
+ private String prefix;
+
+ public void setPrefix(String prefix)
+ {
+  this.prefix = prefix;
+ }
+ 
+ public String getSuffix()
+ {
+  return suffix;
+ }
+ private String suffix;
+
+
+ public void setSuffix(String suffix)
+ {
+  this.suffix = suffix;
+ }
+ 
+// private int  counterPadding;
+// private Domain domain;
+
+ @ManyToOne
+ public Counter getCounter()
+ {
+  return counter;
+ }
+ private Counter counter;
+
+ public void setCounter(Counter counter)
+ {
+  this.counter = counter;
+ }
+ 
+ 
+ 
  @Override
  @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
  public Collection<IdGenProfGrpACR> getProfileForGroupACRs()
@@ -93,12 +145,7 @@ public class IdGen implements AuthzObject
   return Permit.checkPermission(act, user, this);
  }
 
- private String prefix;
- private String suffix;
- 
- private int  counterPadding;
- 
- private Counter counter;
- 
- private Domain domain;
+
+
+
 }

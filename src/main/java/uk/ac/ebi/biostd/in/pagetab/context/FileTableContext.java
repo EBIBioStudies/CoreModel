@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.CellPointer;
 import uk.ac.ebi.biostd.in.pagetab.ParserState;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -73,6 +74,9 @@ public class FileTableContext extends TableBlockContext
 
   if( parent != null )
    parent.addFileRef(current);
+  
+  getSubmissionInfo().addFileOccurance(new CellPointer(lineNo, 1), current, getContextLogNode());
+
   
  }
 

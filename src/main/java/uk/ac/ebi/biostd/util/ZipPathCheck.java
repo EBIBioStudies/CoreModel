@@ -18,10 +18,10 @@ public class ZipPathCheck
  }
 
  
- public boolean checkPath( String path )
+ public FilePointer checkPath( String path )
  {
   if( path.length() == 0 )
-   return false;
+   return null;
   
   if( path.startsWith(pathSeparator) || path.charAt(0) == File.pathSeparatorChar )
    path = path.substring(1);
@@ -33,31 +33,37 @@ public class ZipPathCheck
   for( int i=0; i < parts.length; i++ )
   {
    if( "..".equals(parts[i]) )
-    return false;
+    return null;
    
    cPath = new File( cPath, parts[i] );
    
    if( ! cPath.exists() )
-    return false;
+    return null;
    
    if( ! cPath.isDirectory() )
    {
     if( i == parts.length-1 )
-     return true;
+    {
+     FilePointer fp = new FilePointer();
+     
+     fp.setFullPath(path);
+     
+     return fp;
+    }
     
     if( parts[i].length() > 4 && parts[i].substring(parts[i].length()-4).equalsIgnoreCase(".zip") )
      return checkZipPath(cPath, parts, i+1);
     
-    return false;
+    return null;
    }
    
   }
   
-  return false;
+  return null;
  }
 
 
- private boolean checkZipPath(File cPath, String[] parts, int start)
+ private FilePointer checkZipPath(File cPath, String[] parts, int start)
  {
   
   String fn = parts[ start ];
@@ -84,7 +90,15 @@ public class ZipPathCheck
     String ze = eset.nextElement().getName();
     
     if( ze.equals(fn) )
-     return true;
+    {
+     FilePointer fp = new FilePointer();
+     
+     fp.setArchivePath(cPath.getAbsolutePath());
+     fp.setArchiveInternalPath(fn);
+     fp.setFullPath(fp.getArchivePath()+"/"+fn);
+     
+     return fp;
+    }
    }
    
   }
@@ -93,7 +107,7 @@ public class ZipPathCheck
   }
   
   
-  return false;
+  return null;
  }
  
 }

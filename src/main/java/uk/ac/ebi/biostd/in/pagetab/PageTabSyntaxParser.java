@@ -12,8 +12,10 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.CellPointer;
 import uk.ac.ebi.biostd.in.Parser;
+import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.in.pagetab.context.BlockContext;
+import uk.ac.ebi.biostd.in.pagetab.context.BlockContext.BlockType;
 import uk.ac.ebi.biostd.in.pagetab.context.FileContext;
 import uk.ac.ebi.biostd.in.pagetab.context.FileTableContext;
 import uk.ac.ebi.biostd.in.pagetab.context.LinkContext;
@@ -22,7 +24,6 @@ import uk.ac.ebi.biostd.in.pagetab.context.SectionContext;
 import uk.ac.ebi.biostd.in.pagetab.context.SectionTableContext;
 import uk.ac.ebi.biostd.in.pagetab.context.SubmissionContext;
 import uk.ac.ebi.biostd.in.pagetab.context.VoidContext;
-import uk.ac.ebi.biostd.in.pagetab.context.BlockContext.BlockType;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
@@ -70,6 +71,7 @@ public class PageTabSyntaxParser extends Parser
   config = pConf;
  }
 
+ @Override
  public List<SubmissionInfo> parse( String txt, LogNode topLn ) throws ParserException
  {
   Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
@@ -116,7 +118,7 @@ public class PageTabSyntaxParser extends Parser
   
 //  SectionContext lastSecContext = null;
   
-  SectionOccurance lastSectionOccurance = null;
+  SectionOccurrence lastSectionOccurance = null;
   
   SubmissionContext lastSubmissionContext = null;
   
@@ -278,11 +280,11 @@ public class PageTabSyntaxParser extends Parser
        sln.log(Level.ERROR, "(R" + lineNo + ",C1) Sections table must follow any section block");
 
 
-      SectionOccurance parentSecOcc = lastSectionOccurance;
+      SectionOccurrence parentSecOcc = lastSectionOccurance;
       
       if(pAcc != null && pAcc.length() > 0)
       {
-       parentSecOcc = submInf.getParentSection(pAcc);
+       parentSecOcc = submInf.getNonTableSection(pAcc);
        
        if(parentSecOcc == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Parent section '" + pAcc + "' not found");
@@ -303,7 +305,15 @@ public class PageTabSyntaxParser extends Parser
       LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
       
       Section s = new Section();
+      
+      s.setGlobal(false);
 
+      SectionOccurrence secOc = new SectionOccurrence();
+      
+      secOc.setElementPointer( new CellPointer(lineNo, 1));
+      secOc.setSection(s);
+      secOc.setSecLogNode(sln);
+      
       if(lastSectionOccurance == null)
       {
        if(submInf == null )
@@ -322,52 +332,43 @@ public class PageTabSyntaxParser extends Parser
       {
        genAccNoMtch.reset( s.getAccNo() );
        
-       SectionRef sr = new SectionRef(s);
        
        if( genAccNoMtch.matches() )
        {
-        sr.setLocal(false);
+        s.setGlobal(true);
         
         String pfx = genAccNoMtch.group("pfx");
         String sfx = genAccNoMtch.group("sfx");
         
-        sr.setPrefix(pfx);
-        sr.setSuffix(sfx);
+        secOc.setPrefix(pfx);
+        secOc.setSuffix(sfx);
         
-        sr.setAccNo(genAccNoMtch.group("tmpid"));
+        s.setAccNo(genAccNoMtch.group("tmpid"));
         
-        s.setAccNo(sr.getAccNo());
-        
-        boolean gen=false;
         
         if( pfx != null && pfx.length() > 0 )
         { 
-         gen = true;
-         
          if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
           sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number prefix can't end with a digit '" + pfx + "'");
         }
         
         if( sfx != null && sfx.length() > 0 ) 
         { 
-         gen = true;
-         
          if( Character.isDigit( sfx.charAt(0) ) )
           sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
         }
         
-        if( gen )
-         submInf.addSec2genId(sr);
+        submInf.addGlobalSection(secOc);
        }
 
       }
       
       String pAcc = s.getParentAccNo();
-      SectionOccurance pSecCtx = lastSectionOccurance;
+      SectionOccurrence pSecCtx = lastSectionOccurance;
       
       if(pAcc != null && pAcc.length() > 0)
       {
-       pSecCtx = submInf.getParentSection(pAcc);
+       pSecCtx = submInf.getNonTableSection(pAcc);
 
        if(pSecCtx == null)
         sln.log(Level.ERROR, "(R" + lineNo + ",C3) Parent section '" + pAcc + "' not found");
@@ -375,29 +376,20 @@ public class PageTabSyntaxParser extends Parser
         sln.move(pln, pSecCtx.getSecLogNode());
       }
       
-
       
       if( pSecCtx != null )
        pSecCtx.getSection().addSection(s);
       
-      SectionOccurance secOc =null;
       
-      if( s.getAccNo() != null  )
+      if(s.getAccNo() != null)
       {
-       secOc = submInf.getSectionOccurance( s.getAccNo() );
-       
-       if( secOc != null )
-        sln.log(Level.ERROR, "Accession number '"+s.getAccNo()+"' is used by other section at "+secOc.getElementPointer());
-      }
-      
-      secOc = new SectionOccurance();
-      
-      secOc.setElementPointer( new CellPointer(lineNo, 1));
-      secOc.setSection(s);
-      secOc.setSecLogNode(sln);
+       if(submInf.getSectionOccurance(s.getAccNo()) != null)
+        sln.log(Level.ERROR, "Accession number '" + s.getAccNo() + "' is used by other section at " + secOc.getElementPointer());
 
-      submInf.addSectionOccurance(secOc);
-      submInf.addParentEligibleSection(secOc);
+       submInf.addNonTableSection(secOc);
+       submInf.addSectionOccurance(secOc);
+      }
+
       
       lastSectionOccurance=secOc;
 
@@ -431,7 +423,7 @@ public class PageTabSyntaxParser extends Parser
   {
    for( ReferenceOccurrence r : si.getReferenceOccurrences() )
    {
-    SectionOccurance soc = si.getSectionOccurance(r.getRef().getValue());
+    SectionOccurrence soc = si.getSectionOccurance(r.getRef().getValue());
     if( soc == null )
      r.getLogNode().log(Level.ERROR, r.getElementPointer()+" Invalid reference. Target doesn't exist: '"+r.getRef()+"'");
     else

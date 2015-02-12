@@ -9,12 +9,16 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
@@ -24,6 +28,14 @@ import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.authz.User;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name="Submission.countByAcc", query="SELECT count(s) FROM Submission s where s.accNo=:accNo"),
+ @NamedQuery(name="Submission.getByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo")
+})
+@Table(
+  indexes = {
+     @Index(name = "acc_idx", columnList = "accNo")
+  })
 public class Submission implements Node, Accessible
 {
  @Id

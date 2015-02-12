@@ -9,11 +9,14 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
@@ -21,6 +24,12 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
+@NamedQuery(name="Section.countByAcc", query="SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true")
+@Table(
+  indexes = {
+     @Index(name = "glob_idx", columnList = "global"),
+     @Index(name = "acc_idx", columnList = "accNo")
+  })
 public class Section implements Node, Accessible
 {
  @Id
@@ -36,6 +45,17 @@ public class Section implements Node, Accessible
   this.id = id;
  }
 
+ public boolean isGlobal()
+ {
+  return global;
+ }
+ private boolean global;
+ 
+ public void setGlobal(boolean global)
+ {
+  this.global = global;
+ }
+ 
  public String getParentAccNo()
  {
   return parentAcc;
@@ -351,4 +371,5 @@ public class Section implements Node, Accessible
  {
   this.tableIndex = tableIndex;
  }
+
 }
