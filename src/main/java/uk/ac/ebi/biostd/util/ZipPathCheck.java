@@ -47,12 +47,18 @@ public class ZipPathCheck
      FilePointer fp = new FilePointer();
      
      fp.setFullPath(path);
+     fp.setRelativePath(path);
      
      return fp;
     }
     
     if( parts[i].length() > 4 && parts[i].substring(parts[i].length()-4).equalsIgnoreCase(".zip") )
-     return checkZipPath(cPath, parts, i+1);
+    {
+     FilePointer fp = checkZipPath(cPath, parts, i+1);
+     fp.setRelativePath(path);
+
+     return fp;
+    }
     
     return null;
    }

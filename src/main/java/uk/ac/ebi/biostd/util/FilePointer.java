@@ -4,6 +4,7 @@ public class FilePointer
 {
  private String archivePath;
  private String fullPath;
+ private String relativePath;
  private String archiveInternalPath;
 
  public String getArchivePath()
@@ -34,5 +35,15 @@ public class FilePointer
  public void setArchiveInternalPath(String archiveInternalPath)
  {
   this.archiveInternalPath = archiveInternalPath;
+ }
+
+ public String getRelativePath()
+ {
+  return relativePath;
+ }
+
+ public void setRelativePath(String relativePath)
+ {
+  this.relativePath = relativePath;
  }
 }

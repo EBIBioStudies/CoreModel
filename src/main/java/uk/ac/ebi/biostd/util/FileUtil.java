@@ -3,7 +3,10 @@ package uk.ac.ebi.biostd.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 
@@ -47,6 +50,23 @@ public class FileUtil
    
    baos.close();
   }
+  
+ }
+ 
+ public static void copyFile( File inf, File outf ) throws IOException
+ {
+  byte[] buf = new byte[16384];
+  
+  try (
+   InputStream fis = new FileInputStream(inf);
+   OutputStream fos = new FileOutputStream(outf);
+  )
+  {
+  int nread;
+  while( (nread=fis.read(buf) ) > 0 )
+   fos.write(buf, 0, nread);
+  }
+  
   
  }
  

@@ -795,7 +795,7 @@ public class JSONReader extends Parser
   secOc.setElementPointer( new PathPointer(pathToString(path)) );
   secOc.setSection(sec);
   secOc.setSecLogNode(ln);
-  secOc.setGlobal(false);
+  sec.setGlobal(false);
   
   ln = ln.branch("Processing section");
   
@@ -841,7 +841,7 @@ public class JSONReader extends Parser
       
       if( genAccNoMtch.matches() )
       {
-       secOc.setGlobal(true);
+       sec.setGlobal(true);
        
        String pfx = genAccNoMtch.group("pfx");
        String sfx = genAccNoMtch.group("sfx");

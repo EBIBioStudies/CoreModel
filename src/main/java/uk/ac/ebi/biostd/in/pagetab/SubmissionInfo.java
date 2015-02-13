@@ -14,6 +14,7 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 public class SubmissionInfo
 {
  private Submission submission;
+ private Submission originalSubmission;
  
  private String accNoPrefix;
  private String accNoSuffix;
@@ -143,6 +144,16 @@ public class SubmissionInfo
  public Collection<FileOccurrence> getFileOccurrences()
  {
   return files;
+ }
+
+ public Submission getOriginalSubmission()
+ {
+  return originalSubmission;
+ }
+
+ public void setOriginalSubmission(Submission originalSubmission)
+ {
+  this.originalSubmission = originalSubmission;
  }
 
 }
