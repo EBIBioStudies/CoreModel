@@ -148,7 +148,7 @@ public abstract class TableBlockContext extends BlockContext
    else if( atr.reference )
    {
     prevAttr = addAttribute(atr.name,val,null);
-    prevAttr.setReferenece(true);
+    prevAttr.setReference(true);
     submInfo.addReferenceOccurance( new CellPointer(lineNo, i+1), prevAttr, log);
    }
    else

@@ -498,13 +498,13 @@ public class JSONReader extends Parser
      case JSONFormatter.isRefProperty:
       
       if( val instanceof Boolean )
-       atr.setReferenece((Boolean)val);
+       atr.setReference((Boolean)val);
       else if( val instanceof String )
       {
        if( "true".equalsIgnoreCase((String)val) )
-        atr.setReferenece(true);
+        atr.setReference(true);
        else if( "false".equalsIgnoreCase((String)val) )
-        atr.setReferenece(false);
+        atr.setReference(false);
        else
        {
         ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid value. Boolean expected" );

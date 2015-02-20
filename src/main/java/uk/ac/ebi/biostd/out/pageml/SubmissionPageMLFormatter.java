@@ -7,12 +7,26 @@ import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBMISSION;
 import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
+import java.util.List;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.out.Formatter;
 
-public class SubmissionPageMLFormatter extends PageMLFormatter
+public class SubmissionPageMLFormatter extends PageMLFormatter implements Formatter
 {
+ 
+ @Override
+ public void format(List<Submission> smbs, Appendable out) throws IOException
+ {
+  out.append("<submissions>");
+  
+  for( Submission s : smbs )
+   formatSubmission(s, out, initShift );
+  
+  out.append("</submissions>");
+ }
+
 
  @Override
  public void format(Submission s, Appendable out) throws IOException

@@ -67,7 +67,7 @@ abstract public class AbstractAttribute implements Classified
   return isReference;
  }
  
- public void setReferenece(boolean rf)
+ public void setReference(boolean rf)
  {
   isReference = rf;
  }

@@ -46,7 +46,7 @@ public class ZipPathCheck
     {
      FilePointer fp = new FilePointer();
      
-     fp.setFullPath(path);
+     fp.setFullPath(cPath.getAbsolutePath());
      fp.setRelativePath(path);
      
      return fp;

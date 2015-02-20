@@ -35,7 +35,7 @@ public class SimpleLogNode implements LogNode,Serializable
 
   subNodes.add(new SimpleLogNode(lvl, msg, errCnt));
   
-  if( lvl.getPriority() >= Level.ERROR.getPriority() )
+  if( errCnt!= null && lvl.getPriority() >= Level.ERROR.getPriority() )
    errCnt.incErrorCounter();
  }
 
@@ -60,7 +60,8 @@ public class SimpleLogNode implements LogNode,Serializable
 
   subNodes.add(node);
   
-  errCnt.addErrorCounter( countErrors(node) );
+  if( errCnt != null )
+   errCnt.addErrorCounter( countErrors(node) );
  }
 
  private int countErrors( LogNode node )
@@ -162,7 +163,8 @@ public class SimpleLogNode implements LogNode,Serializable
   if( subNodes == null || ! subNodes.remove(ln) )
    return false;
   
-  errCnt.addErrorCounter( - countErrors(ln) );
+  if( errCnt != null )
+   errCnt.addErrorCounter( - countErrors(ln) );
   
   return true;
  }

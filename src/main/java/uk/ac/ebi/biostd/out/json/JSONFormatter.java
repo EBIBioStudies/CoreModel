@@ -1,6 +1,8 @@
 package uk.ac.ebi.biostd.out.json;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,31 +40,39 @@ public class JSONFormatter implements Formatter
  public static final String linksProperty = "links";
  public static final String urlProperty = "url";
 
- @Override
- public void format(Submission s, Appendable out) throws IOException
+ 
+ public void format( List<Submission> smbs, Appendable out ) throws IOException
  {
   JSONArray root = new JSONArray();
   
   
-  JSONObject sbm = new JSONObject();
-  
-  sbm.put(typeProperty, "submission");
-  
-  if( s.getAccNo() != null )
-   sbm.put(accNoProperty, s.getAccNo() );
-  
-  appendAttributes(sbm,s);
-  
-  appendAccessTags(sbm,s);
-  
-  appendTags(sbm,s);
+  for( Submission s : smbs )
+  {
+   JSONObject sbm = new JSONObject();
 
-  sbm.put(rootSecProperty, appendSection(new JSONObject(), s.getRootSection()) );
-  
-  root.put(sbm);
-  
-  out.append( root.toString(1) );
-  
+   sbm.put(typeProperty, "submission");
+
+   if(s.getAccNo() != null)
+    sbm.put(accNoProperty, s.getAccNo());
+
+   appendAttributes(sbm, s);
+
+   appendAccessTags(sbm, s);
+
+   appendTags(sbm, s);
+
+   sbm.put(rootSecProperty, appendSection(new JSONObject(), s.getRootSection()));
+
+   root.put(sbm);
+  }
+
+  out.append(root.toString(1));
+ }
+ 
+ @Override
+ public void format(Submission s, Appendable out) throws IOException
+ {
+  format(Collections.singletonList(s), out);
  }
 
  private JSONObject appendSection(JSONObject jsobj, Section sec)

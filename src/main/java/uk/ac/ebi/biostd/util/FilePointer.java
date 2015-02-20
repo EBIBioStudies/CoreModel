@@ -46,4 +46,10 @@ public class FilePointer
  {
   this.relativePath = relativePath;
  }
+ 
+ @Override
+ public String toString()
+ {
+  return fullPath;
+ }
 }

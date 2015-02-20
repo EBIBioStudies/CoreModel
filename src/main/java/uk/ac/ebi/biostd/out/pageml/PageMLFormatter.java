@@ -28,16 +28,14 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.Formatter;
 import uk.ac.ebi.biostd.pageml.PageMLElements;
 
-public class PageMLFormatter implements Formatter
+public class PageMLFormatter
 {
  protected static final String shiftSym = " "; 
 
  protected String initShift = shiftSym;
  
- @Override
  public void format(Submission s, Appendable out) throws IOException
  {
   formatSection(s.getRootSection(),out, initShift );

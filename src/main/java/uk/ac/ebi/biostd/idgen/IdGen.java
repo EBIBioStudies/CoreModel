@@ -24,7 +24,7 @@ import uk.ac.ebi.biostd.idgen.acr.IdGenProfUsrACR;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="IdGen.getByPfxSfx",query="SELECT g FROM IdGen g WHERE g.prefix=:prefix AND g.suffix=:suffix")
+ @NamedQuery(name="IdGen.getByPfxSfx",query="SELECT g FROM IdGen g WHERE ( (:prefix is null AND g.prefix is null ) OR g.prefix=:prefix) AND ( (:suffix is null AND g.suffix is null ) OR g.suffix=:suffix)")
 })
 @Table(   indexes = {
   @Index(name = "pfxsfx_idx", columnList = "prefix,suffix", unique=true)

@@ -99,7 +99,7 @@ public abstract class VerticalBlockContext extends BlockContext
       log.log(Level.ERROR, "(R" + lineNo + ",C1) References are not allowed in this context");
      else
      {
-      ref.setReferenece(true);
+      ref.setReference(true);
       lastAttr = ref;
      
       submInfo.addReferenceOccurance(new CellPointer(lineNo, 2), ref, log);
