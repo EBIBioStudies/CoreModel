@@ -13,7 +13,7 @@ import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
 import uk.ac.ebi.biostd.in.pagetab.SectionRef;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
-import uk.ac.ebi.biostd.out.pageml.SubmissionPageMLFormatter;
+import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -107,7 +107,7 @@ public class TestPageTab
 
    File xmlOut = new File( in.getParentFile(), "xmlout.xml");
    
-   PageMLFormatter fmt = new SubmissionPageMLFormatter();
+   PageMLFormatter fmt = new PageMLFormatter();
    
    FileWriter out = new FileWriter(xmlOut);
    

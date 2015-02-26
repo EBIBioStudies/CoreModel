@@ -95,16 +95,23 @@ public class FileUtil
     
     read+=n;
    }
-   while( read < 2 );
+   while( read < 3 );
    
    Charset cs = null;
    
-   if( ( buff[0] == 0xFF && buff[1] == 0xFE ) || ( buff[0] == 0xFE && buff[1] == 0xFF ) )
+   int offs = 0;
+   
+   if( ( buff[0] == (byte)0xFF && buff[1] == (byte)0xFE ) || ( buff[0] == (byte)0xFE && buff[1] == (byte)0xFF ) )
     cs = Charset.forName("UTF-16");
+   else if( buff[0] == (byte)0xEF && buff[1] == (byte)0xBB && buff[2] == (byte)0xBF )
+   {
+    cs = Charset.forName("UTF-8");
+    offs = 3;
+   }
    else
     cs = Charset.forName("UTF-8");
 
-   baos.write(buff, 0, read);
+   baos.write(buff, offs, read-offs);
    
    while( (n=fis.read(buff)) != -1 )
     baos.write(buff, 0, n);

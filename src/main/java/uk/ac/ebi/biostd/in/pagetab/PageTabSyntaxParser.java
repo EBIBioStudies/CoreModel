@@ -11,6 +11,7 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.CellPointer;
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.Parser;
 import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.ParserException;
@@ -41,6 +42,7 @@ public class PageTabSyntaxParser extends Parser
  public static final String ClassifierSeparatorRX = ":";
  public static final String ValueTagSeparatorRX   = "=";
  public static final String CommentPrefix   = "#";
+ public static final String DocParamPrefix   = "#@";
 
  public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\)]+)\\s*\\)\\s*";
  public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\]]+)\\s*\\]\\s*";
@@ -72,7 +74,7 @@ public class PageTabSyntaxParser extends Parser
  }
 
  @Override
- public List<SubmissionInfo> parse( String txt, LogNode topLn ) throws ParserException
+ public PMDoc parse( String txt, LogNode topLn ) throws ParserException
  {
   Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
   Matcher genAccNoMtch = GeneratedAccNo.matcher("");
@@ -85,7 +87,7 @@ public class PageTabSyntaxParser extends Parser
   pstate.setReferenceMatcher(ReferencePattern.matcher(""));
   pstate.setGeneratedAccNoMatcher(genAccNoMtch);
   
-  List<SubmissionInfo> res = new ArrayList<>(10);
+  PMDoc res = new PMDoc();
   
   SubmissionInfo submInf = null;
 
@@ -126,6 +128,13 @@ public class PageTabSyntaxParser extends Parser
   {
    lineNo++;
 
+   if( parts.size() > 0 && parts.get(0).startsWith(DocParamPrefix))
+   {
+    String pVal = parts.size()>1?parts.get(1):null;
+    
+    res.addHeader(parts.get(0).substring(DocParamPrefix.length()),pVal);
+   }
+   
    for( int i=0; i < parts.size(); i++ )
    {
     if( parts.get(i).startsWith(CommentPrefix) )
@@ -166,7 +175,7 @@ public class PageTabSyntaxParser extends Parser
      {
       finalizeSubmission(submInf);
 
-      res.add(submInf);
+      res.addSubmission(submInf);
       
       if ( ! config.isMultipleSubmissions() )
        ln.log(Level.ERROR, "(R" + lineNo + ",C1) Multiple blocks: '" + SubmissionKeyword + "' are not allowed");
@@ -197,10 +206,21 @@ public class PageTabSyntaxParser extends Parser
       
      lastSectionOccurance = null;
      
+     continue;
     }
-    else if(c0.equals(FileKeyword))
+    
+    if( submInf == null )
     {
-     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     topLn.log(Level.ERROR, "(R" + lineNo + ",C1) Block is defined out of submission context");
+     
+     Submission subm = new Submission();
+     submInf = new SubmissionInfo( subm );
+     submInf.setLogNode(topLn);
+    }
+    
+    if(c0.equals(FileKeyword))
+    {
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
      
      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + FileKeyword + "' block");
 
@@ -219,7 +239,7 @@ public class PageTabSyntaxParser extends Parser
     }
     else if(c0.equals(LinkKeyword))
     {
-     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
      
      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + LinkKeyword + "' block");
 
@@ -237,7 +257,7 @@ public class PageTabSyntaxParser extends Parser
     }
     else if(c0.equals(LinkTableKeyword))
     {
-     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
      
      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing links table block");
 
@@ -250,7 +270,7 @@ public class PageTabSyntaxParser extends Parser
     }
     else if(c0.equals(FileTableKeyword))
     {
-     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+     LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
      
      LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing files table block");
 
@@ -272,7 +292,7 @@ public class PageTabSyntaxParser extends Parser
       if( pAcc != null )
        pAcc = pAcc.trim();
 
-      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
       
       LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + sName + "' table block");
 
@@ -300,9 +320,10 @@ public class PageTabSyntaxParser extends Parser
      else
      {
       
-      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode():submInf.getLogNode();
+      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
 
       LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
+
       
       Section s = new Section();
       
@@ -358,7 +379,8 @@ public class PageTabSyntaxParser extends Parser
           sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
         }
         
-        submInf.addGlobalSection(secOc);
+        if( submInf != null )
+         submInf.addGlobalSection(secOc);
        }
 
       }
@@ -408,7 +430,7 @@ public class PageTabSyntaxParser extends Parser
   {
    finalizeSubmission(submInf);
   
-   res.add(submInf);
+   res.addSubmission(submInf);
   }
   
   SimpleLogNode.setLevels(topLn);

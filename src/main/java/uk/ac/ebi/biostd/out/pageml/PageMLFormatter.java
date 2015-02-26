@@ -13,12 +13,14 @@ import static uk.ac.ebi.biostd.pageml.PageMLElements.FILES;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.LINK;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.LINKS;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.SECTION;
+import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBMISSION;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBSECTIONS;
 import static uk.ac.ebi.biostd.pageml.PageMLElements.TABLE;
 import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -28,17 +30,99 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.out.Formatter;
 import uk.ac.ebi.biostd.pageml.PageMLElements;
+import uk.ac.ebi.biostd.util.StringUtils;
 
-public class PageMLFormatter
+public class PageMLFormatter implements Formatter
 {
  protected static final String shiftSym = " "; 
 
  protected String initShift = shiftSym;
+
+
+ @Override
+ public void header(Map<String,List<String>> hdrs, Appendable out) throws IOException
+ {
+  out.append("<pmdocument>\n");
+  
+  if( hdrs != null )
+  {
+   for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
+   {
+    for( String val : me.getValue() )
+    {
+     out.append(" <header>\n  <name>");
+     xmlEscaped(me.getKey(), out);
+     out.append("</name>\n  <value>");
+     xmlEscaped(val, out);
+     out.append("</value>\n </header>\n");
+    }
+   }
+  }
+  
+  out.append("<submissions>\n");
+ }
+
+ @Override
+ public void footer(Appendable out) throws IOException
+ {
+  out.append("</submissions>");
+  out.append("</pmdocument>\n");
+ }
  
+ @Override
  public void format(Submission s, Appendable out) throws IOException
  {
-  formatSection(s.getRootSection(),out, initShift );
+  formatSubmission( s, out, initShift );
+ }
+
+ protected void formatSubmission(Submission subm, Appendable out, String shift) throws IOException
+ {
+  out.append(shift);
+  out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ID.getAttrName()).append("=\"");
+  xmlEscaped(subm.getAccNo(), out);
+  
+  String str = subm.getEntityClass();
+  if( str != null && str.length() > 0 )
+  {
+   out.append("\" ").append(CLASS.getAttrName()).append("=\"");
+   xmlEscaped(str,out);
+  }
+  
+  if( subm.getAccessTags() != null && subm.getAccessTags().size() > 0 )
+  {
+   out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
+   
+   boolean first = true;
+   for( AccessTag at : subm.getAccessTags() )
+   {
+    if( first )
+     first = false;
+    else
+     out.append(';');
+    
+    xmlEscaped(at.getName(),out);
+   }
+   
+  }
+
+  
+  out.append("\">\n\n");
+
+  String contShift = shift+shiftSym;
+
+  formatAttributes(subm, out, contShift);
+
+  out.append("\n");
+  
+
+  if( subm.getRootSection() != null )
+   formatSection(subm.getRootSection(), out, contShift);
+  
+  out.append("\n");
+  out.append(shift);
+  out.append("</").append(SUBMISSION.getElementName()).append(">\n");
  }
 
  protected void formatSection(Section sec, Appendable out, String shift) throws IOException
@@ -314,7 +398,7 @@ public class PageMLFormatter
 
    }
 
-   if( fr.getAttributes() == null && fr.getAttributes().size() == 0 )
+   if( fr.getAttributes() == null || fr.getAttributes().size() == 0 )
     out.append("\"/>\n");
    else
    {
@@ -416,4 +500,19 @@ public class PageMLFormatter
   xmlEscaped(q.getValue(),out);
   out.append("</").append(xmltag).append(">\n");
  }
+
+ @Override
+ public void comment(String comm, Appendable out) throws IOException
+ {
+  List<String> lines = StringUtils.splitString(comm, '\n');
+  
+  for( String s : lines )
+  {
+   out.append("<!-- ");
+   xmlEscaped(s,out);
+   out.append(" -->\n");
+  }
+ }
+
+
 }

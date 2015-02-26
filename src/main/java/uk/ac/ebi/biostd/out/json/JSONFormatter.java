@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.out.json;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,6 +22,7 @@ import uk.ac.ebi.biostd.out.Formatter;
 
 public class JSONFormatter implements Formatter
 {
+ public static final String submissionsProperty = "submissions";
  public static final String rootSecProperty = "section";
  public static final String attrubutesProperty = "attributes";
  public static final String accNoProperty = "accession";
@@ -41,39 +42,60 @@ public class JSONFormatter implements Formatter
  public static final String urlProperty = "url";
 
  
- public void format( List<Submission> smbs, Appendable out ) throws IOException
- {
-  JSONArray root = new JSONArray();
-  
-  
-  for( Submission s : smbs )
-  {
-   JSONObject sbm = new JSONObject();
-
-   sbm.put(typeProperty, "submission");
-
-   if(s.getAccNo() != null)
-    sbm.put(accNoProperty, s.getAccNo());
-
-   appendAttributes(sbm, s);
-
-   appendAccessTags(sbm, s);
-
-   appendTags(sbm, s);
-
-   sbm.put(rootSecProperty, appendSection(new JSONObject(), s.getRootSection()));
-
-   root.put(sbm);
-  }
-
-  out.append(root.toString(1));
- }
  
  @Override
  public void format(Submission s, Appendable out) throws IOException
  {
-  format(Collections.singletonList(s), out);
+  JSONObject sbm = new JSONObject();
+
+  sbm.put(typeProperty, "submission");
+
+  if(s.getAccNo() != null)
+   sbm.put(accNoProperty, s.getAccNo());
+
+  appendAttributes(sbm, s);
+
+  appendAccessTags(sbm, s);
+
+  appendTags(sbm, s);
+
+  sbm.put(rootSecProperty, appendSection(new JSONObject(), s.getRootSection()));
+
+  out.append(sbm.toString(1));
  }
+ 
+ @Override
+ public void header(Map<String,List<String>> hdrs, Appendable out) throws IOException
+ {
+  out.append("{\n");
+  
+  if( hdrs != null )
+  {
+   for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
+   {
+    if( me.getValue().size() == 1 )
+     out.append("\"@").append(JSONObject.quote(me.getKey())).append("\": \"").append(JSONObject.quote(me.getValue().get(0))).append("\",\n");
+    else if( me.getValue().size() > 1 )
+    {
+     out.append("\"@").append(JSONObject.quote(me.getKey())).append("\": [\n");
+
+     for(String val : me.getValue())
+      out.append("\"").append(JSONObject.quote(val)).append("\",\n");
+     
+     out.append("],\n");
+    }
+   }
+  }
+  
+  out.append("\"").append(submissionsProperty).append("\" : [\n");
+ }
+
+ @Override
+ public void footer(Appendable out) throws IOException
+ {
+  out.append("\n]\n}");
+ }
+
 
  private JSONObject appendSection(JSONObject jsobj, Section sec)
  {
@@ -303,6 +325,12 @@ public class JSONFormatter implements Formatter
   
   jsobj.put(classTagsProperty, tgarr);
  }
+
+ @Override
+ public void comment(String comm, Appendable out )
+ {
+ }
+
 
  
 }

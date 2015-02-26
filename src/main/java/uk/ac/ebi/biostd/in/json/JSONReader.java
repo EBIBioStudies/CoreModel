@@ -1,8 +1,6 @@
 package uk.ac.ebi.biostd.in.json;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,11 +8,11 @@ import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.db.TagResolver;
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.Parser;
 import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.PathPointer;
@@ -54,31 +52,83 @@ public class JSONReader extends Parser
  }
  
  @Override
- public List<SubmissionInfo> parse( String txt, LogNode rln )
+ public PMDoc parse( String txt, LogNode rln )
  {
+  PMDoc doc = new PMDoc();
+
   
   LogNode sln = rln.branch("Parsing JSON body");
   
-  
-  JSONTokener jtok = new JSONTokener(txt);
-  
-  Object jsroot = null;
+  JSONObject docobj = null;
   
   try
   {
-   jsroot = jtok.nextValue();
+   docobj = new JSONObject(txt);
   }
-  catch(JSONException e)
+  catch( JSONException e )
   {
-   sln.log(Level.ERROR, "Parsing failed: "+e.getMessage());
+   sln.log(Level.ERROR, "JSON parsing failed: "+e.getMessage());
    return null;
   }
-  
-  List<SubmissionInfo> subms = new ArrayList<SubmissionInfo>();
   
   Stack<String> path = new Stack<String>();
   
   path.push("");
+
+  Iterator<String> kitr = docobj.keys();
+  
+  while( kitr.hasNext() )
+  {
+   String key = kitr.next();
+   Object val = docobj.get(key);
+
+   path.push(key);
+   
+   
+   if( key.startsWith("@") )
+   {
+    
+    if( val instanceof JSONArray )
+    {
+     JSONArray arr = (JSONArray)val;
+
+     for( int i=0; i < arr.length(); i++ )
+     {
+      Object arval = arr.get(i);
+      
+      if( arval instanceof JSONArray || arval instanceof JSONObject )
+      {
+       path.push(String.valueOf(i));
+       
+       sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: scalar value expected");
+       
+       path.pop();
+      }
+      else
+       doc.addHeader(key.substring(1), arval.toString());
+     }
+     
+    }
+    else if( val instanceof JSONObject )
+     sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: scalar or array value expected");
+    else
+     doc.addHeader(key.substring(1), val.toString());
+    
+   }
+   else if( JSONFormatter.submissionsProperty.equals(key) )
+    processSubmissions(val, doc, sln, path);
+   else
+    sln.log(Level.WARN, "Path '" + pathToString(path) + "' warning: unknown property. Ignoring");
+    
+   path.pop();
+   
+  }
+  
+  return doc;
+ }
+ 
+ public void processSubmissions( Object jsroot, PMDoc doc, LogNode sln, Stack<String> path )
+ {
   
   if( jsroot instanceof JSONArray )
   {
@@ -95,15 +145,15 @@ public class JSONReader extends Parser
      if(!(o instanceof JSONObject))
      {
       sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: expected JSON object");
-      return null;
+      continue;
      }
 
-     SubmissionInfo si = processSubmission((JSONObject) o, rln, path);
+     SubmissionInfo si = processSubmission((JSONObject) o, sln, path);
      
      if( si != null )
      {
       finalizeSubmission(si);
-      subms.add(si);
+      doc.addSubmission(si);
      }
 
     }
@@ -116,24 +166,18 @@ public class JSONReader extends Parser
   }
   else if( jsroot instanceof JSONObject )
   {
-   SubmissionInfo si = processSubmission((JSONObject) jsroot, rln, path);
+   SubmissionInfo si = processSubmission((JSONObject) jsroot, sln, path);
    
    if( si != null )
    {
     finalizeSubmission(si);
-    subms.add(si);
+    doc.addSubmission(si);
    }
    
   }
   else
-  {
    sln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: expected JSON object or array");
-   return null;
-  }
    
-   
-  return subms;
-  
  }
  
  
