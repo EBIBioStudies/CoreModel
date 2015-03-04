@@ -133,6 +133,8 @@ public class PageTabSyntaxParser extends Parser
     String pVal = parts.size()>1?parts.get(1):null;
     
     res.addHeader(parts.get(0).substring(DocParamPrefix.length()),pVal);
+    
+    continue;
    }
    
    for( int i=0; i < parts.size(); i++ )
@@ -165,7 +167,10 @@ public class PageTabSyntaxParser extends Parser
     String c0 = parts.get(0).trim();
 
     if(c0.length() == 0)
-     submInf.getLogNode().log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
+    {
+     LogNode ln = submInf!=null? submInf.getLogNode() : topLn;
+     ln.log(Level.ERROR, "(R" + lineNo + ",C1) Empty cell is not expected here. Should be a block type");
+    }
 
     if(c0.equals(SubmissionKeyword))
     {

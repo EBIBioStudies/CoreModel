@@ -76,7 +76,7 @@ abstract public class AbstractAttribute implements Classified
  {
   return name;
  }
- String name;
+ private String name;
 
  public void setName(String name)
  {
@@ -155,7 +155,7 @@ abstract public class AbstractAttribute implements Classified
  {
   return value;
  }
- String value;
+ private String value;
 
  public void setValue(String value)
  {

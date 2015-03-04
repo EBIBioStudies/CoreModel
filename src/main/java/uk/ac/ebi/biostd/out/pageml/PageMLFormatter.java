@@ -67,7 +67,7 @@ public class PageMLFormatter implements Formatter
  @Override
  public void footer(Appendable out) throws IOException
  {
-  out.append("</submissions>");
+  out.append("</submissions>\n");
   out.append("</pmdocument>\n");
  }
  

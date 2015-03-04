@@ -1,7 +1,9 @@
 package uk.ac.ebi.biostd.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -27,17 +29,22 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.authz.User;
 
+
 @Entity
 @NamedQueries({
- @NamedQuery(name="Submission.countByAcc", query="SELECT count(s) FROM Submission s where s.accNo=:accNo"),
- @NamedQuery(name="Submission.getByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo")
+ @NamedQuery(name="Submission.countByAcc", query="SELECT count(s) FROM Submission s where s.accNo=:accNo AND s.version > 0"),
+ @NamedQuery(name="Submission.getByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo AND s.version > 0"),
+ @NamedQuery(name="Submission.getByOwner", query="SELECT s from Submission s JOIN s.owner u where u.id=:uid AND s.version > 0 order by s.MTime desc")
 })
 @Table(
   indexes = {
-     @Index(name = "acc_idx", columnList = "accNo")
+     @Index(name = "acc_idx", columnList = "accNo,version")
   })
 public class Submission implements Node, Accessible
 {
+ public static final String releaseDateAttribute = "ReleaseDate";
+ public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3}))?)?)?";
+ 
  @Id
  @GeneratedValue
  public long getId()
@@ -64,6 +71,17 @@ public class Submission implements Node, Accessible
   this.acc = acc;
  }
  
+ public int getVersion()
+ {
+  return ver;
+ }
+ private int ver;
+ 
+ public void setVersion( int v )
+ {
+  ver=v;
+ }
+ 
  public long getCTime()
  {
   return ctime;
@@ -86,17 +104,53 @@ public class Submission implements Node, Accessible
   mtime = tm;
  }
  
+ public long getRTime()
+ {
+  return rtime;
+ }
+ private long rtime;
  
+ public void setRTime( long tm )
+ {
+  rtime = tm;
+ }
+
+ @Transient
  public String getDescription()
  {
+  if( description != null )
+   return description;
+  
+  for( SubmissionAttribute attr : getAttributes() )
+  {
+   if( "Title".equalsIgnoreCase(attr.getName()) )
+   {
+    description = attr.getValue();
+    break;
+   }
+  }
+  
+  if( description == null )
+  {
+   for( SubmissionAttribute attr : getAttributes() )
+   {
+    if( "Description".equalsIgnoreCase(attr.getName()) )
+    {
+     description = attr.getValue();
+     break;
+    }
+   }
+  }
+  
+  if( description == null )
+  {
+   description = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()) );
+  }
+  
   return description;
  }
  private String description;
 
- public void setDescription(String acc)
- {
-  this.description = acc;
- }
 
  @ManyToOne
  @JoinColumn(name="owner_id")

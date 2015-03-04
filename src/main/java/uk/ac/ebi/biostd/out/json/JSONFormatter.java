@@ -74,13 +74,13 @@ public class JSONFormatter implements Formatter
    for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
    {
     if( me.getValue().size() == 1 )
-     out.append("\"@").append(JSONObject.quote(me.getKey())).append("\": \"").append(JSONObject.quote(me.getValue().get(0))).append("\",\n");
+     out.append(JSONObject.quote("@"+me.getKey())).append(": ").append(JSONObject.quote(me.getValue().get(0))).append(",\n");
     else if( me.getValue().size() > 1 )
     {
-     out.append("\"@").append(JSONObject.quote(me.getKey())).append("\": [\n");
+     out.append(JSONObject.quote("@"+me.getKey())).append(": [\n");
 
      for(String val : me.getValue())
-      out.append("\"").append(JSONObject.quote(val)).append("\",\n");
+      out.append(JSONObject.quote(val)).append(",\n");
      
      out.append("],\n");
     }
