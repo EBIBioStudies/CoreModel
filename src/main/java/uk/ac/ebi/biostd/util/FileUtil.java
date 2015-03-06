@@ -27,7 +27,7 @@ public class FileUtil
   ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
   try
   {
-   byte[] buff = new byte[4096];
+   byte[] buff = new byte[64*1024];
    int n;
    
    while( (n=fis.read(buff)) != -1 )
@@ -55,7 +55,7 @@ public class FileUtil
  
  public static void copyFile( File inf, File outf ) throws IOException
  {
-  byte[] buf = new byte[16384];
+  byte[] buf = new byte[64*1024];
   
   try (
    InputStream fis = new FileInputStream(inf);
