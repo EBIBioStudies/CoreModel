@@ -5,14 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.ParserConfig;
 import uk.ac.ebi.biostd.in.ParserException;
+import uk.ac.ebi.biostd.in.pagetab.CSVTSVSpreadsheetReader;
 import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
-import uk.ac.ebi.biostd.in.pagetab.SectionRef;
+import uk.ac.ebi.biostd.in.pagetab.SectionOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
-import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
 import uk.ac.ebi.biostd.treelog.ErrorCounter;
 import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
@@ -65,11 +65,11 @@ public class TestPageTab
   SimpleLogNode ln = new SimpleLogNode(Level.SUCCESS, "Processing Page-Tab file", cnt);
   
   
-  List<SubmissionInfo> sbm = null ;
+  PMDoc sbm = null ;
 
   try
   {
-   sbm = pars.parse(text,ln);
+   sbm = pars.parse(new CSVTSVSpreadsheetReader(text,'\0'),ln);
   }
   catch(ParserException e)
   {
@@ -83,13 +83,13 @@ public class TestPageTab
    IdGen idGen = new IdGen();
 
    
-   for(SubmissionInfo s : sbm)
+   for(SubmissionInfo s : sbm.getSubmissions())
    {
     if(s.getAccNoPrefix() != null || s.getAccNoSuffix() != null)
      s.getSubmission().setAccNo(
        (s.getAccNoPrefix() != null ? s.getAccNoPrefix() : "") + idGen.getId() + (s.getAccNoSuffix() != null ? s.getAccNoSuffix() : ""));
     
-    for( SectionRef sr : s.getSec2genId() )
+    for( SectionOccurrence sr : s.getGlobalSections() )
     {
       String accNo = (sr.getPrefix() != null ? sr.getPrefix() : "") + idGen.getId() + (sr.getSuffix() != null ? sr.getSuffix() : "");
       
@@ -113,7 +113,7 @@ public class TestPageTab
    
    out.append("<data>\n");
    
-   for( SubmissionInfo s : sbm )
+   for( SubmissionInfo s : sbm.getSubmissions() )
     fmt.format(s.getSubmission(), out);
    
    out.append("</data>\n");

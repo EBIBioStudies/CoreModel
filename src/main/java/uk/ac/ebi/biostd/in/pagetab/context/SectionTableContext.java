@@ -94,6 +94,7 @@ public class SectionTableContext extends TableBlockContext
    secOc.setSection(current);
    secOc.setSecLogNode(log);
    
+   secOc.setOriginalAccNo(acc);
    
    if( genAccNoMtch.matches() )
    {

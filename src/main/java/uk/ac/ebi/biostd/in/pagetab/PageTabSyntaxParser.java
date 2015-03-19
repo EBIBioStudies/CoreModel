@@ -42,6 +42,7 @@ public class PageTabSyntaxParser extends Parser
  public static final String ClassifierSeparatorRX = ":";
  public static final String ValueTagSeparatorRX   = "=";
  public static final String CommentPrefix   = "#";
+ public static final String EscCommentPrefix   = "\\#";
  public static final String DocParamPrefix   = "#@";
 
  public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\)]+)\\s*\\)\\s*";
@@ -73,8 +74,7 @@ public class PageTabSyntaxParser extends Parser
   config = pConf;
  }
 
- @Override
- public PMDoc parse( String txt, LogNode topLn ) throws ParserException
+ public PMDoc parse( SpreadsheetReader reader, LogNode topLn ) throws ParserException
  {
   Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
   Matcher genAccNoMtch = GeneratedAccNo.matcher("");
@@ -90,23 +90,6 @@ public class PageTabSyntaxParser extends Parser
   PMDoc res = new PMDoc();
   
   SubmissionInfo submInf = null;
-
-  SpreadsheetReader reader = null;
-  
-  if( txt.startsWith("<?xml"))
-  {
-   try
-   {
-    reader = new XMLSpreadsheetReader(txt);
-   }
-   catch(Exception e)
-   {
-    topLn.log(Level.ERROR, "Invalid XML");
-    return null;
-   }
-  }
-  else
-   reader = new CSVTSVSpreadsheetReader(txt);
 
   BlockContext context = new VoidContext();
 
@@ -139,8 +122,13 @@ public class PageTabSyntaxParser extends Parser
    
    for( int i=0; i < parts.size(); i++ )
    {
-    if( parts.get(i).startsWith(CommentPrefix) )
+    String pt = parts.get(i);
+    
+    if( pt.startsWith(CommentPrefix) )
      parts.set(i, "");
+    else if( pt.startsWith(EscCommentPrefix) )
+     parts.set(i, CommentPrefix+pt.substring(EscCommentPrefix.length()));
+
    }
    
    if(isEmptyLine(parts))
@@ -194,6 +182,8 @@ public class PageTabSyntaxParser extends Parser
      context=lastSubmissionContext;
 
      context.parseFirstLine(parts, lineNo);
+     
+     submInf.setAccNoOriginal(subm.getAccNo());
      
      if( subm.getAccNo() != null )
      {
@@ -354,6 +344,8 @@ public class PageTabSyntaxParser extends Parser
       
       s.setType(c0);
 
+      secOc.setOriginalAccNo(s.getAccNo());
+      
       if(s.getAccNo() != null)
       {
        genAccNoMtch.reset( s.getAccNo() );

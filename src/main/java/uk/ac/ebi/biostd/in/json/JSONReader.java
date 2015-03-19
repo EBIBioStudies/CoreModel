@@ -51,7 +51,6 @@ public class JSONReader extends Parser
   this.conf = pc;
  }
  
- @Override
  public PMDoc parse( String txt, LogNode rln )
  {
   PMDoc doc = new PMDoc();

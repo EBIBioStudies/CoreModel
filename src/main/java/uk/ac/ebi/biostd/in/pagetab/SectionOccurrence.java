@@ -6,8 +6,6 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SectionOccurrence
 {
-
-
  private ElementPointer elementPointer;
  
  private Section section;
@@ -16,6 +14,7 @@ public class SectionOccurrence
  
  private String  prefix;
  private String  suffix;
+ private String  originalAccNo;
  
  public ElementPointer getElementPointer()
  {
@@ -72,4 +71,13 @@ public class SectionOccurrence
   this.suffix = suffix;
  }
 
+ public String getOriginalAccNo()
+ {
+  return originalAccNo;
+ }
+
+ public void setOriginalAccNo(String originalAccNo)
+ {
+  this.originalAccNo = originalAccNo;
+ }
 }

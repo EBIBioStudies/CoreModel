@@ -16,7 +16,7 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
  
  int textLen;
  
- public CSVTSVSpreadsheetReader( String text )
+ public CSVTSVSpreadsheetReader( String text, char sep )
  {
   textLen = text.length();
   
@@ -33,6 +33,7 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
     break;
   }
   
+  if( sep == '\0' )
   {  // looking for column separator
    int commaPos = text.indexOf(',',cpos);
    int tabPos = text.indexOf('\t',cpos);
@@ -43,6 +44,8 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
    if( commaPos < tabPos )
     columnSep = ",";
   }
+  else
+   columnSep = new String( new char[] {sep} );
   
   this.text = text;
  }

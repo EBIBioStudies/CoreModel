@@ -13,11 +13,14 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 
 public class SubmissionInfo
 {
+
+
  private Submission submission;
  private Submission originalSubmission;
  
  private String accNoPrefix;
  private String accNoSuffix;
+ private String accNoOriginal;
  
 // private Map<String,SectionRef> sectionMap = new HashMap<String, SectionRef>();
  private Collection<SectionOccurrence> globalSec = new ArrayList<>();
@@ -156,4 +159,13 @@ public class SubmissionInfo
   this.originalSubmission = originalSubmission;
  }
 
+ public String getAccNoOriginal()
+ {
+  return accNoOriginal;
+ }
+
+ public void setAccNoOriginal(String accNoOriginal)
+ {
+  this.accNoOriginal = accNoOriginal;
+ }
 }

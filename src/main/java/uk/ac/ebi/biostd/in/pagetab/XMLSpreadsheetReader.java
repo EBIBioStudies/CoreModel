@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.in.pagetab;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,8 +44,18 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
  private List<String> cRow;
  
  private int lineNo = 0;
+
+ public XMLSpreadsheetReader( String txt ) throws ParserConfigurationException, SAXException, IOException
+ {
+  this( new InputSource( new StringReader(txt) ) );
+ }
+
+ public XMLSpreadsheetReader( InputStream src ) throws ParserConfigurationException, SAXException, IOException
+ {
+  this( new InputSource( src ) );
+ }
  
- public XMLSpreadsheetReader( String txt ) throws ParserConfigurationException, SAXException
+ public XMLSpreadsheetReader( InputSource src ) throws ParserConfigurationException, SAXException, IOException
  {
   SAXParserFactory spf = SAXParserFactory.newInstance();
   spf.setNamespaceAware(true);
@@ -55,12 +66,7 @@ public class XMLSpreadsheetReader implements SpreadsheetReader, ContentHandler
   XMLReader xmlReader = saxParser.getXMLReader();
   xmlReader.setContentHandler( this );
 
-  try
-  {
-   xmlReader.parse( new InputSource( new StringReader(txt) ) );
-  }
-  catch(IOException e) // should not happen as we read a string
-  {}
+  xmlReader.parse( src );
   
  }
  

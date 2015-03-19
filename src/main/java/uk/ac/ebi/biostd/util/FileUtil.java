@@ -53,6 +53,39 @@ public class FileUtil
   
  }
  
+ public static byte[] readBinFile( File f ) throws IOException
+ {
+  FileInputStream fis = new FileInputStream(f);
+  
+  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
+  try
+  {
+   byte[] buff = new byte[64*1024];
+   int n;
+   
+   while( (n=fis.read(buff)) != -1 )
+    baos.write(buff, 0, n);
+   
+   return baos.toByteArray();
+  }
+  finally
+  {
+   if( fis != null )
+   {
+    try
+    {
+     fis.close();
+    }
+    catch(Exception e)
+    {
+    }
+   }
+   
+   baos.close();
+  }
+  
+ }
+ 
  public static void copyFile( File inf, File outf ) throws IOException
  {
   byte[] buf = new byte[64*1024];
