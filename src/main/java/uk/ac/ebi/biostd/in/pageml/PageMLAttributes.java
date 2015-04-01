@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pageml;
+package uk.ac.ebi.biostd.in.pageml;
 
 public enum PageMLAttributes
 {

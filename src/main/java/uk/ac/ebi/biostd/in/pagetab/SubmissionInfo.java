@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.in.pagetab;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,13 +15,14 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 public class SubmissionInfo
 {
 
-
  private Submission submission;
  private Submission originalSubmission;
  
  private String accNoPrefix;
  private String accNoSuffix;
  private String accNoOriginal;
+ 
+ private SectionOccurrence rootSectionOccurance;
  
 // private Map<String,SectionRef> sectionMap = new HashMap<String, SectionRef>();
  private Collection<SectionOccurrence> globalSec = new ArrayList<>();
@@ -141,12 +143,12 @@ public class SubmissionInfo
  
  public Collection<ReferenceOccurrence> getReferenceOccurrences()
  {
-  return refs;
+  return refs!=null?refs:Collections.emptyList();
  }
  
  public Collection<FileOccurrence> getFileOccurrences()
  {
-  return files;
+  return files!=null?files:Collections.emptyList();
  }
 
  public Submission getOriginalSubmission()
@@ -167,5 +169,15 @@ public class SubmissionInfo
  public void setAccNoOriginal(String accNoOriginal)
  {
   this.accNoOriginal = accNoOriginal;
+ }
+ 
+ public SectionOccurrence getRootSectionOccurance()
+ {
+  return rootSectionOccurance;
+ }
+
+ public void setRootSectionOccurance(SectionOccurrence rootSectionOccurance)
+ {
+  this.rootSectionOccurance = rootSectionOccurance;
  }
 }

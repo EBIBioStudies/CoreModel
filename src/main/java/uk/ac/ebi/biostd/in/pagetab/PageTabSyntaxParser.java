@@ -1,5 +1,21 @@
 package uk.ac.ebi.biostd.in.pagetab;
 
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ClassifierSeparatorRX;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.CommentPrefix;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.DocParamPrefix;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.EscCommentPrefix;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.FileKeyword;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.FileTableKeyword;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.LinkKeyword;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.LinkTableKeyword;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.NameQualifierRx;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ReferenceRx;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.SubmissionKeyword;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.TableBlockRx;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.TagSeparatorRX;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueQualifierRx;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueTagSeparatorRX;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,23 +54,7 @@ import uk.ac.ebi.biostd.util.StringUtils;
 public class PageTabSyntaxParser extends Parser
 {
 
- public static final String TagSeparatorRX        = "[,;]";
- public static final String ClassifierSeparatorRX = ":";
- public static final String ValueTagSeparatorRX   = "=";
- public static final String CommentPrefix   = "#";
- public static final String EscCommentPrefix   = "\\#";
- public static final String DocParamPrefix   = "#@";
 
- public static final String NameQualifierRx  = "\\s*\\(\\s*(?<name>[^\\)]+)\\s*\\)\\s*";
- public static final String ValueQualifierRx = "\\s*\\[\\s*(?<name>[^\\]]+)\\s*\\]\\s*";
- public static final String ReferenceRx = "\\s*\\<\\s*(?<name>[^\\>]+)\\s*\\>\\s*";
- public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\[\\s*(?<parent>[^\\]\\s]+)?\\s*\\]\\s*";
-
- public static final String SubmissionKeyword     = "Submission";
- public static final String FileKeyword           = "File";
- public static final String LinkKeyword           = "Link";
- public static final String LinkTableKeyword      = "Links";
- public static final String FileTableKeyword      = "Files";
 
  private final TagResolver  tagRslv;
  private final ParserConfig config;
@@ -295,7 +295,7 @@ public class PageTabSyntaxParser extends Parser
        sln.log(Level.ERROR, "(R" + lineNo + ",C1) Sections table must follow any section block");
 
 
-      SectionOccurrence parentSecOcc = lastSectionOccurance;
+      SectionOccurrence parentSecOcc = submInf.getRootSectionOccurance();
       
       if(pAcc != null && pAcc.length() > 0)
       {
@@ -334,8 +334,11 @@ public class PageTabSyntaxParser extends Parser
       {
        if(submInf == null )
         sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
-       else 
+       else
+       {
         submInf.getSubmission().setRootSection(s);
+        submInf.setRootSectionOccurance(secOc);
+       }
       }
 
       context = new SectionContext(s, submInf, pstate, sln);
@@ -383,7 +386,7 @@ public class PageTabSyntaxParser extends Parser
       }
       
       String pAcc = s.getParentAccNo();
-      SectionOccurrence pSecCtx = lastSectionOccurance;
+      SectionOccurrence pSecCtx = submInf.getRootSectionOccurance()!=secOc?submInf.getRootSectionOccurance():null;
       
       if(pAcc != null && pAcc.length() > 0)
       {

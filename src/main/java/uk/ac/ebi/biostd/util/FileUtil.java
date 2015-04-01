@@ -33,7 +33,14 @@ public class FileUtil
    while( (n=fis.read(buff)) != -1 )
     baos.write(buff, 0, n);
    
-   return new String(baos.toByteArray(),chst);
+   buff = baos.toByteArray();
+   
+   
+   int offs = 0;
+   if( ( buff[0] == (byte)0xEF && buff[1] == (byte)0xBB && buff[2] == (byte)0xBF ) && chst.displayName().equalsIgnoreCase("UTF-8") )
+    offs=3;
+    
+   return new String(buff,offs,buff.length-offs,chst);
   }
   finally
   {

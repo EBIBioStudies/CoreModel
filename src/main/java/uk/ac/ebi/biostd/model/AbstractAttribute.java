@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Basic;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -31,12 +30,9 @@ abstract public class AbstractAttribute implements Classified
  private List<Qualifier> nameQualifiers;
  private List<Qualifier> valueQualifiers;
  
- @Lob
- @Basic
+
  private String nameQualifierString;
 
- @Lob
- @Basic
  private String valueQualifierString;
  
  public AbstractAttribute()
@@ -72,6 +68,7 @@ abstract public class AbstractAttribute implements Classified
   isReference = rf;
  }
  
+ @Lob
  public String getName()
  {
   return name;
@@ -150,7 +147,7 @@ abstract public class AbstractAttribute implements Classified
    valueQualifiers.add( q );
  }
 
- 
+ @Lob
  public String getValue()
  {
   return value;
@@ -316,5 +313,29 @@ abstract public class AbstractAttribute implements Classified
   
   return sb.toString();
   
+ }
+
+ @Lob
+ private String getNameQualifierString()
+ {
+  return nameQualifierString;
+ }
+
+ @SuppressWarnings("unused")
+ private void setNameQualifierString(String nameQualifierString)
+ {
+  this.nameQualifierString = nameQualifierString;
+ }
+
+ @Lob
+ private String getValueQualifierString()
+ {
+  return valueQualifierString;
+ }
+
+ @SuppressWarnings("unused")
+ private void setValueQualifierString(String valueQualifierString)
+ {
+  this.valueQualifierString = valueQualifierString;
  }
 }

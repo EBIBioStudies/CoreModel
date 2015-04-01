@@ -1,9 +1,11 @@
-package uk.ac.ebi.biostd.pageml;
+package uk.ac.ebi.biostd.in.pageml;
 
 public enum PageMLElements
 {
- ROOT(""),
+ ROOT("pmdocument"),
+ HEADER( "header" ),
  SUBMISSION( "submission" ),
+ SUBMISSIONS( "submissions" ),
  SUBSECTIONS( "subsections" ),
  SECTION( "section" ),
  FILES( "files" ),
@@ -15,7 +17,10 @@ public enum PageMLElements
  TABLE( "table" ),
  NMQUALIFIER("nmqual"),
  VALQUALIFIER("valqual"),
- VALUE("value");
+ NAME("name"),
+ VALUE("value"),
+ PATH("path"),
+ URL("url");
  
  private PageMLElements( String el )
  {

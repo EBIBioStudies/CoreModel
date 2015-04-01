@@ -11,5 +11,6 @@ public interface Formatter
  void header(Map<String,List<String>> hdrs, Appendable out) throws IOException;
  void footer(Appendable out) throws IOException;
  void format(Submission s, Appendable out) throws IOException;
+ void separator(Appendable out) throws IOException;
  void comment(String comment, Appendable out) throws IOException;
 }

@@ -11,7 +11,7 @@ public class PMDoc
 {
  private List<SubmissionInfo> submissions;
  
- private Map<String,List<String>> parameters;
+ private Map<String,List<String>> headers;
  
  
  public void addSubmission( SubmissionInfo si )
@@ -36,25 +36,25 @@ public class PMDoc
  {
   List<String> vals = null;
   
-  if( parameters == null )
-   parameters = new HashMap<String, List<String>>();
+  if( headers == null )
+   headers = new HashMap<String, List<String>>();
   else
-   vals = parameters.get(nm);
+   vals = headers.get(nm);
   
   if( vals == null )
-   parameters.put(nm, vals=new ArrayList<String>() );
+   headers.put(nm, vals=new ArrayList<String>() );
   
   vals.add(val);
  }
 
  public Map<String, List<String>> getHeaders()
  {
-  return parameters;
+  return headers;
  }
 
- public void setParameters(Map<String, List<String>> parameters)
+ public void setHeaders(Map<String, List<String>> parameters)
  {
-  this.parameters = parameters;
+  this.headers = parameters;
  }
 
 

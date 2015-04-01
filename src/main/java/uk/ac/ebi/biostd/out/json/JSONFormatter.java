@@ -40,6 +40,7 @@ public class JSONFormatter implements Formatter
  public static final String filesProperty = "files";
  public static final String linksProperty = "links";
  public static final String urlProperty = "url";
+ public static final String pathProperty = "path";
 
  
  
@@ -94,6 +95,12 @@ public class JSONFormatter implements Formatter
  public void footer(Appendable out) throws IOException
  {
   out.append("\n]\n}");
+ }
+
+ @Override
+ public void separator(Appendable out) throws IOException
+ {
+  out.append(",\n");
  }
 
 
@@ -164,7 +171,7 @@ public class JSONFormatter implements Formatter
   {
    JSONObject jsfl = new JSONObject();
    
-   jsfl.put(nameProperty, fr.getName());
+   jsfl.put(pathProperty, fr.getName());
    
    appendAttributes(jsfl, fr);
    appendAccessTags(jsfl, fr);

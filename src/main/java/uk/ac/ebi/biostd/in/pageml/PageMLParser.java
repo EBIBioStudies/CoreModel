@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.pageml;
+package uk.ac.ebi.biostd.in.pageml;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -14,6 +14,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import uk.ac.ebi.biostd.db.TagResolver;
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
@@ -28,7 +30,7 @@ public class PageMLParser extends DefaultHandler
  
  private XMLReader xmlReader;
  
- private Submission sub;
+ private PMDoc doc;
  private final TagResolver reslv;
  
  public PageMLParser(TagResolver tr) throws ParserConfigurationException, SAXException
@@ -45,22 +47,20 @@ public class PageMLParser extends DefaultHandler
   reslv = tr;
  }
  
- public Submission parse( Reader src ) throws IOException, SAXException
+ public PMDoc parse( Reader src ) throws IOException, SAXException
  {
-  sub = null;
+  doc = null;
   context.clear();
   
   xmlReader.parse( new InputSource(src) );
   
-  return sub;
+  return doc;
  }
 
 
  @Override
  public void startDocument() throws SAXException
  {
-  context.push(PageMLElements.ROOT);
-  context.push(null);
  }
 
  @Override
@@ -74,20 +74,45 @@ public class PageMLParser extends DefaultHandler
  @Override
  public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
  {
-  PageMLElements ctx = context.peek();
-  Object contextObj = contextObjStk.peek(); 
+  PageMLElements ctx = context.size()>0?context.peek():null;
   
-  if( PageMLElements.SUBMISSION.getElementName().equals(localName) )
+  Object contextObj = contextObjStk.size()>0?contextObjStk.peek():null; 
+  
+  if( PageMLElements.ROOT.getElementName().equals(localName) )
+  {
+   if(ctx != null )
+    throw new SAXException("Invalid context for element '"+PageMLElements.ROOT.getElementName()+"' : '"+ctx.getElementName()+"'");
+   
+   doc = new PMDoc();
+   
+   context.push(PageMLElements.ROOT);
+   contextObjStk.push(doc);
+  }
+  if( PageMLElements.HEADER.getElementName().equals(localName) )
+  {
+   if( ctx != PageMLElements.ROOT )
+    throw new SAXException("Invalid context for element '"+PageMLElements.ROOT.getElementName()+"' : '"+ctx.getElementName()+"'");
+   
+   context.push(PageMLElements.HEADER);
+   contextObjStk.push(new NVPair());
+  }
+  if( PageMLElements.NAME.getElementName().equals(localName) )
+  {
+   if( ctx != PageMLElements.HEADER )
+    throw new SAXException("Invalid context for element '"+PageMLElements.ROOT.getElementName()+"' : '"+ctx.getElementName()+"'");
+  }
+  else if( PageMLElements.SUBMISSION.getElementName().equals(localName) )
   {
    if( ctx != PageMLElements.ROOT )
     throw new SAXException("Invalid context for element '"+PageMLElements.SUBMISSION.getElementName()+"' : '"+ctx.getElementName()+"'");
    
-   sub = new Submission();
+   Submission sub = new Submission();
    sub.setAccNo(atts.getValue(PageMLAttributes.ID.getAttrName()));
-   
-   sub.setTagRefs( reslv.getSubmissionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+
+   /*
+   sub.setTagRefs( reslv.getTagByName(clsfName, tagName)(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
    sub.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
-   
+   */
    
    context.push( PageMLElements.SUBMISSION );
    contextObjStk.push( sub );
@@ -114,8 +139,8 @@ public class PageMLParser extends DefaultHandler
    
    sec.setAccNo(atts.getValue(PageMLAttributes.ID.getAttrName()));
    
-   sec.setTagRefs( reslv.getSectionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
-   sec.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
+//   sec.setTagRefs( reslv.getSectionTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+//   sec.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
    
    context.push( PageMLElements.SECTION );
    contextObjStk.push( sec );
@@ -174,8 +199,8 @@ public class PageMLParser extends DefaultHandler
    
    fr.setName(atts.getValue(PageMLAttributes.NAME.getAttrName()));
   
-   fr.setTagRefs( reslv.getFileTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
-   fr.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
+//   fr.setTagRefs( reslv.getFileTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+//   fr.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
 
    ((Section)contextObj).addFileRef(fr);
    
@@ -192,8 +217,8 @@ public class PageMLParser extends DefaultHandler
    
    lnk.setUrl(atts.getValue(PageMLAttributes.URL.getAttrName()));
    
-   lnk.setTagRefs( reslv.getLinkTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
-   lnk.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
+//   lnk.setTagRefs( reslv.getLinkTagRefs(atts.getValue(PageMLAttributes.CLASS.getAttrName())));
+//   lnk.setAccessTags( reslv.getAccessTags(atts.getValue(PageMLAttributes.ACCESS.getAttrName())) );
 
    ((Section)contextObj).addLink(lnk);
    

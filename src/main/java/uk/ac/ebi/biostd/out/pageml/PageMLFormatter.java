@@ -1,21 +1,22 @@
 package uk.ac.ebi.biostd.out.pageml;
 
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ACCESS;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.CLASS;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.ID;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.NAME;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.TYPE;
-import static uk.ac.ebi.biostd.pageml.PageMLAttributes.URL;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.ATTRIBUTE;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.ATTRIBUTES;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.FILE;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.FILES;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.LINK;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.LINKS;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.SECTION;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBMISSION;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.SUBSECTIONS;
-import static uk.ac.ebi.biostd.pageml.PageMLElements.TABLE;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCESS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.CLASS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.TYPE;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.ATTRIBUTE;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.ATTRIBUTES;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.FILE;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.FILES;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.HEADER;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.LINK;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.LINKS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.ROOT;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SECTION;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSION;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSIONS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBSECTIONS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.TABLE;
 import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.in.pageml.PageMLElements;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -31,20 +33,19 @@ import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.out.Formatter;
-import uk.ac.ebi.biostd.pageml.PageMLElements;
 import uk.ac.ebi.biostd.util.StringUtils;
 
 public class PageMLFormatter implements Formatter
 {
  protected static final String shiftSym = " "; 
 
- protected String initShift = shiftSym;
+ protected String initShift = shiftSym+shiftSym;
 
 
  @Override
  public void header(Map<String,List<String>> hdrs, Appendable out) throws IOException
  {
-  out.append("<pmdocument>\n");
+  out.append("<").append(ROOT.getElementName()).append(">\n");
   
   if( hdrs != null )
   {
@@ -52,24 +53,36 @@ public class PageMLFormatter implements Formatter
    {
     for( String val : me.getValue() )
     {
-     out.append(" <header>\n  <name>");
+     out.append(shiftSym).append("<").append(HEADER.getElementName()).append(">\n");
+
+     out.append(shiftSym).append(shiftSym).append("<").append(PageMLElements.NAME.getElementName()).append(">");
      xmlEscaped(me.getKey(), out);
-     out.append("</name>\n  <value>");
+     out.append("</").append(PageMLElements.NAME.getElementName()).append(">\n");
+
+     out.append(shiftSym).append(shiftSym).append("<").append(PageMLElements.VALUE.getElementName()).append(">");
      xmlEscaped(val, out);
-     out.append("</value>\n </header>\n");
+     out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
+
+     out.append(shiftSym).append("</").append(HEADER.getElementName()).append(">\n");
+
     }
    }
   }
   
-  out.append("<submissions>\n");
+  out.append(shiftSym).append("<").append(SUBMISSIONS.getElementName()).append(">\n");
  }
 
  @Override
  public void footer(Appendable out) throws IOException
  {
-  out.append("</submissions>\n");
-  out.append("</pmdocument>\n");
+  out.append(shiftSym).append("</").append(SUBMISSIONS.getElementName()).append(">\n");
+  out.append("</").append(ROOT.getElementName()).append(">\n");
  }
+ 
+ @Override
+ public void separator(Appendable out) throws IOException
+ {}
+
  
  @Override
  public void format(Submission s, Appendable out) throws IOException
@@ -202,7 +215,7 @@ public class PageMLFormatter implements Formatter
   
   for( Section ssec : lst )
   {
-   if( ssec.getTableIndex() < lastTblIdx && hasTable )
+   if( ssec.getTableIndex() <= lastTblIdx && hasTable )
    {
     contShift = shift+shiftSym;
 
@@ -255,7 +268,7 @@ public class PageMLFormatter implements Formatter
   
   for( Link ln : s.getLinks() )
   {
-   if( ln.getTableIndex() < lastTblIdx && hasTable )
+   if( ln.getTableIndex() <= lastTblIdx && hasTable )
    {
     contShift = shift+shiftSym;
 
@@ -281,19 +294,22 @@ public class PageMLFormatter implements Formatter
    
    out.append(contShift);
    
-   out.append('<').append(LINK.getElementName()).append(' ').append(URL.getAttrName()).append("=\"");
-   xmlEscaped(ln.getUrl(),out);
+   out.append('<').append(LINK.getElementName());
+
+//   out.append('<').append(LINK.getElementName()).append(' ').append(URL.getAttrName()).append("=\"");
+//   xmlEscaped(ln.getUrl(),out);
    
    String str = ln.getEntityClass();
    if( str != null && str.length() > 0 )
    {
-    out.append("\" ").append(CLASS.getAttrName()).append("=\"");
+    out.append(" ").append(CLASS.getAttrName()).append("=\"");
     xmlEscaped(str,out);
+    out.append("\"");
    }
    
    if( ln.getAccessTags() != null && ln.getAccessTags().size() > 0 )
    {
-    out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
+    out.append(" ").append(ACCESS.getAttrName()).append("=\"");
     
     boolean first = true;
     for( AccessTag at : ln.getAccessTags() )
@@ -305,19 +321,22 @@ public class PageMLFormatter implements Formatter
      
      xmlEscaped(at.getName(),out);
     }
+    
+    out.append("\"");
+
    }
    
-   if( ln.getAttributes() == null || ln.getAttributes().size() == 0 )
-    out.append("\"/>\n");
-   else
-   {
-    out.append("\">\n");
-    
-    formatAttributes(ln, out, contShift+shiftSym);
+   out.append(">\n");
 
-    out.append(contShift);
-    out.append("</").append(LINK.getElementName()).append(">\n");
-   }
+   out.append(contShift+shiftSym).append('<').append(PageMLElements.URL.getElementName()).append(">");
+   xmlEscaped(ln.getUrl(),out);
+   out.append("</").append(PageMLElements.URL.getElementName()).append(">\n");
+   
+    
+   formatAttributes(ln, out, contShift+shiftSym);
+
+   out.append(contShift);
+   out.append("</").append(LINK.getElementName()).append(">\n");
 
   }
   
@@ -345,7 +364,7 @@ public class PageMLFormatter implements Formatter
   
   for( FileRef fr : s.getFileRefs() )
   {
-   if( fr.getTableIndex() < lastTblIdx && hasTable )
+   if( fr.getTableIndex() <= lastTblIdx && hasTable )
    {
     contShift = shift+shiftSym;
 
@@ -371,19 +390,19 @@ public class PageMLFormatter implements Formatter
    
    out.append(contShift);
    
-   out.append('<').append(FILE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
-   xmlEscaped(fr.getName(),out);
+   out.append('<').append(FILE.getElementName());
    
    String str = fr.getEntityClass();
    if( str != null && str.length() > 0 )
    {
-    out.append("\" ").append(CLASS.getAttrName()).append("=\"");
+    out.append(" ").append(CLASS.getAttrName()).append("=\"");
     xmlEscaped(str,out);
+    out.append("\"");
    }
    
    if( fr.getAccessTags() != null && fr.getAccessTags().size() > 0 )
    {
-    out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
+    out.append(" ").append(ACCESS.getAttrName()).append("=\"");
     
     boolean first = true;
     for( AccessTag at : fr.getAccessTags() )
@@ -396,19 +415,21 @@ public class PageMLFormatter implements Formatter
      xmlEscaped(at.getName(),out);
     }
 
+    out.append("\"");
+
    }
 
-   if( fr.getAttributes() == null || fr.getAttributes().size() == 0 )
-    out.append("\"/>\n");
-   else
-   {
-    out.append("\">\n");
+   out.append(">\n");
+
+   out.append(contShift+shiftSym).append('<').append(PageMLElements.PATH.getElementName()).append(">");
+   xmlEscaped(fr.getName(),out);
+   out.append("</").append(PageMLElements.PATH.getElementName()).append(">\n");
+   
     
-    formatAttributes(fr, out, contShift+shiftSym);
+   formatAttributes(fr, out, contShift+shiftSym);
 
-    out.append(contShift);
-    out.append("</").append(FILE.getElementName()).append(">\n");
-   }
+   out.append(contShift);
+   out.append("</").append(FILE.getElementName()).append(">\n");
 
   }
   
@@ -443,23 +464,28 @@ public class PageMLFormatter implements Formatter
   for( AbstractAttribute at : attrs )
   {
    out.append(atShift);
-   out.append('<').append(ATTRIBUTE.getElementName()).append(' ').append(NAME.getAttrName()).append("=\"");
-   xmlEscaped(at.getName(),out);
+   out.append('<').append(ATTRIBUTE.getElementName());
 
    if( at.isReference() )
-    out.append("\" reference=\"true");
+    out.append(" reference=\"true\"");
    
    
    String str = at.getEntityClass();
    if( str != null && str.length() > 0 )
    {
-    out.append("\" ").append(CLASS.getAttrName()).append("=\"");
+    out.append(" ").append(CLASS.getAttrName()).append("=\"");
     xmlEscaped(str,out);
+    out.append("\"");
    }
    
-   out.append("\">\n");
+   out.append(">\n");
    
    String vshift = atShift+shiftSym;
+   
+   out.append(vshift).append('<').append(PageMLElements.NAME.getElementName()).append('>');
+   xmlEscaped(at.getName(),out);
+   out.append("</").append(PageMLElements.NAME.getElementName()).append(">\n");
+
    
    List<Qualifier> qlist = at.getNameQualifiers();
    
@@ -468,6 +494,11 @@ public class PageMLFormatter implements Formatter
     for( Qualifier q : qlist )
      formatQualifier(q, PageMLElements.NMQUALIFIER.getElementName(), out, vshift);
    }
+ 
+   out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
+   xmlEscaped(at.getValue(),out);
+   out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
+
    
    qlist = at.getValueQualifiers();
    
@@ -477,9 +508,6 @@ public class PageMLFormatter implements Formatter
      formatQualifier(q, PageMLElements.VALQUALIFIER.getElementName(), out, vshift);
    }
 
-   out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
-   xmlEscaped(at.getValue(),out);
-   out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
    
    out.append(atShift);
    out.append("</").append(ATTRIBUTE.getElementName()).append(">\n");
@@ -493,12 +521,19 @@ public class PageMLFormatter implements Formatter
  
  private void formatQualifier(Qualifier q, String xmltag, Appendable out, String shift ) throws IOException
  {
-  out.append(shift).append('<').append(xmltag)
-  .append(' ').append(NAME.getAttrName()).append("=\"");
+  out.append(shift).append('<').append(xmltag).append(">\n");
+  
+  String vshift = shift+shiftSym;
+  
+  out.append(vshift).append('<').append(PageMLElements.NAME.getElementName()).append('>');
   xmlEscaped(q.getName(),out);
-  out.append("\">");
+  out.append("</").append(PageMLElements.NAME.getElementName()).append(">\n");
+  
+  out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
   xmlEscaped(q.getValue(),out);
-  out.append("</").append(xmltag).append(">\n");
+  out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
+
+  out.append(shift).append("</").append(xmltag).append(">\n");
  }
 
  @Override
