@@ -2,8 +2,9 @@ package uk.ac.ebi.biostd.in.pagetab;
 
 public class PageTabElements
 {
- public static final String TagSeparator1        = ";";
- public static final String TagSeparator2        = ",";
+ public static final char EscChar='\\';
+ public static final char TagSeparator1        = ',';
+// public static final String TagSeparator2        = ",";
 
  public static final char NameQOpen        = '(';
  public static final char NameQClose        = ')';
@@ -15,11 +16,11 @@ public class PageTabElements
  public static final char TableClose        = ']';
 
  
- public static final String TagSeparatorRX        = "["+TagSeparator1+TagSeparator2+"]";
- public static final String ClassifierSeparatorRX = ":";
- public static final String ValueTagSeparatorRX   = "=";
+// public static final String TagSeparatorRX        = "["+TagSeparator1+TagSeparator2+"]";
+ public static final char   ClassifierSeparator = ':';
+ public static final char   ValueTagSeparator   = '=';
  public static final String CommentPrefix   = "#";
- public static final String EscCommentPrefix   = "\\#";
+ public static final String EscCommentPrefix   = ""+EscChar+CommentPrefix;
  public static final String DocParamPrefix   = "#@";
 
  public static final String NameQualifierRx  = "\\s*\\"+NameQOpen+"\\s*(?<name>[^\\)]+)\\s*\\"+NameQClose+"\\s*";

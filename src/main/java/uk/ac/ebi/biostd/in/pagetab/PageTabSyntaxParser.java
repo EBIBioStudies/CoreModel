@@ -1,8 +1,9 @@
 package uk.ac.ebi.biostd.in.pagetab;
 
-import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ClassifierSeparatorRX;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ClassifierSeparator;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.CommentPrefix;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.DocParamPrefix;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.EscChar;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.EscCommentPrefix;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.FileKeyword;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.FileTableKeyword;
@@ -12,9 +13,9 @@ import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.NameQualifierRx;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ReferenceRx;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.SubmissionKeyword;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.TableBlockRx;
-import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.TagSeparatorRX;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.TagSeparator1;
 import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueQualifierRx;
-import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueTagSeparatorRX;
+import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueTagSeparator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -510,9 +511,9 @@ public class PageTabSyntaxParser extends Parser
 
  public <T extends TagRef> List<T> resolveTags(String cell, int r, int c, Level missedTagLL, TagReferenceFactory<T> tagRefFact, LogNode acNode)
  {
-  String[] tags = cell.split("(?<!\\\\)"+TagSeparatorRX);
+  List<String> tags = StringUtils.splitEscapedString(cell, TagSeparator1, EscChar, 0);
   
-  List<T> res = new ArrayList<>( tags.length );
+  List<T> res = new ArrayList<>( tags.size() );
   
   for( String t : tags )
   {
@@ -521,32 +522,31 @@ public class PageTabSyntaxParser extends Parser
    if( t.length() == 0 )
     continue;
    
-   int pos = t.indexOf(ValueTagSeparatorRX);
+   List<String> nv = StringUtils.splitEscapedString(t, ValueTagSeparator, EscChar, 2);
    
-   String nm = null;
+   
+   String nm = nv.get(0);
    String val = null;
    
-   if( pos != -1 )
-   {
-    nm=t.substring(0,pos).trim();
-    val=t.substring(pos+1).trim();
-   }
-   else
-    nm = t;
+   if( nv.size() > 1 )
+    val = nv.get(1);
    
    
-   String[] clsTg = nm.split(ClassifierSeparatorRX);
+   List<String> clsTg = StringUtils.splitEscapedString(nm, ClassifierSeparator, EscChar, 2);
    
-   if( clsTg.length != 2)
+   if( clsTg.size() != 2)
    {
     acNode.log(Level.WARN, "(R"+r+",C"+c+") Invalid tag reference: '"+nm+"'");
     continue;
    }
    
-   Tag tg = tagRslv.getTagByName(clsTg[0].trim(),clsTg[1].trim());
+   String cls = StringUtils.removeEscapes(clsTg.get(0).trim(), EscChar);
+   String tgn = StringUtils.removeEscapes(clsTg.get(1).trim(), EscChar);
+   
+   Tag tg = tagRslv.getTagByName(cls,tgn);
 
    if( val != null && val.length() > 0 )
-    val = StringUtils.removeEscapes(val, "\\");
+    val = StringUtils.removeEscapes(val, EscChar);
    else
     val=null;
    
@@ -571,12 +571,13 @@ public class PageTabSyntaxParser extends Parser
 
  public List<AccessTag> resolveAccessTags(String value,  LogNode.Level ll, int r, int c, LogNode acNode)
  {
-  String[] tags = value.split(TagSeparatorRX);
+  List<String> tags = StringUtils.splitEscapedString(value, TagSeparator1, PageTabElements.EscChar, 0);
   
-  List<AccessTag> res = new ArrayList<>( tags.length );
+  List<AccessTag> res = new ArrayList<>( tags.size() );
 
   for( String t : tags )
   {
+   t=StringUtils.removeEscapes(t, PageTabElements.EscChar);
    t = t.trim();
    
    if( t.length() == 0 )

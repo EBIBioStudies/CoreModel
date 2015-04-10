@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.pageml.PageMLElements;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -32,18 +34,40 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.Formatter;
-import uk.ac.ebi.biostd.util.StringUtils;
+import uk.ac.ebi.biostd.out.DocumentFormatter;
+import uk.ac.ebi.biostd.out.TextStreamFormatter;
 
-public class PageMLFormatter implements Formatter
+public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 {
  protected static final String shiftSym = " "; 
 
  protected String initShift = shiftSym+shiftSym;
 
+ private Appendable outStream;
+ 
+ public PageMLFormatter()
+ {}
+ 
+ public PageMLFormatter( Appendable o )
+ {
+  outStream = o;
+ }
+
+ 
+ @Override
+ public void format(PMDoc document) throws IOException 
+ {
+  header(document.getHeaders(), outStream);
+  
+  for( SubmissionInfo s : document.getSubmissions() )
+   format(s.getSubmission(), outStream);
+  
+  footer(outStream);
+ }
+ 
 
  @Override
- public void header(Map<String,List<String>> hdrs, Appendable out) throws IOException
+ public void header(Map<String, List<String>> hdrs, Appendable out) throws IOException
  {
   out.append("<").append(ROOT.getElementName()).append(">\n");
   
@@ -70,6 +94,7 @@ public class PageMLFormatter implements Formatter
   }
   
   out.append(shiftSym).append("<").append(SUBMISSIONS.getElementName()).append(">\n");
+
  }
 
  @Override
@@ -78,12 +103,21 @@ public class PageMLFormatter implements Formatter
   out.append(shiftSym).append("</").append(SUBMISSIONS.getElementName()).append(">\n");
   out.append("</").append(ROOT.getElementName()).append(">\n");
  }
- 
+
  @Override
  public void separator(Appendable out) throws IOException
- {}
+ {
+ }
 
+ @Override
+ public void comment(String comment, Appendable out) throws IOException
+ {
+  out.append("<!-- ");
+  xmlEscaped(comment);
+  out.append(" -->\n");
+ }
  
+
  @Override
  public void format(Submission s, Appendable out) throws IOException
  {
@@ -536,18 +570,7 @@ public class PageMLFormatter implements Formatter
   out.append(shift).append("</").append(xmltag).append(">\n");
  }
 
- @Override
- public void comment(String comm, Appendable out) throws IOException
- {
-  List<String> lines = StringUtils.splitString(comm, '\n');
-  
-  for( String s : lines )
-  {
-   out.append("<!-- ");
-   xmlEscaped(s,out);
-   out.append(" -->\n");
-  }
- }
+
 
 
 }

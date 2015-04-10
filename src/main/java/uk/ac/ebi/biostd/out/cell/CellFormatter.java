@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.pagetab.PageTabElements;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.Classified;
@@ -19,9 +22,10 @@ import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SecurityObject;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.Formatter;
+import uk.ac.ebi.biostd.out.DocumentFormatter;
+import uk.ac.ebi.biostd.util.StringUtils;
 
-public class CellFormatter implements Formatter
+public class CellFormatter implements DocumentFormatter
 {
  private interface KeyExtactor
  {
@@ -33,6 +37,7 @@ public class CellFormatter implements Formatter
   LinkedHashMap<String,AttrHdr> quals;
   String atName;
   int ord=0;
+  boolean ref;
   
   @Override
   public int hashCode()
@@ -47,35 +52,66 @@ public class CellFormatter implements Formatter
   }
  }
  
+ static private   char[] tagChar2esc = new char[] {PageTabElements.ClassifierSeparator, PageTabElements.ValueTagSeparator, PageTabElements.TagSeparator1 };
+ 
  private CellStream cstr ;
  private int counter=1;
 
- @Override
- public void header(Map<String, List<String>> hdrs, Appendable out) throws IOException
+ public CellFormatter( CellStream s )
  {
+  cstr = s;
+ }
+ 
   
-  if( hdrs == null )
-   return;
+ @Override
+ public void format(PMDoc document) throws IOException 
+ {
+  cstr.start();
   
-  for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
+  header(document.getHeaders());
+  
+  for( SubmissionInfo s : document.getSubmissions() )
+   format(s.getSubmission());
+  
+  cstr.finish();
+ }
+ 
+
+ private void header(Map<String, List<String>> hdrs) throws IOException
+ {
+  if(hdrs != null)
   {
-   for( String val : me.getValue() )
+
+   for(Map.Entry<String, List<String>> me :hdrs.entrySet())
    {
-    cstr.addCell(PageTabElements.DocParamPrefix+me.getKey());
-    cstr.addCell(val);
-    cstr.nextRow();
+    for(String val : me.getValue())
+    {
+     cstr.addCell(PageTabElements.DocParamPrefix + me.getKey());
+     cstr.addCell(val);
+     cstr.nextRow();
+    }
    }
   }
-  
  }
 
- @Override
- public void footer(Appendable out) throws IOException
+ /*
+ private void footer() throws IOException
  {
  }
 
- @Override
- public void format(Submission s, Appendable out) throws IOException
+ private void separator() throws IOException
+ {
+  cstr.nextRow();
+ }
+
+ private void comment(String comment) throws IOException
+ {
+  cstr.nextRow();
+  cstr.addCell(PageTabElements.CommentPrefix+comment);
+ }
+ */
+ 
+ private void format(Submission s) throws IOException
  {
   cstr.nextRow();
   cstr.addCell(PageTabElements.SubmissionKeyword);
@@ -89,17 +125,21 @@ public class CellFormatter implements Formatter
   
  }
 
- private void exportNodeTags( Node nd )
+ private void exportNodeTags( Node nd ) throws IOException
  {
   if( ( nd.getAccessTags() == null || nd.getAccessTags().size() == 0 ) && (nd.getTagRefs() == null || nd.getTagRefs().size() == 0 ))
+  {
+   cstr.nextRow();
    return;
+  }
   
   exportAccessTags(nd);
   exportClassifTags(nd);
+  cstr.nextRow();
 
  }
  
- private void exportAccessTags( SecurityObject so )
+ private void exportAccessTags( SecurityObject so ) throws IOException
  {
   if( so.getAccessTags() == null || so.getAccessTags().size() == 0 )
   {
@@ -116,15 +156,53 @@ public class CellFormatter implements Formatter
   StringBuilder sb = new StringBuilder();
   
   for( AccessTag acct :  so.getAccessTags() )
-   sb.append(acct.getName()).append(PageTabElements.TagSeparator1);
-
-  sb.setLength( sb.length() - PageTabElements.TagSeparator1.length() );
+  {
+   StringUtils.appendEscaped(sb, acct.getName(), PageTabElements.TagSeparator1, '\\');
+   sb.append(PageTabElements.TagSeparator1);
+  }
+  
+  sb.setLength( sb.length() - 1 );
+  
+  cstr.addCell(sb.toString());
  }
  
- private void exportClassifTags( Classified clsf )
- {}
+ private void exportClassifTags( Classified clsf ) throws IOException
+ {
+  if( clsf.getTagRefs() == null || clsf.getTagRefs().size() == 0 )
+  {
+   cstr.nextCell();
+   return;
+  }
+  
+  StringBuilder sb = new StringBuilder();
+  
+  try
+  {
+   for( TagRef tg :  clsf.getTagRefs() )
+   {
+    StringUtils.appendEscaped(sb, tg.getTag().getClassifier().getName(), tagChar2esc, '\\');
+    sb.append(PageTabElements.ClassifierSeparator);
+    StringUtils.appendEscaped(sb, tg.getTag().getName(), tagChar2esc, '\\');
+    
+    if( tg.getParameter() != null && tg.getParameter().length() > 0 )
+    {
+     sb.append(PageTabElements.ValueTagSeparator);
+     StringUtils.appendEscaped(sb, tg.getParameter(), tagChar2esc, '\\');
+    }
+
+    sb.append(PageTabElements.TagSeparator1);
+   }
+  }
+  catch(IOException e)
+  {
+  }
+  
+  
+  sb.setLength( sb.length() - 1 );
+  cstr.addCell(sb.toString());
+ }
  
- private void exportTable(List<? extends Node> nodes, String titl, KeyExtactor kex )
+ private void exportTable(List<? extends Node> nodes, String titl, KeyExtactor kex ) throws IOException
  {
   Map<String,AttrHdr> hdrMap = new LinkedHashMap<>();
   
@@ -136,7 +214,7 @@ public class CellFormatter implements Formatter
    
    for(AbstractAttribute aa : n.getAttributes() )
    {
-    String name = aa.getName();
+    String name = aa.getName()+(aa.isReference()?"_R":"_A");
     
     Integer cnt = atCntMap.get(name);
     
@@ -160,9 +238,9 @@ public class CellFormatter implements Formatter
     {
      hdrMap.put(name, hdr = new AttrHdr());
      hdr.atName = aa.getName();
+     hdr.ref = aa.isReference();
+     hdr.ord = cnt;
     }
-    else
-     hdr.ord = cnt.intValue();
     
     if( aa.getValueQualifiers() != null )
     {
@@ -197,9 +275,8 @@ public class CellFormatter implements Formatter
       {
        hdr.quals.put(qname, qhdr = new AttrHdr());
        qhdr.atName = q.getName();
-      }
-      else
        qhdr.ord = qcnt.intValue();
+      }
      }
     }
     
@@ -211,8 +288,11 @@ public class CellFormatter implements Formatter
   
   for( AttrHdr ah : hdrMap.values() )
   {
-   cstr.addCell(ah.atName);
-   
+   if( ah.ref )
+    cstr.addCell(String.valueOf(PageTabElements.RefOpen)+ah.atName+PageTabElements.RefClose);
+   else
+    cstr.addCell(ah.atName);
+
    if( ah.quals != null)
    {
     for( AttrHdr qh : ah.quals.values() )
@@ -229,10 +309,10 @@ public class CellFormatter implements Formatter
    {
     AbstractAttribute cattr=null;
     
-    int aOrd = 0;
+    int aOrd = 1;
     for( AbstractAttribute aa : n.getAttributes() )
     {
-     if( aa.getName().equals(ah.atName) )
+     if( aa.getName().equals(ah.atName) && aa.isReference() == ah.ref )
      {
       if( aOrd == ah.ord )
       {
@@ -258,7 +338,7 @@ public class CellFormatter implements Formatter
        continue;
       }
 
-      int qOrd = 0;
+      int qOrd = 1;
       Qualifier cqual = null;
       for( Qualifier q : cattr.getValueQualifiers() )
       {
@@ -288,12 +368,18 @@ public class CellFormatter implements Formatter
   cstr.nextRow();
  }
 
- private void exportAnnotation(Annotated ant )
+ private void exportAnnotation(Annotated ant ) throws IOException
  {
+  if( ant.getAttributes() == null )
+   return;
+  
   for(AbstractAttribute attr : ant.getAttributes() )
   {
-   cstr.nextRow();
-   cstr.addCell(attr.getName());
+   if( attr.isReference() )
+    cstr.addCell(String.valueOf(PageTabElements.RefOpen)+attr.getName()+PageTabElements.RefClose);
+   else
+    cstr.addCell(attr.getName());
+
    cstr.addCell(attr.getValue());
    
    if( attr.getTagRefs() != null )
@@ -319,11 +405,13 @@ public class CellFormatter implements Formatter
     }
    }
    
+   cstr.nextRow();
+
   }
   
  }
  
- private void exportSection(Section sec )
+ private void exportSection(Section sec ) throws IOException
  {
   
   cstr.nextRow();
@@ -335,7 +423,7 @@ public class CellFormatter implements Formatter
    acc = "$$$"+(counter++);
   
   if( acc != null )
-   cstr.addCell(acc);
+   cstr.addCell( (sec.isGlobal()?"!":"")+acc);
   else
    cstr.nextCell();
   
@@ -352,7 +440,7 @@ public class CellFormatter implements Formatter
  }
 
  
- private void exportSubsections( Section sec )
+ private void exportSubsections( Section sec ) throws IOException
  {
   List<Section> secs = sec.getSections();
   
@@ -412,7 +500,7 @@ public class CellFormatter implements Formatter
   
  }
  
- private void exportSectionTable(List<Section> tbl, Section parent)
+ private void exportSectionTable(List<Section> tbl, Section parent) throws IOException
  {
   String parentAcc = ( parent.getParentSection() == null )?"":parent.getAccNo();
   
@@ -421,7 +509,7 @@ public class CellFormatter implements Formatter
     n -> { Section s = (Section)n; if(s.getAccNo() == null) return ""; return s.isGlobal()?"!"+s.getAccNo():s.getAccNo(); } );
  }
 
- private void exportFileRefs( List<FileRef> frefs )
+ private void exportFileRefs( List<FileRef> frefs ) throws IOException
  {
   if( frefs == null )
    return;
@@ -468,7 +556,7 @@ public class CellFormatter implements Formatter
   
  }
  
- private void exportFileRef(FileRef fr)
+ private void exportFileRef(FileRef fr) throws IOException
  {
   cstr.nextRow();
   
@@ -481,13 +569,13 @@ public class CellFormatter implements Formatter
   
  }
 
- private void exportFileTable(List<FileRef> tbl)
+ private void exportFileTable(List<FileRef> tbl) throws IOException
  {
   exportTable(tbl, PageTabElements.FileTableKeyword, n -> ((FileRef)n).getName() );
  }
  
  
- private void exportLinks( List<Link> links )
+ private void exportLinks( List<Link> links ) throws IOException
  {
   if( links == null )
    return;
@@ -536,7 +624,7 @@ public class CellFormatter implements Formatter
 
  
 
- private void exportLink(Link ln)
+ private void exportLink(Link ln) throws IOException
  {
   cstr.nextRow();
   
@@ -548,21 +636,11 @@ public class CellFormatter implements Formatter
   exportAnnotation(ln);
  }
 
- private void exportLinkTable(List<Link> tbl)
+ private void exportLinkTable(List<Link> tbl) throws IOException
  {
   exportTable(tbl, PageTabElements.LinkTableKeyword, n -> ((Link)n).getUrl() );
  }
 
- @Override
- public void separator(Appendable out) throws IOException
- {
-  cstr.nextRow();
- }
 
- @Override
- public void comment(String comment, Appendable out) throws IOException
- {
-  cstr.addCell(PageTabElements.CommentPrefix+comment);
- }
 
 }

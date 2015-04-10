@@ -38,7 +38,7 @@ public class XLSpreadsheetReader implements SpreadsheetReader
  @Override
  public List<String> readRow(List<String> accum)
  {
-  if( lineNo >= maxRow )
+  if( lineNo > maxRow )
    return null;
 
   accum.clear();

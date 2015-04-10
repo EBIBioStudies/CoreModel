@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.TagRef;
+import uk.ac.ebi.biostd.in.PMDoc;
+import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Annotated;
 import uk.ac.ebi.biostd.model.Classified;
@@ -18,9 +20,10 @@ import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SecurityObject;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.Formatter;
+import uk.ac.ebi.biostd.out.DocumentFormatter;
+import uk.ac.ebi.biostd.out.TextStreamFormatter;
 
-public class JSONFormatter implements Formatter
+public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
 {
  public static final String submissionsProperty = "submissions";
  public static final String rootSecProperty = "section";
@@ -42,6 +45,82 @@ public class JSONFormatter implements Formatter
  public static final String urlProperty = "url";
  public static final String pathProperty = "path";
 
+ private Appendable outStream;
+ 
+ public JSONFormatter()
+ {}
+ 
+ public JSONFormatter( Appendable o )
+ {
+  outStream = o;
+ }
+ 
+ 
+ @Override
+ public void format(PMDoc document) throws IOException 
+ {
+  header(document.getHeaders(),outStream);
+  
+  boolean first=true;
+  
+  for( SubmissionInfo s : document.getSubmissions() )
+  {
+   if( first )
+    first = false;
+   else
+    separator(outStream);
+   
+   format(s.getSubmission(), outStream);
+  }
+  
+  footer(outStream);
+ }
+ 
+ 
+ @Override
+ public void header(Map<String, List<String>> hdrs, Appendable out) throws IOException
+ {
+  out.append("{\n");
+  
+  if( hdrs != null )
+  {
+   for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
+   {
+    if( me.getValue().size() == 1 )
+     out.append(JSONObject.quote("@"+me.getKey())).append(": ").append(JSONObject.quote(me.getValue().get(0))).append(",\n");
+    else if( me.getValue().size() > 1 )
+    {
+     out.append(JSONObject.quote("@"+me.getKey())).append(": [\n");
+
+     for(String val : me.getValue())
+      out.append(JSONObject.quote(val)).append(",\n");
+     
+     out.append("],\n");
+    }
+   }
+  }
+  
+  out.append("\"").append(submissionsProperty).append("\" : [\n"); }
+
+
+ @Override
+ public void footer( Appendable out ) throws IOException
+ {
+  out.append("\n]\n}");
+ }
+
+
+ @Override
+ public void separator( Appendable out) throws IOException
+ {
+  out.append(",\n");
+ }
+
+
+ @Override
+ public void comment(String comment, Appendable out) throws IOException
+ {
+ }
  
  
  @Override
@@ -65,44 +144,6 @@ public class JSONFormatter implements Formatter
   out.append(sbm.toString(1));
  }
  
- @Override
- public void header(Map<String,List<String>> hdrs, Appendable out) throws IOException
- {
-  out.append("{\n");
-  
-  if( hdrs != null )
-  {
-   for( Map.Entry<String, List<String>> me : hdrs.entrySet() )
-   {
-    if( me.getValue().size() == 1 )
-     out.append(JSONObject.quote("@"+me.getKey())).append(": ").append(JSONObject.quote(me.getValue().get(0))).append(",\n");
-    else if( me.getValue().size() > 1 )
-    {
-     out.append(JSONObject.quote("@"+me.getKey())).append(": [\n");
-
-     for(String val : me.getValue())
-      out.append(JSONObject.quote(val)).append(",\n");
-     
-     out.append("],\n");
-    }
-   }
-  }
-  
-  out.append("\"").append(submissionsProperty).append("\" : [\n");
- }
-
- @Override
- public void footer(Appendable out) throws IOException
- {
-  out.append("\n]\n}");
- }
-
- @Override
- public void separator(Appendable out) throws IOException
- {
-  out.append(",\n");
- }
-
 
  private JSONObject appendSection(JSONObject jsobj, Section sec)
  {
@@ -333,11 +374,5 @@ public class JSONFormatter implements Formatter
   jsobj.put(classTagsProperty, tgarr);
  }
 
- @Override
- public void comment(String comm, Appendable out )
- {
- }
 
-
- 
 }
