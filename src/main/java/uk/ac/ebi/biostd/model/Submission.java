@@ -43,6 +43,7 @@ import uk.ac.ebi.biostd.authz.User;
 public class Submission implements Node, Accessible
 {
  public static final String releaseDateAttribute = "ReleaseDate";
+ public static final String rootPathAttribute = "RootPath";
  public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3}))?)?)?";
  
  @Id

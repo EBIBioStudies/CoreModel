@@ -13,7 +13,7 @@ public class ReadZipCont
 
  public static void main(String[] args) throws ZipException, IOException
  {
-  File f = new File("e:/dev/temp.zip");
+  File f = new File("c:/dev/tmp/tmp.zip");
 
   ZipFile zf = new ZipFile(f);
   

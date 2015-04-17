@@ -1,28 +1,31 @@
 package uk.ac.ebi.biostd.util;
 
+import java.nio.file.Path;
+
 public class FilePointer
 {
- private String archivePath;
- private String fullPath;
- private String relativePath;
+ private Path archivePath;
+ private Path fullPath;
+ private Path relativePath;
  private String archiveInternalPath;
+ private boolean directory;
 
- public String getArchivePath()
+ public Path getArchivePath()
  {
   return archivePath;
  }
 
- public void setArchivePath(String archivePath)
+ public void setArchivePath(Path archivePath)
  {
   this.archivePath = archivePath;
  }
 
- public String getFullPath()
+ public Path getFullPath()
  {
   return fullPath;
  }
 
- public void setFullPath(String fullPath)
+ public void setFullPath(Path fullPath)
  {
   this.fullPath = fullPath;
  }
@@ -37,12 +40,12 @@ public class FilePointer
   this.archiveInternalPath = archiveInternalPath;
  }
 
- public String getRelativePath()
+ public Path getRelativePath()
  {
   return relativePath;
  }
 
- public void setRelativePath(String relativePath)
+ public void setRelativePath(Path relativePath)
  {
   this.relativePath = relativePath;
  }
@@ -50,6 +53,16 @@ public class FilePointer
  @Override
  public String toString()
  {
-  return fullPath;
+  return fullPath.toString();
+ }
+
+ public boolean isDirectory()
+ {
+  return directory;
+ }
+
+ public void setDirectory(boolean directory)
+ {
+  this.directory = directory;
  }
 }

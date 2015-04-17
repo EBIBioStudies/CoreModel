@@ -1254,5 +1254,27 @@ public class StringUtils
   
   return sb.toString();
  }
+ 
+ public static String stripLeadingSlashes( String str )
+ {
+  int l=str.length();
+  int n=0;
+  
+  while( n < l )
+  { 
+   char ch = str.charAt(n++);
+   
+   if( ch != '/' && ch != '\\' )
+    break;
+  }
+  
+  if( n == 0 )
+   return str;
+  
+  if( n == l )
+   return "";
+  
+  return str.substring(n);
+ }
 }
 

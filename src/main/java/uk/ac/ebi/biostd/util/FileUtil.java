@@ -173,5 +173,25 @@ public class FileUtil
    
    baos.close();
   }
+ }
+
+ public static void copyDirectory(File inDir, File outDir) throws IOException
+ {
+  if( ! inDir.isDirectory() )
+   return;
+  
+  for( File f : inDir.listFiles() )
+  {
+   File outFile =  new File(outDir, f.getName() );
+
+   if( f.isDirectory() )
+   {
+    outFile.mkdirs();
+    copyDirectory(f, outFile);
+   }
+   else
+    copyFile(f, outFile );
+  }
+  
  } 
 }
