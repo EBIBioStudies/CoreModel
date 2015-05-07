@@ -140,6 +140,7 @@ public class StringUtils
  {
   Arrays.sort( htmlPairs );
   Arrays.sort( cStrPairs );
+  Arrays.sort( jsonPairs );
  }
  /**
   * 
@@ -1262,10 +1263,12 @@ public class StringUtils
   
   while( n < l )
   { 
-   char ch = str.charAt(n++);
+   char ch = str.charAt(n);
    
    if( ch != '/' && ch != '\\' )
     break;
+   
+   n++;
   }
   
   if( n == 0 )

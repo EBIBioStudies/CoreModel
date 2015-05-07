@@ -105,6 +105,7 @@ public class PageTabSyntaxParser extends Parser
 //  SectionContext lastSecContext = null;
   
   SectionOccurrence lastSectionOccurance = null;
+  SectionOccurrence rootSectionOccurance = null;
   
   SubmissionContext lastSubmissionContext = null;
   
@@ -201,6 +202,7 @@ public class PageTabSyntaxParser extends Parser
      }
       
      lastSectionOccurance = null;
+     rootSectionOccurance = null;
      
      continue;
     }
@@ -316,7 +318,7 @@ public class PageTabSyntaxParser extends Parser
      else
      {
       
-      LogNode pln = lastSectionOccurance!=null?lastSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
+      LogNode pln = rootSectionOccurance!=null?rootSectionOccurance.getSecLogNode(): (submInf!=null?submInf.getLogNode():topLn);
 
       LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
 
@@ -339,6 +341,8 @@ public class PageTabSyntaxParser extends Parser
        {
         submInf.getSubmission().setRootSection(s);
         submInf.setRootSectionOccurance(secOc);
+        
+        rootSectionOccurance=secOc;
        }
       }
 
