@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.out.json;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +48,12 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String urlProperty = "url";
  public static final String pathProperty = "path";
 
+ public final static String dateFotmat = "yyyy-MM-dd";
+
+ 
  private Appendable outStream;
+ 
+ private DateFormat dateFmt;
  
  public JSONFormatter()
  {}
@@ -133,6 +141,20 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   if(s.getAccNo() != null)
    sbm.put(accNoProperty, s.getAccNo());
 
+  if( s.getTitle() != null )
+   sbm.put(Submission.titleAttribute, s.getTitle() );
+
+  if( s.getRTime() > 0 )
+  {
+   if( dateFmt == null )
+    dateFmt = new SimpleDateFormat(dateFotmat);
+  
+   sbm.put(Submission.releaseDateAttribute, dateFmt.format( new Date( s.getRTime()*1000 ) ) );
+  }
+  
+  if( s.getRootPath() != null )
+   sbm.put(Submission.rootPathAttribute, s.getRootPath());
+  
   appendAttributes(sbm, s);
 
   appendAccessTags(sbm, s);

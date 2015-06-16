@@ -3,8 +3,10 @@ package uk.ac.ebi.biostd.out.cell;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -20,6 +22,8 @@ public class XLSXCellStream implements CellStream
  private int rowNum;
  private int cellNum;
  
+ private CellStyle dateStyle; 
+ 
  public XLSXCellStream( File f )
  {
   file = f;
@@ -32,6 +36,21 @@ public class XLSXCellStream implements CellStream
   cell.setCellValue(cont);
  }
 
+ @Override
+ public void addDateCell(long ts) throws IOException
+ {
+  if(dateStyle == null)
+  {
+   dateStyle = wb.createCellStyle();
+   dateStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("m/d/yy"));
+  }
+ 
+  Cell cell = row.createCell(cellNum++);
+  cell.setCellValue(new Date(ts));
+  cell.setCellStyle(dateStyle);
+
+ }
+ 
  @Override
  public void nextCell() throws IOException
  {

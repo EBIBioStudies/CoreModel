@@ -730,7 +730,7 @@ public class JSONReader extends Parser
 
     switch(key)
     {
-     case JSONFormatter.nameProperty:
+     case JSONFormatter.pathProperty:
       
       nameOk = true;
       
@@ -763,7 +763,7 @@ public class JSONReader extends Parser
   }
   
   if( ! nameOk )
-   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' Object missing '"+JSONFormatter.nameProperty+"' property");
+   ln.log(Level.ERROR, "Path '"+pathToString(path)+"' Object missing '"+JSONFormatter.pathProperty+"' property");
   
   si.addFileOccurance(new PathPointer(pathToString(path)), fr, ln);
   

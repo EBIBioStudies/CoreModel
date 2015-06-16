@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.out.pageml;
 
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCESS;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.CLASS;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.TYPE;
@@ -127,8 +128,10 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
  protected void formatSubmission(Submission subm, Appendable out, String shift) throws IOException
  {
   out.append(shift);
-  out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ID.getAttrName()).append("=\"");
+  out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ACCNO.getAttrName()).append("=\"");
   xmlEscaped(subm.getAccNo(), out);
+  
+  out.append("\" ").append(ID.getAttrName()).append("=\"").append( String.valueOf(subm.getId()) );
   
   String str = subm.getEntityClass();
   if( str != null && str.length() > 0 )
@@ -174,13 +177,16 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
  protected void formatSection(Section sec, Appendable out, String shift) throws IOException
  {
+  
   out.append(shift);
-  out.append('<').append(SECTION.getElementName()).append(' ').append(TYPE.getAttrName()).append("=\"");
+  out.append('<').append(SECTION.getElementName())
+  .append(' ').append(ID.getAttrName()).append("=\"").append( String.valueOf(sec.getId()) )
+  .append("\" ").append(TYPE.getAttrName()).append("=\"");
   xmlEscaped(sec.getType(), out);
   
   if( sec.getAccNo() != null )
   {
-   out.append("\" ").append(ID.getAttrName()).append("=\"");
+   out.append("\" ").append(ACCNO.getAttrName()).append("=\"");
    xmlEscaped(sec.getAccNo(),out);
   }
   

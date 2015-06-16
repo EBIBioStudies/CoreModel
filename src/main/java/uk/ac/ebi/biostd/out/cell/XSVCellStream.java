@@ -1,14 +1,19 @@
 package uk.ac.ebi.biostd.out.cell;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class XSVCellStream implements CellStream
 {
-
+ public final static String dateFotmat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+ 
  private Appendable stream;
  
  private boolean newLine;
  private char sep;
+ private DateFormat dateFmt;
  
  public static CellStream getCSVCellStream( Appendable s )
  {
@@ -28,6 +33,16 @@ public class XSVCellStream implements CellStream
   newLine = true;
   
   this.sep = sep;
+ }
+ 
+ @Override
+ public void addDateCell(long ts) throws IOException
+ {
+  if( dateFmt == null )
+   dateFmt = new SimpleDateFormat(dateFotmat);
+  
+  addCell( dateFmt.format( new Date(ts) ) );
+  
  }
  
  @Override

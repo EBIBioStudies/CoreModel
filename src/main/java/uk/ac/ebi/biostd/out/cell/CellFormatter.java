@@ -119,6 +119,27 @@ public class CellFormatter implements DocumentFormatter
 
   exportNodeTags(s);
   
+  if( s.getTitle() != null )
+  {
+   cstr.addCell(Submission.titleAttribute);
+   cstr.addCell(s.getTitle());
+   cstr.nextRow();
+  }
+  
+  if( s.getRTime() > 0 )
+  {
+   cstr.addCell(Submission.releaseDateAttribute);
+   cstr.addDateCell(s.getRTime()*1000);
+   cstr.nextRow();
+  }
+  
+  if( s.getRootPath() != null )
+  {
+   cstr.addCell(Submission.rootPathAttribute);
+   cstr.addCell(s.getRootPath());
+   cstr.nextRow();
+  }
+  
   exportAnnotation(s);
   
   exportSection(s.getRootSection());

@@ -13,6 +13,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -24,7 +25,10 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-@NamedQuery(name="Section.countByAcc", query="SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true")
+@NamedQueries({
+@NamedQuery(name="Section.countByAcc", query="SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true"),
+@NamedQuery(name="Section.countByAccActive", query="SELECT count(s) FROM Section s JOIN s.submission sbm where sbm.version > 0 AND s.accNo=:accNo AND s.global=true")
+})
 @Table(
   indexes = {
      @Index(name = "glob_idx", columnList = "global"),

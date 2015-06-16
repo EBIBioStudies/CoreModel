@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -43,6 +44,7 @@ import uk.ac.ebi.biostd.authz.User;
 public class Submission implements Node, Accessible
 {
  public static final String releaseDateAttribute = "ReleaseDate";
+ public static final String titleAttribute = "Title";
  public static final String rootPathAttribute = "RootPath";
  public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3}))?)?)?";
  
@@ -83,6 +85,18 @@ public class Submission implements Node, Accessible
   ver=v;
  }
  
+ @Lob
+ public String getRootPath()
+ {
+  return rootPath;
+ }
+ private String rootPath;
+
+ public void setRootPath(String rootPath)
+ {
+  this.rootPath = rootPath;
+ }
+ 
  public long getCTime()
  {
   return ctime;
@@ -116,42 +130,45 @@ public class Submission implements Node, Accessible
   rtime = tm;
  }
 
- @Transient
- public String getDescription()
+ public String getTitle()
  {
-  if( description != null )
-   return description;
+  if( title != null )
+   return title;
   
   for( SubmissionAttribute attr : getAttributes() )
   {
    if( "Title".equalsIgnoreCase(attr.getName()) )
    {
-    description = attr.getValue();
+    title = attr.getValue();
     break;
    }
   }
   
-  if( description == null )
+  if( title == null )
   {
    for( SubmissionAttribute attr : getAttributes() )
    {
     if( "Description".equalsIgnoreCase(attr.getName()) )
     {
-     description = attr.getValue();
+     title = attr.getValue();
      break;
     }
    }
   }
   
-  if( description == null )
+  if( title == null )
   {
-   description = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()) );
+   title = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()) );
   }
   
-  return description;
+  return title;
  }
- private String description;
+ private String title;
 
+ public void setTitle( String tl )
+ {
+  title = tl;
+ }
 
  @ManyToOne
  @JoinColumn(name="owner_id")
@@ -309,4 +326,5 @@ public class Submission implements Node, Accessible
    
   accessTags.add(t);
  }
+
 }

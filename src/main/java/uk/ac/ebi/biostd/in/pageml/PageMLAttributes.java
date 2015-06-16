@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.in.pageml;
 public enum PageMLAttributes
 {
  ID( "id" ),
+ ACCNO( "acc" ),
  ACCESS( "access" ),
  CLASS( "class" ),
  TYPE( "type" ),
