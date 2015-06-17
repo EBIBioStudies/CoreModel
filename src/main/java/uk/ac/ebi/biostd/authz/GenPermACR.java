@@ -9,7 +9,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public class GenPermACR<ObjT,SubjT extends AuthzSubject> implements ACR, PermissionUnit
+public class GenPermACR<ObjT extends AuthzObject,SubjT extends AuthzSubject> implements ACR, PermissionUnit
 {
  @Id
  @GeneratedValue
