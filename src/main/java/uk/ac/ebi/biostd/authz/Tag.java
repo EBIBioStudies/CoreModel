@@ -8,11 +8,22 @@ import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name="Tag.getByName", query="SELECT t FROM Tag t LEFT JOIN t.classifier c where t.name=:tname AND c.name=:cname ")
+})
+@Table(
+  indexes = {
+     @Index(name = "name_idx", columnList = "name", unique=true)
+  })
 public class Tag
 {
  @Id
@@ -77,16 +88,6 @@ public class Tag
   this.parentTag = patentTag;
  }
  
- public boolean isAccessTag()
- {
-  return accessTag;
- }
- private boolean accessTag;
- 
- public void setAccessTag(boolean accessTag)
- {
-  this.accessTag = accessTag;
- }
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="classifier_id",foreignKey = @ForeignKey(name = "classifier_fk"))

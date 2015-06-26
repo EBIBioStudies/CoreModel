@@ -7,9 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.acr.DelegatePermGrpACR;
@@ -22,6 +26,13 @@ import uk.ac.ebi.biostd.authz.acr.TagProfGrpACR;
 import uk.ac.ebi.biostd.authz.acr.TagProfUsrACR;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name="AccessTag.getByName", query="SELECT t FROM AccessTag t where t.name=:name")
+})
+@Table(
+  indexes = {
+     @Index(name = "name_idx", columnList = "name", unique=true)
+  })
 public class AccessTag implements AuthzObject
 {
 
@@ -165,6 +176,43 @@ public class AccessTag implements AuthzObject
   return Permit.checkPermission(act, user, this);
  }
  
+ public Permit checkDelegatePermission(SystemAction act, User user)
+ {
+  return Permit.checkPermission(act, user, new AuthzObject()
+  {
+   
+   @Override
+   public Collection< ? extends ACR> getProfileForUserACRs()
+   {
+    return AccessTag.this.getDelegateProfileForUserACRs();
+   }
+   
+   @Override
+   public Collection< ? extends ACR> getProfileForGroupACRs()
+   {
+    return AccessTag.this.getDelegateProfileForGroupACRs();
+   }
+   
+   @Override
+   public Collection< ? extends ACR> getPermissionForUserACRs()
+   {
+    return AccessTag.this.getDelegatePermissionForUserACRs();
+   }
+   
+   @Override
+   public Collection< ? extends ACR> getPermissionForGroupACRs()
+   {
+    return AccessTag.this.getDelegatePermissionForGroupACRs();
+   }
+   
+   @Override
+   public Permit checkPermission(SystemAction act, User user)
+   {
+    return Permit.DENY;
+   }
+  });
+ }
+
  
  @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
  public Collection<DelegateProfGrpACR> getDelegateProfileForGroupACRs()

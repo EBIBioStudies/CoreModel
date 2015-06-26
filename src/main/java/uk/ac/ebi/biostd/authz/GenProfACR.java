@@ -1,16 +1,14 @@
 package uk.ac.ebi.biostd.authz;
 
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
+public class GenProfACR<SubjT extends AuthzSubject> implements ACR, PermissionUnit
 {
  @Id
  @GeneratedValue
@@ -25,18 +23,6 @@ public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
   this.id = id;
  }
 
- @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="host_id")
- public ObjT getHost()
- {
-  return tag;
- }
- private ObjT tag;
-
- public void setHost(ObjT tag)
- {
-  this.tag = tag;
- }
  
  @Override
  public Permit checkPermission(SystemAction act, User user)
@@ -47,6 +33,11 @@ public class GenProfACR<ObjT,SubjT extends AuthzSubject> implements ACR
   return profile.checkPermission(act);
  }
  
+ @Override
+ public Permit checkPermission(SystemAction act)
+ {
+  return profile.checkPermission(act);
+ }
 
  @OneToOne
  public PermissionProfile getProfile()

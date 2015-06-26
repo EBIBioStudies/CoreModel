@@ -1,6 +1,8 @@
 package uk.ac.ebi.biostd.authz;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
@@ -21,6 +23,7 @@ public class Permission implements PermissionUnit
  }
 
 
+ @Enumerated(EnumType.STRING)
  public SystemAction getAction()
  {
   return action;

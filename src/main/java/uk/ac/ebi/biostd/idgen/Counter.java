@@ -37,7 +37,17 @@ public class Counter implements AuthzObject
   this.id = id;
  }
  
+ public String getName()
+ {
+  return name;
+ }
+ private String name;
 
+ public void setName(String name)
+ {
+  this.name = name;
+ }
+ 
  public long getMaxCount()
  {
   return maxCount;
@@ -118,6 +128,8 @@ public class Counter implements AuthzObject
  {
   return Permit.checkPermission(act, user, this);
  }
+
+
 
 
 

@@ -7,10 +7,17 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
+@Table(
+  indexes = {
+     @Index(name = "name_idx", columnList = "name", unique=true)
+  })
+
 public class Classifier
 {
  

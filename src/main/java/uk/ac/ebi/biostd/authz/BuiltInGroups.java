@@ -1,27 +1,39 @@
 package uk.ac.ebi.biostd.authz;
 
+
 public enum BuiltInGroups
 {
- EVERYONE("$everyone", "Built-in everyone group"),
- AUTHENTICATED("$authenticated", "Built-in authenticated users group");
+ AuthenticatedGroup("@Authenticated","All authenticated users"),
+ EveryoneGroup("@Everyone","All users including anonymous");
  
  private String name;
  private String description;
  
- BuiltInGroups( String name, String desc )
+ BuiltInGroups( String nm, String dsc )
  {
-  this.name=name;
-  description=desc;
+  name=nm;
+  description = dsc;
  }
-
- public String getName()
+ 
+ public String getGroupName()
  {
   return name;
  }
-
+ 
  public String getDescription()
  {
   return description;
+ }
+ 
+ public static boolean isBuiltIn( String gname )
+ {
+  for( BuiltInGroups g : values() )
+  {
+   if( g.getGroupName().equals( gname ) )
+    return true;
+  }
+  
+  return false;
  }
 
 }

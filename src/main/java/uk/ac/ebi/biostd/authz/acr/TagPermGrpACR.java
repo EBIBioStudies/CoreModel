@@ -3,15 +3,15 @@ package uk.ac.ebi.biostd.authz.acr;
 import javax.persistence.Entity;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
-import uk.ac.ebi.biostd.authz.GenPermACR;
+import uk.ac.ebi.biostd.authz.HostedPermACR;
 import uk.ac.ebi.biostd.authz.UserGroup;
 
 
 @Entity
-public class TagPermGrpACR extends GenPermACR<AccessTag, UserGroup>
+public class TagPermGrpACR extends HostedPermACR<AccessTag, UserGroup>
 {
 
- TagPermGrpACR()
+ public TagPermGrpACR()
  {}
  
 // @Override

@@ -7,6 +7,8 @@
 		<class>uk.ac.ebi.biostd.authz.Classifier</class>
 		<class>uk.ac.ebi.biostd.authz.GenPermACR</class>
 		<class>uk.ac.ebi.biostd.authz.GenProfACR</class>
+		<class>uk.ac.ebi.biostd.authz.HostedPermACR</class>
+		<class>uk.ac.ebi.biostd.authz.HostedProfACR</class>
 		<class>uk.ac.ebi.biostd.authz.Permission</class>
 		<class>uk.ac.ebi.biostd.authz.PermissionProfile</class>
 		<class>uk.ac.ebi.biostd.authz.Tag</class>
@@ -25,6 +27,10 @@
 		<class>uk.ac.ebi.biostd.authz.acr.TagPermUsrACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.TagProfGrpACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.TagProfUsrACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.SystemPermGrpACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.SystemPermUsrACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.SystemProfGrpACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.SystemProfUsrACR</class>
 
 		<class>uk.ac.ebi.biostd.idgen.Counter</class>
 		<class>uk.ac.ebi.biostd.idgen.Domain</class>

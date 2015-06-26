@@ -366,23 +366,29 @@ public class PageTabSyntaxParser extends Parser
         String pfx = genAccNoMtch.group("pfx");
         String sfx = genAccNoMtch.group("sfx");
         
-        secOc.setPrefix(pfx);
-        secOc.setSuffix(sfx);
         
         s.setAccNo(genAccNoMtch.group("tmpid"));
         
         
-        if( pfx != null && pfx.length() > 0 )
+        if( pfx != null )
         { 
-         if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
+         pfx=pfx.trim();
+         
+         if( pfx.length() > 0 && Character.isDigit( pfx.charAt(pfx.length()-1) ) )
           sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number prefix can't end with a digit '" + pfx + "'");
         }
         
-        if( sfx != null && sfx.length() > 0 ) 
+        if( sfx != null ) 
         { 
-         if( Character.isDigit( sfx.charAt(0) ) )
+         sfx = sfx.trim();
+         
+         if( sfx.length() > 0 && Character.isDigit( sfx.charAt(0) ) )
           sln.log(Level.ERROR, "(R" + lineNo + ",C2) Accession number suffix can't start with a digit '" + sfx + "'");
         }
+        
+        secOc.setPrefix(pfx);
+        secOc.setSuffix(sfx);
+
         
         if( submInf != null )
          submInf.addGlobalSection(secOc);

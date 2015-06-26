@@ -39,7 +39,8 @@ import uk.ac.ebi.biostd.authz.User;
 })
 @Table(
   indexes = {
-     @Index(name = "acc_idx", columnList = "accNo,version")
+     @Index(name = "acc_idx", columnList = "accNo,version"),
+     @Index(name = "rtime_idx", columnList = "rTime")
   })
 public class Submission implements Node, Accessible
 {

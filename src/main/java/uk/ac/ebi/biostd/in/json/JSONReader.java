@@ -188,6 +188,12 @@ public class JSONReader extends Parser
   
   ln = ln.branch("Procesing submission");
   
+  Object acc = obj.get(JSONFormatter.accNoProperty);
+  
+  if( acc != null )
+   ln.log(Level.INFO, "Submission accession no: "+acc);
+  
+  
   Iterator<String> kitr = obj.keys();
   
   boolean typeOk=false;
@@ -840,7 +846,7 @@ public class JSONReader extends Parser
   secOc.setSecLogNode(ln);
   sec.setGlobal(false);
   
-  ln = ln.branch("Processing section");
+  ln = ln.branch("Processing section '"+obj.get(JSONFormatter.typeProperty)+"'");
   
   Iterator<String> kitr = obj.keys();
   
@@ -889,23 +895,27 @@ public class JSONReader extends Parser
        String pfx = genAccNoMtch.group("pfx");
        String sfx = genAccNoMtch.group("sfx");
        
-       secOc.setPrefix(pfx);
-       secOc.setSuffix(sfx);
-       
        sec.setAccNo(genAccNoMtch.group("tmpid"));
        
        
-       if( pfx != null && pfx.length() > 0 )
-       { 
-        if( Character.isDigit( pfx.charAt(pfx.length()-1) ) )
+       if( pfx != null )
+       {
+        pfx=pfx.trim();
+        
+        if( pfx.length() > 0 && Character.isDigit( pfx.charAt(pfx.length()-1) ) )
          ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number prefix can't end with a digit '" + pfx + "'");
        }
        
-       if( sfx != null && sfx.length() > 0 ) 
+       if( sfx != null ) 
        { 
-        if( Character.isDigit( sfx.charAt(0) ) )
+        sfx=sfx.trim();
+        
+        if( sfx.length() > 0 && Character.isDigit( sfx.charAt(0) ) )
          ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: Accession number suffix can't start with a digit '" + sfx + "'");
        }
+       
+       secOc.setPrefix(pfx);
+       secOc.setSuffix(sfx);
        
        si.addGlobalSection(secOc);
       }

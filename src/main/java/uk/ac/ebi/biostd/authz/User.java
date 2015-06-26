@@ -11,9 +11,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name="User.getByLogin", query="select u from User u where u.login=:login"),
+ @NamedQuery(name="User.getByEMail", query="select u from User u where u.email=:email"),
+ @NamedQuery(name="User.getCount", query="select count(u) from User u")
+})
 public class User implements AuthzSubject, Serializable
 {
  private static final long serialVersionUID = 1L;

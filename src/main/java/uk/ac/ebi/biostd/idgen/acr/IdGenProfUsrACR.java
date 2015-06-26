@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.idgen.acr;
 
 import javax.persistence.Entity;
-import uk.ac.ebi.biostd.authz.GenPermACR;
-import uk.ac.ebi.biostd.authz.GenProfACR;
+import uk.ac.ebi.biostd.authz.HostedPermACR;
+import uk.ac.ebi.biostd.authz.HostedProfACR;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
 
@@ -10,7 +10,7 @@ import uk.ac.ebi.biostd.idgen.IdGen;
 
 
 @Entity
-public class IdGenProfUsrACR extends GenProfACR<IdGen, User>
+public class IdGenProfUsrACR extends HostedProfACR<IdGen, User>
 {
 
  IdGenProfUsrACR()

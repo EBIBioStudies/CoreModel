@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.authz;
 
 import java.util.Collection;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfGrpACR;
 import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 
 @Entity
+@Cacheable(true)
 public class UserGroup implements AuthzSubject, AuthzObject
 {
  @Id
@@ -111,8 +113,14 @@ public class UserGroup implements AuthzSubject, AuthzObject
  @Override
  public boolean isUserCompatible(User u)
  {
+  if( BuiltInGroups.EveryoneGroup.equals( getName() ) )
+   return true;
+  
+  if( BuiltInGroups.AuthenticatedGroup.equals( getName() ) && ! (BuiltInUsers.Guest.equals(u.getLogin()) || BuiltInUsers.System.equals(u.getLogin()) )  )
+   return true;
+  
   for( User mu : users )
-   if( u == mu )
+   if( u.equals( mu ) )
     return true;
   
   for( UserGroup gb : groups )

@@ -15,7 +15,6 @@ import uk.ac.ebi.biostd.model.trfactory.SubmissionAttributeTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.SubmissionTagRefFactory;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.treelog.LogNode;
-import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
 public class SubmissionContext extends VerticalBlockContext
 {
@@ -52,8 +51,8 @@ public class SubmissionContext extends VerticalBlockContext
    
    if( acc != null && acc.length() > 0 )
     submission.setAccNo( acc );
-   else
-    log.log(Level.ERROR, "(R"+ln+",C2) Missing submission ID");
+//   else
+//    log.log(Level.ERROR, "(R"+ln+",C2) Missing submission ID");
 
    submission.setAccessTags( getParserState().getParser().processAccessTags(cells, ln, 3, log) );
    submission.setTagRefs( getParserState().getParser().processTags(cells, ln, 4, SubmissionTagRefFactory.getInstance(),log) );

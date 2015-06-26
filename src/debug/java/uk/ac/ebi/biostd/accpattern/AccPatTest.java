@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import uk.ac.ebi.biostd.in.Parser;
 import uk.ac.ebi.biostd.in.pagetab.PageTabElements;
 
 public class AccPatTest
 {
 
- public static final String GeneratedAccNoPattern = "(?<tmpid>[^{]+)?(?:\\{(?<pfx>[^,}]+)(?:,(?<sfx>[^}]+))?\\})?";
+ public static final String GeneratedAccNoPattern = Parser.GeneratedAccNoRx;
 
  public static void main(String[] args) throws IOException
  {
@@ -38,13 +39,14 @@ public class AccPatTest
   
   while( true )
   {
+   System.out.print(">");
    inp = in.readLine();
    
    mtch.reset(inp);
    
    if( mtch.matches() )
    {
-    System.out.println("TmpAcc="+mtch.group("tmpid")+" Pfx="+mtch.group("pfx")+" Sfx="+mtch.group("sfx"));
+    System.out.println("TmpAcc='"+mtch.group("tmpid")+"' Pfx='"+mtch.group("pfx")+"' Sfx='"+mtch.group("sfx")+"'");
    }
    
   }

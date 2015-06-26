@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.authz;
 
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -9,7 +10,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public class GenPermACR<ObjT extends AuthzObject,SubjT extends AuthzSubject> implements ACR, PermissionUnit
+public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUnit
 {
  @Id
  @GeneratedValue
@@ -24,19 +25,6 @@ public class GenPermACR<ObjT extends AuthzObject,SubjT extends AuthzSubject> imp
   this.id = id;
  }
 
- @ManyToOne(fetch=FetchType.LAZY)
- @JoinColumn(name="host_id")
- public ObjT getHost()
- {
-  return tag;
- }
- private ObjT tag;
-
- public void setHost(ObjT tag)
- {
-  this.tag = tag;
- }
- 
  @Override
  public Permit checkPermission(SystemAction act, User user)
  {
@@ -69,6 +57,7 @@ public class GenPermACR<ObjT extends AuthzObject,SubjT extends AuthzSubject> imp
   subject=gb;
  }
 
+ @Enumerated(EnumType.STRING)
  public SystemAction getAction()
  {
   return action;

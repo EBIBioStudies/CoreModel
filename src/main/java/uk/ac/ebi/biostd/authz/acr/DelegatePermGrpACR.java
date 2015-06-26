@@ -3,22 +3,15 @@ package uk.ac.ebi.biostd.authz.acr;
 import javax.persistence.Entity;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
-import uk.ac.ebi.biostd.authz.GenPermACR;
+import uk.ac.ebi.biostd.authz.HostedPermACR;
 import uk.ac.ebi.biostd.authz.UserGroup;
 
 
 @Entity
-public class DelegatePermGrpACR extends GenPermACR<AccessTag, UserGroup>
+public class DelegatePermGrpACR extends HostedPermACR<AccessTag, UserGroup>
 {
 
- DelegatePermGrpACR()
+ public DelegatePermGrpACR()
  {}
  
-// @Override
-// @ManyToOne(targetEntity=UserGroup.class)
-// public UserGroup getSubject()
-// {
-//  return super.getSubject();
-// }
-
 }
