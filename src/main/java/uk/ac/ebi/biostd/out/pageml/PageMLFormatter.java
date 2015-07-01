@@ -26,6 +26,7 @@ import java.util.Map;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.in.PMDoc;
+import uk.ac.ebi.biostd.in.pageml.PageMLAttributes;
 import uk.ac.ebi.biostd.in.pageml.PageMLElements;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
@@ -140,25 +141,25 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    xmlEscaped(str,out);
   }
   
-  if( subm.getAccessTags() != null && subm.getAccessTags().size() > 0 )
-  {
-   out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
+   out.append("\" ").append(ACCESS.getAttrName()).append("=\"~");
    
-   boolean first = true;
+   xmlEscaped(subm.getOwner().getLogin(),out);
+   
    for( AccessTag at : subm.getAccessTags() )
    {
-    if( first )
-     first = false;
-    else
-     out.append(';');
+    out.append(';');
     
     xmlEscaped(at.getName(),out);
    }
-   
-  }
 
+  out.append("\" ").append(PageMLAttributes.CTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getCTime()));
+  out.append("\" ").append(PageMLAttributes.MTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getMTime()));
+
+  if( subm.getRTime() > 0  )
+   out.append("\" ").append(PageMLAttributes.RTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getRTime()));
   
-  out.append("\">\n\n");
+  out.append("\">\n");
+  
 
   String contShift = shift+shiftSym;
 

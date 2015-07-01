@@ -40,7 +40,9 @@ import uk.ac.ebi.biostd.authz.User;
 @Table(
   indexes = {
      @Index(name = "acc_idx", columnList = "accNo,version"),
-     @Index(name = "rtime_idx", columnList = "rTime")
+     @Index(name = "rtime_idx", columnList = "RTime"),
+     @Index(name = "version_idx", columnList = "version"),
+     @Index(name = "released_idx", columnList = "released")
   })
 public class Submission implements Node, Accessible
 {
@@ -131,6 +133,17 @@ public class Submission implements Node, Accessible
   rtime = tm;
  }
 
+ public boolean isReleased()
+ {
+  return released;
+ }
+ private boolean released;
+ 
+ public void setReleased( boolean rls )
+ {
+  released = rls;
+ }
+ 
  public String getTitle()
  {
   if( title != null )
@@ -171,7 +184,7 @@ public class Submission implements Node, Accessible
   title = tl;
  }
 
- @ManyToOne
+ @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="owner_id")
  public User getOwner()
  {
@@ -185,7 +198,7 @@ public class Submission implements Node, Accessible
  }
 
  @Override
- @OneToMany(mappedBy="host",cascade=CascadeType.ALL)
+ @OneToMany(fetch=FetchType.LAZY, mappedBy="host", cascade=CascadeType.ALL)
  @OrderColumn(name="ord")
  public List<SubmissionAttribute> getAttributes()
  {
@@ -211,7 +224,7 @@ public class Submission implements Node, Accessible
  }
  
  
- @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+ @OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
  @NotNull
  public Section getRootSection()
  {
@@ -273,7 +286,7 @@ public class Submission implements Node, Accessible
  
  
  @Override
- @OneToMany(mappedBy="submission",cascade=CascadeType.ALL)
+ @OneToMany(fetch=FetchType.LAZY, mappedBy="submission",cascade=CascadeType.ALL)
  public Collection<SubmissionTagRef> getTagRefs()
  {
   return tagRefs;
@@ -307,7 +320,7 @@ public class Submission implements Node, Accessible
  }
 
  @Override
- @ManyToMany
+ @ManyToMany(fetch=FetchType.LAZY)
  public Collection<AccessTag> getAccessTags()
  {
   return accessTags;

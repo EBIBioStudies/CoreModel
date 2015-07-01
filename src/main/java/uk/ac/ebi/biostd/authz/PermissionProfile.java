@@ -84,30 +84,36 @@ public class PermissionProfile implements PermissionUnit
  public Permit checkPermission( SystemAction act )
  {
   boolean allw = false;
-  
-  for( Permission p : permissions )
+
+  if(permissions != null)
   {
-   if( act == p.getAction() )
+   for(Permission p : permissions)
    {
-    if( p.isAllow() )
-     allw = true;
-    else
-     return Permit.DENY;
+    if(act == p.getAction())
+    {
+     if(p.isAllow())
+      allw = true;
+     else
+      return Permit.DENY;
+    }
    }
   }
-   
-  for( PermissionProfile pp : profiles )
+
+  if(profiles != null)
   {
-   Permit r = pp.checkPermission(act);
-   
-   if( r == Permit.DENY )
-    return Permit.DENY;
-   else if( r == Permit.ALLOW )
-    allw = true;
+   for(PermissionProfile pp : profiles)
+   {
+    Permit r = pp.checkPermission(act);
+
+    if(r == Permit.DENY)
+     return Permit.DENY;
+    else if(r == Permit.ALLOW)
+     allw = true;
+   }
   }
-  
-  return allw?Permit.ALLOW:Permit.UNDEFINED;
-  
+
+  return allw ? Permit.ALLOW : Permit.UNDEFINED;
+
  }
 
 

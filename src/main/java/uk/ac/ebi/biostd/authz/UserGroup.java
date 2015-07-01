@@ -113,19 +113,25 @@ public class UserGroup implements AuthzSubject, AuthzObject
  @Override
  public boolean isUserCompatible(User u)
  {
-  if( BuiltInGroups.EveryoneGroup.equals( getName() ) )
+  if( BuiltInGroups.EveryoneGroup.getGroupName().equals( getName() ) )
    return true;
   
-  if( BuiltInGroups.AuthenticatedGroup.equals( getName() ) && ! (BuiltInUsers.Guest.equals(u.getLogin()) || BuiltInUsers.System.equals(u.getLogin()) )  )
-   return true;
+  if( BuiltInGroups.AuthenticatedGroup.getGroupName().equals( getName() ) )
+   return ! (BuiltInUsers.Guest.getUserName().equals(u.getLogin()) || BuiltInUsers.System.getUserName().equals(u.getLogin()) );
   
-  for( User mu : users )
-   if( u.equals( mu ) )
-    return true;
+  if( users != null  )
+  {
+   for(User mu : users)
+    if(u.equals(mu))
+     return true;
+  }
   
-  for( UserGroup gb : groups )
-   if( gb.isUserCompatible(u) )
-    return true;
+  if( groups != null  )
+  {
+   for(UserGroup gb : groups)
+    if(gb.isUserCompatible(u))
+     return true;
+  }
   
   return false;
  }

@@ -6,6 +6,9 @@ public enum PageMLAttributes
  ACCNO( "acc" ),
  ACCESS( "access" ),
  CLASS( "class" ),
+ CTIME("ctime"),
+ MTIME("mtime"),
+ RTIME("rtime"),
  TYPE( "type" ),
  URL( "url" ),
  NAME( "name" );
