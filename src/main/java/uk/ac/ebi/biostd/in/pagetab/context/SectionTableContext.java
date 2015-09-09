@@ -136,6 +136,12 @@ public class SectionTableContext extends TableBlockContext
     getSubmissionInfo().addSectionOccurance(secOc);
    }
    
+  
+   if( parent != null )
+   {
+    secOc.setPosition( parent.incSubSecCount() );
+    secOc.setParentPath(parent.getPath());
+   }
   }
   
  }

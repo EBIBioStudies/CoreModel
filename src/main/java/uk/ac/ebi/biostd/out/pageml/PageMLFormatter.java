@@ -21,6 +21,10 @@ import static uk.ac.ebi.biostd.in.pageml.PageMLElements.TABLE;
 import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +49,11 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
  protected String initShift = shiftSym+shiftSym;
 
+ public final static String dateFotmat = "yyyy-MM-dd";
+ 
  private Appendable outStream;
+ 
+ private DateFormat dateFmt;
  
  public PageMLFormatter()
  {}
@@ -141,17 +149,33 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    xmlEscaped(str,out);
   }
   
-   out.append("\" ").append(ACCESS.getAttrName()).append("=\"~");
+  if( subm.getOwner() != null || ( subm.getAccessTags() != null && subm.getAccessTags().size() > 0 )  )
+  {
+   out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
    
-   xmlEscaped(subm.getOwner().getLogin(),out);
+   boolean needSep = false;
    
-   for( AccessTag at : subm.getAccessTags() )
+   if( subm.getOwner() != null )
    {
-    out.append(';');
-    
-    xmlEscaped(at.getName(),out);
+    out.append('~');
+    xmlEscaped(subm.getOwner().getLogin(),out);
+    needSep = true;
    }
+   
+   if( subm.getAccessTags() != null )
+   {
+    for(AccessTag at : subm.getAccessTags())
+    {
+     if(needSep)
+      out.append(';');
+     else
+      needSep = true;
 
+     xmlEscaped(at.getName(), out);
+    }
+   }
+  }
+  
   out.append("\" ").append(PageMLAttributes.CTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getCTime()));
   out.append("\" ").append(PageMLAttributes.MTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getMTime()));
 
@@ -163,7 +187,23 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
   String contShift = shift+shiftSym;
 
-  formatAttributes(subm, out, contShift);
+  Map<String, String> auxAttrMap = new HashMap<String, String>();
+  
+  if( subm.getTitle() != null )
+   auxAttrMap.put(Submission.titleAttribute, subm.getTitle() );
+
+  if( subm.getRTime() > 0 )
+  {
+   if( dateFmt == null )
+    dateFmt = new SimpleDateFormat(dateFotmat);
+  
+   auxAttrMap.put(Submission.releaseDateAttribute, dateFmt.format( new Date( subm.getRTime()*1000 ) ) );
+  }
+  
+  if( subm.getRootPath() != null )
+   auxAttrMap.put(Submission.rootPathAttribute, subm.getRootPath());
+  
+  formatAttributes(subm, auxAttrMap, out, contShift);
 
   out.append("\n");
   
@@ -487,6 +527,12 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
  protected void formatAttributes(Annotated ent, Appendable out, String shift ) throws IOException
  {
+  formatAttributes(ent, null, out, shift);
+ }
+
+ protected void formatAttributes(Annotated ent, Map<String, String> aux, Appendable out, String shift ) throws IOException
+ {
+  
   out.append(shift);
   out.append("<").append(ATTRIBUTES.getElementName());
   
@@ -494,14 +540,36 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   
   List<? extends AbstractAttribute> attrs = ent.getAttributes();
   
-  if( attrs == null || attrs.size() == 0 )
+  if( ( attrs == null || attrs.size() == 0 ) && ( aux == null || aux.size() == 0 ) )
   {
    out.append("/>\n");
    return;
   }
-  else
-   out.append(">\n");
 
+  out.append(">\n");
+
+  if( aux != null )
+  {
+   for( Map.Entry<String, String> me : aux.entrySet() )
+   {
+    out.append(atShift);
+    out.append('<').append(ATTRIBUTE.getElementName()).append(">\n");
+    
+    String vshift = atShift+shiftSym;
+    
+    out.append(vshift).append('<').append(PageMLElements.NAME.getElementName()).append('>');
+    xmlEscaped(me.getKey(),out);
+    out.append("</").append(PageMLElements.NAME.getElementName()).append(">\n");
+
+    out.append(vshift).append('<').append(PageMLElements.VALUE.getElementName()).append('>');
+    xmlEscaped(me.getValue(),out);
+    out.append("</").append(PageMLElements.VALUE.getElementName()).append(">\n");
+    
+    out.append(atShift);
+    out.append("</").append(ATTRIBUTE.getElementName()).append(">\n");
+   }
+  }
+  
   for( AbstractAttribute at : attrs )
   {
    out.append(atShift);

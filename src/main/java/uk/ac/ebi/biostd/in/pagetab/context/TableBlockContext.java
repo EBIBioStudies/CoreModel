@@ -118,13 +118,18 @@ public abstract class TableBlockContext extends BlockContext
  {
   LogNode log = getContextLogNode();
 
-  int n = atRefs.size() >= parts.size() - 1?atRefs.size():parts.size() - 1;
+  int nvals = parts.size() - 1;
+  
+  int n = atRefs.size() >= nvals?atRefs.size():nvals;
   
   AbstractAttribute prevAttr = null;
   
   for( int i=0; i < n; i++ )
   {
-   String val = parts.get(i+1).trim();
+   String val = null;
+   
+   if( i < nvals )
+    val = parts.get(i+1).trim();
    
    if( i >= atRefs.size() )
    {
@@ -140,7 +145,7 @@ public abstract class TableBlockContext extends BlockContext
     continue;
    
    
-   if( val.length() == 0 )
+   if( val == null || val.length() == 0 )
     continue;
    
    if( atr.classifier )

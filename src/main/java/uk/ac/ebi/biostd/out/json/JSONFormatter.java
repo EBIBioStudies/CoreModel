@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String submissionsProperty = "submissions";
  public static final String rootSecProperty = "section";
  public static final String attrubutesProperty = "attributes";
- public static final String accNoProperty = "accession";
+ public static final String accNoProperty = "accno";
  public static final String accTagsProperty = "accessTags";
  public static final String classTagsProperty = "classTags";
  public static final String tagProperty = "tag";
@@ -141,21 +142,23 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   if(s.getAccNo() != null)
    sbm.put(accNoProperty, s.getAccNo());
 
+  Map<String, String> auxAttrMap = new HashMap<String, String>();
+  
   if( s.getTitle() != null )
-   sbm.put(Submission.titleAttribute, s.getTitle() );
+   auxAttrMap.put(Submission.titleAttribute, s.getTitle() );
 
   if( s.getRTime() > 0 )
   {
    if( dateFmt == null )
     dateFmt = new SimpleDateFormat(dateFotmat);
   
-   sbm.put(Submission.releaseDateAttribute, dateFmt.format( new Date( s.getRTime()*1000 ) ) );
+   auxAttrMap.put(Submission.releaseDateAttribute, dateFmt.format( new Date( s.getRTime()*1000 ) ) );
   }
   
   if( s.getRootPath() != null )
-   sbm.put(Submission.rootPathAttribute, s.getRootPath());
+   auxAttrMap.put(Submission.rootPathAttribute, s.getRootPath());
   
-  appendAttributes(sbm, s);
+  appendAttributes(sbm, auxAttrMap, s);
 
   appendAccessTags(sbm, s);
 
@@ -303,10 +306,28 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
 
  private void appendAttributes(JSONObject jsobj, Annotated an)
  {
-  if( an.getAttributes() == null ||  an.getAttributes().size() == 0 )
+  appendAttributes(jsobj, null, an);
+ }
+ 
+ private void appendAttributes(JSONObject jsobj, Map<String, String> aux, Annotated an)
+ {
+  if( (an.getAttributes() == null ||  an.getAttributes().size() == 0) && ( aux==null || aux.size() == 0 ) )
    return;
   
   JSONArray tgarr = new JSONArray();
+  
+  if( aux != null )
+  {
+   for( Map.Entry<String, String> me : aux.entrySet() )
+   {
+    JSONObject jsat = new JSONObject();
+
+    jsat.put(nameProperty, me.getKey());
+    jsat.put(valueProperty, me.getValue());
+
+    tgarr.put(jsat);
+   }
+  }
   
   for( AbstractAttribute aat : an.getAttributes() )
   {

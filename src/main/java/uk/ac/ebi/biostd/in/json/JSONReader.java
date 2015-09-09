@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.in.json;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -188,7 +191,9 @@ public class JSONReader extends Parser
   
   ln = ln.branch("Procesing submission");
   
-  Object acc = obj.get(JSONFormatter.accNoProperty);
+  si.setLogNode(ln);
+  
+  Object acc = obj.opt(JSONFormatter.accNoProperty);
   
   if( acc != null )
    ln.log(Level.INFO, "Submission accession no: "+acc);
@@ -240,7 +245,7 @@ public class JSONReader extends Parser
        continue;
       }
       
-      SectionOccurrence rso = processSection( (JSONObject)val, ln, path, si );
+      SectionOccurrence rso = processSection( (JSONObject)val, ln, path, Collections.emptyList(), si );
       
       if( rso != null )
        sbm.setRootSection( rso.getSection() );
@@ -835,7 +840,7 @@ public class JSONReader extends Parser
  }
 
  
- private SectionOccurrence processSection(JSONObject obj, LogNode ln, Stack<String> path, SubmissionInfo si)
+ private SectionOccurrence processSection(JSONObject obj, LogNode ln, Stack<String> path, List<SectionOccurrence> psecPath, SubmissionInfo si)
  {
   Section sec = new Section();
   
@@ -844,9 +849,20 @@ public class JSONReader extends Parser
   secOc.setElementPointer( new PathPointer(pathToString(path)) );
   secOc.setSection(sec);
   secOc.setSecLogNode(ln);
+  
+  if( psecPath.size() > 0  )
+   secOc.setPosition( psecPath.get( psecPath.size() -1 ).incSubSecCount() );
+  else
+   secOc.setPosition(1);
+  
+  List<SectionOccurrence> myPath = new ArrayList<SectionOccurrence>(psecPath);
+  myPath.add(secOc);
+  
+  secOc.setPath(myPath);
+  
   sec.setGlobal(false);
   
-  ln = ln.branch("Processing section '"+obj.get(JSONFormatter.typeProperty)+"'");
+  ln = ln.branch("Processing section '"+obj.opt(JSONFormatter.typeProperty)+"'");
   
   Iterator<String> kitr = obj.keys();
   
@@ -953,7 +969,7 @@ public class JSONReader extends Parser
 
         if(sso instanceof JSONObject)
         {
-         SectionOccurrence sbsec = processSection((JSONObject) sso, ln, path, si);
+         SectionOccurrence sbsec = processSection((JSONObject) sso, ln, path, myPath, si);
          
          if( sbsec != null )
          {
@@ -977,7 +993,7 @@ public class JSONReader extends Parser
            if( ! (tsso instanceof JSONObject ) )
             ln.log(Level.ERROR, "Path '"+pathToString(path)+"' JSON object expected" );
            
-           SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, si);
+           SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, myPath, si);
            
            if( sbso != null )
            {

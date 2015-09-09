@@ -19,6 +19,7 @@ import static uk.ac.ebi.biostd.in.pagetab.PageTabElements.ValueTagSeparator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -313,7 +314,7 @@ public class PageTabSyntaxParser extends Parser
 
       context = new SectionTableContext(sName, parentSecOcc, submInf, pstate, sln);
       context.parseFirstLine(parts, lineNo);
-
+      
      }
      else
      {
@@ -335,15 +336,13 @@ public class PageTabSyntaxParser extends Parser
       
       if(lastSectionOccurance == null)
       {
-       if(submInf == null )
-        sln.log(Level.ERROR, "(R" + lineNo + ",C1) Section must follow '" + SubmissionKeyword + "' block or other section block");
-       else
-       {
-        submInf.getSubmission().setRootSection(s);
-        submInf.setRootSectionOccurance(secOc);
-        
-        rootSectionOccurance=secOc;
-       }
+       submInf.getSubmission().setRootSection(s);
+       submInf.setRootSectionOccurance(secOc);
+
+       secOc.setPosition(1);
+       secOc.setPath(Collections.singletonList(secOc));
+
+       rootSectionOccurance = secOc;
       }
 
       context = new SectionContext(s, submInf, pstate, sln);
@@ -397,7 +396,12 @@ public class PageTabSyntaxParser extends Parser
       }
       
       String pAcc = s.getParentAccNo();
-      SectionOccurrence pSecCtx = submInf.getRootSectionOccurance()!=secOc?submInf.getRootSectionOccurance():null;
+     
+      SectionOccurrence pSecCtx = null;
+      
+      if( submInf.getRootSectionOccurance()!=secOc )
+       pSecCtx=submInf.getRootSectionOccurance();
+      
       
       if(pAcc != null && pAcc.length() > 0)
       {
@@ -411,8 +415,12 @@ public class PageTabSyntaxParser extends Parser
       
       
       if( pSecCtx != null )
+      {
        pSecCtx.getSection().addSection(s);
       
+       secOc.setPosition( pSecCtx.incSubSecCount() );
+       secOc.setParentPath(pSecCtx.getPath());
+      }
       
       if(s.getAccNo() != null)
       {

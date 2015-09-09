@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -77,6 +78,9 @@ public class Section implements Node, Accessible
  @OrderColumn(name="ord",insertable=true)
  public List<SectionAttribute> getAttributes()
  {
+  if( attributes == null )
+   return Collections.emptyList();
+
   return attributes;
  }
  private List<SectionAttribute> attributes;

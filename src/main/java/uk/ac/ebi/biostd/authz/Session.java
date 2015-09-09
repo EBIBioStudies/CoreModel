@@ -126,7 +126,7 @@ public class Session
    {
     EntityManager em = thrEMMap.remove(Thread.currentThread());
     
-    if( em != null )
+    if( em != null && em.isOpen() )
     {
      if( defaultEM == null )
       defaultEM = em;
@@ -144,18 +144,21 @@ public class Session
   {
    EntityManager em = thrEMMap.get(Thread.currentThread());
    
-   if( em != null )
+   if( em != null && em.isOpen() )
     return em;
    
-   if( defaultEM != null )
+   
+   if( defaultEM != null && defaultEM.isOpen() )
    {
     em=defaultEM;
-    defaultEM = null;
+    defaultEM = null; //taken or invalid
     
     thrEMMap.put(Thread.currentThread(), em);
     return em;
    }
-   
+
+   defaultEM = null; //may be invalid
+
    em = emf.createEntityManager();
    thrEMMap.put(Thread.currentThread(), em);
    return em;

@@ -2,9 +2,15 @@ package uk.ac.ebi.biostd.model;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -49,7 +55,7 @@ public class Submission implements Node, Accessible
  public static final String releaseDateAttribute = "ReleaseDate";
  public static final String titleAttribute = "Title";
  public static final String rootPathAttribute = "RootPath";
- public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3}))?)?)?";
+ public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?";
  
  @Id
  @GeneratedValue
@@ -149,16 +155,19 @@ public class Submission implements Node, Accessible
   if( title != null )
    return title;
   
-  for( SubmissionAttribute attr : getAttributes() )
+  if( getAttributes() != null )
   {
-   if( "Title".equalsIgnoreCase(attr.getName()) )
+   for(SubmissionAttribute attr : getAttributes())
    {
-    title = attr.getValue();
-    break;
+    if("Title".equalsIgnoreCase(attr.getName()))
+    {
+     title = attr.getValue();
+     break;
+    }
    }
   }
   
-  if( title == null )
+  if( title == null && getAttributes() != null)
   {
    for( SubmissionAttribute attr : getAttributes() )
    {
@@ -202,6 +211,9 @@ public class Submission implements Node, Accessible
  @OrderColumn(name="ord")
  public List<SubmissionAttribute> getAttributes()
  {
+  if( attributes == null )
+   return Collections.emptyList();
+  
   return attributes;
  }
  private List<SubmissionAttribute> attributes;
@@ -218,6 +230,9 @@ public class Submission implements Node, Accessible
  public void setAttributes( List<SubmissionAttribute> sn )
  {
   attributes = sn;
+  
+  if( sn == null )
+   return;
   
   for(SubmissionAttribute sa : sn )
    sa.setHost(this);
@@ -341,4 +356,94 @@ public class Submission implements Node, Accessible
   accessTags.add(t);
  }
 
+ public void normalizeAttributes() throws SubmissionAttributeException
+ {
+  if( getAttributes() == null || getAttributes().size() == 0 )
+   return;
+  
+  Iterator<SubmissionAttribute> saitr = getAttributes().iterator();
+  
+  boolean rTimeFound = false;
+  boolean rootPathFound = false;
+  
+  String rootPathAttr = null; 
+  
+  while(saitr.hasNext() )
+  {
+   SubmissionAttribute sa = saitr.next(); 
+   
+   if(Submission.releaseDateAttribute.equals(sa.getName()))
+   {
+    saitr.remove();
+    
+    if(rTimeFound)
+     throw new SubmissionAttributeException("Multiple '" + Submission.releaseDateAttribute + "' attributes are not allowed");
+
+    rTimeFound = true;
+
+    String val = sa.getValue();
+
+    if(val != null)
+    {
+     val = val.trim();
+
+     if(val.length() > 0)
+     {
+      Matcher mtch =  Pattern.compile(Submission.releaseDateFormat).matcher(val);
+
+      if(!mtch.matches())
+       throw new SubmissionAttributeException("Invalid '" + Submission.releaseDateAttribute + "' attribute value. Expected date in format: YYYY-MM-DD[Thh:mm[:ss[.mmm]]]");
+      else
+      {
+       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+       cal.set(Calendar.YEAR, Integer.parseInt(mtch.group("year")));
+       cal.set(Calendar.MONTH, Integer.parseInt(mtch.group("month")) - 1);
+       cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(mtch.group("day")));
+
+       String str = mtch.group("hour");
+
+       if(str != null)
+        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(str));
+
+       str = mtch.group("min");
+
+       if(str != null)
+        cal.set(Calendar.MINUTE, Integer.parseInt(str));
+
+       str = mtch.group("sec");
+
+       if(str != null)
+        cal.set(Calendar.SECOND, Integer.parseInt(str));
+
+       setRTime( cal.getTimeInMillis() / 1000 );
+       
+      }
+     }
+    }
+
+   }
+   else if( Submission.rootPathAttribute.equals(sa.getName()) )
+   {
+    saitr.remove();
+
+    if(rootPathFound)
+     new SubmissionAttributeException("Multiple '" + Submission.rootPathAttribute + "' attributes are not allowed");
+
+    rootPathFound = true;
+    
+    rootPathAttr = sa.getValue();
+    setRootPath(rootPathAttr);
+   }
+   else if( Submission.titleAttribute.equals(sa.getName()) )
+   {
+    saitr.remove();
+
+    setTitle( sa.getValue() );
+   }
+
+  }
+
+ }
+ 
 }

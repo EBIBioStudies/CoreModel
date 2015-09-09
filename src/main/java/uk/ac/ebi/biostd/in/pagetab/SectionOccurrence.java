@@ -1,5 +1,8 @@
 package uk.ac.ebi.biostd.in.pagetab;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.ac.ebi.biostd.in.ElementPointer;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -15,6 +18,9 @@ public class SectionOccurrence
  private String  prefix;
  private String  suffix;
  private String  originalAccNo;
+ private int position;
+ private List<SectionOccurrence> path;
+ private int subSecN=0;
  
  public ElementPointer getElementPointer()
  {
@@ -80,4 +86,43 @@ public class SectionOccurrence
  {
   this.originalAccNo = originalAccNo;
  }
+
+ public int getPosition()
+ {
+  return position;
+ }
+
+ public void setPosition(int position)
+ {
+  this.position = position;
+ }
+
+ public List<SectionOccurrence> getPath()
+ {
+  return path;
+ }
+
+ public void setParentPath(List<SectionOccurrence> pth)
+ {
+  path = new ArrayList<SectionOccurrence>(pth);
+  
+  path.add(this);
+ }
+
+ 
+ public void setPath(List<SectionOccurrence> path)
+ {
+  this.path = path;
+ }
+
+ public int incSubSecCount()
+ {
+  return ++subSecN;
+ }
+ 
+ public int getSubSecCount()
+ {
+  return subSecN;
+ }
+
 }
