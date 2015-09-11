@@ -26,7 +26,7 @@ public class PageTabElements
  public static final String NameQualifierRx  = "\\s*\\"+NameQOpen+"\\s*(?<name>[^\\)]+)\\s*\\"+NameQClose+"\\s*";
  public static final String ValueQualifierRx = "\\s*\\"+ValueQOpen+"\\s*(?<name>[^\\]]+)\\s*\\"+ValueQOpen+"\\s*";
  public static final String ReferenceRx = "\\s*\\"+RefOpen+"\\s*(?<name>[^\\>]+)\\s*\\"+RefClose+"\\s*";
- public static final String TableBlockRx     = "\\s*(?<name>[^\\s\\[]+)\\"+TableOpen+"\\s*(?<parent>[^\\]\\s]+)?\\s*\\"+TableClose+"\\s*";
+ public static final String TableBlockRx     = "\\s*(?<name>[^\\"+TableOpen+"]+)\\"+TableOpen+"\\s*(?<parent>[^\\"+TableClose+"]+)?\\s*\\"+TableClose+"\\s*";
 
  public static final String SubmissionKeyword     = "Submission";
  public static final String FileKeyword           = "File";
