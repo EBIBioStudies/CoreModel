@@ -106,6 +106,18 @@ public class Submission implements Node, Accessible
   this.rootPath = rootPath;
  }
  
+ @Lob
+ public String getRelPath()
+ {
+  return relPath;
+ }
+ private String relPath;
+ 
+ public void setRelPath( String rp )
+ {
+  relPath = rp;
+ }
+ 
  public long getCTime()
  {
   return ctime;
@@ -150,6 +162,7 @@ public class Submission implements Node, Accessible
   released = rls;
  }
  
+ @Lob
  public String getTitle()
  {
   if( title != null )
@@ -442,6 +455,21 @@ public class Submission implements Node, Accessible
     setTitle( sa.getValue() );
    }
 
+  }
+  
+  if( getTitle() == null )
+  {
+   if( getRootSection() != null && getRootSection().getAttributes() != null )
+   {
+    for( SectionAttribute at : getRootSection().getAttributes())
+    {
+     if( Submission.titleAttribute.equals(at.getName()) )
+     {
+      setTitle(at.getValue());
+      break;
+     }
+    }
+   }
   }
 
  }

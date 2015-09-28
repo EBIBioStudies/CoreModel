@@ -11,7 +11,9 @@ public enum PageMLAttributes
  RTIME("rtime"),
  TYPE( "type" ),
  URL( "url" ),
- NAME( "name" );
+ NAME( "name" ),
+ RELPATH("relPath"),
+ SIZE("size");
  
  private PageMLAttributes( String el )
  {

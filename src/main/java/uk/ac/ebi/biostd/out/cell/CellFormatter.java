@@ -225,165 +225,173 @@ public class CellFormatter implements DocumentFormatter
  
  private void exportTable(List<? extends Node> nodes, String titl, KeyExtactor kex ) throws IOException
  {
-  Map<String,AttrHdr> hdrMap = new LinkedHashMap<>();
-  
-  Integer int1 = new Integer(1);
-  
-  for( Node n : nodes )
-  {
-   Map<String,Integer> atCntMap = new HashMap<String, Integer>();
-   
-   for(AbstractAttribute aa : n.getAttributes() )
-   {
-    String name = aa.getName()+(aa.isReference()?"_R":"_A");
-    
-    Integer cnt = atCntMap.get(name);
-    
-    if( cnt == null )
-    {
-     atCntMap.put(name, cnt = int1);
-     
-     name=name+"_1";
-    }
-    else
-    {
-     cnt = cnt.intValue()+1;
-     atCntMap.put(name, cnt);
-     
-     name=name+"_"+cnt.intValue();
-    }
-    
-    AttrHdr hdr = hdrMap.get(name);
-    
-    if( hdr == null )
-    {
-     hdrMap.put(name, hdr = new AttrHdr());
-     hdr.atName = aa.getName();
-     hdr.ref = aa.isReference();
-     hdr.ord = cnt;
-    }
-    
-    if( aa.getValueQualifiers() != null )
-    {
-     Map<String,Integer> qCntMap = new HashMap<String, Integer>();
+  Map<String, AttrHdr> hdrMap = new LinkedHashMap<>();
 
-     if( hdr.quals == null )
-      hdr.quals = new LinkedHashMap<String, CellFormatter.AttrHdr>();
-     
-     for( Qualifier q : aa.getValueQualifiers() )
+  Integer int1 = new Integer(1);
+
+  if(nodes != null)
+  {
+   for(Node n : nodes)
+   {
+    Map<String, Integer> atCntMap = new HashMap<String, Integer>();
+
+    if(n.getAttributes() != null)
+    {
+     for(AbstractAttribute aa : n.getAttributes())
      {
-      String qname = q.getName();
-      
-      Integer qcnt = qCntMap.get(name);
-      
-      if( qcnt == null )
+      String name = aa.getName() + (aa.isReference() ? "_R" : "_A");
+
+      Integer cnt = atCntMap.get(name);
+
+      if(cnt == null)
       {
-       qCntMap.put(qname, qcnt = int1);
-       
-       qname=qname+"_1";
+       atCntMap.put(name, cnt = int1);
+
+       name = name + "_1";
       }
       else
       {
-       qcnt = qcnt.intValue()+1;
-       qCntMap.put(qname, qcnt);
-       
-       qname=qname+"_"+qcnt.intValue();
+       cnt = cnt.intValue() + 1;
+       atCntMap.put(name, cnt);
+
+       name = name + "_" + cnt.intValue();
       }
-      
-      AttrHdr qhdr = hdr.quals.get(qname);
-      
-      if( qhdr == null )
+
+      AttrHdr hdr = hdrMap.get(name);
+
+      if(hdr == null)
       {
-       hdr.quals.put(qname, qhdr = new AttrHdr());
-       qhdr.atName = q.getName();
-       qhdr.ord = qcnt.intValue();
+       hdrMap.put(name, hdr = new AttrHdr());
+       hdr.atName = aa.getName();
+       hdr.ref = aa.isReference();
+       hdr.ord = cnt;
       }
+
+      if(aa.getValueQualifiers() != null)
+      {
+       Map<String, Integer> qCntMap = new HashMap<String, Integer>();
+
+       if(hdr.quals == null)
+        hdr.quals = new LinkedHashMap<String, CellFormatter.AttrHdr>();
+
+       for(Qualifier q : aa.getValueQualifiers())
+       {
+        String qname = q.getName();
+
+        Integer qcnt = qCntMap.get(name);
+
+        if(qcnt == null)
+        {
+         qCntMap.put(qname, qcnt = int1);
+
+         qname = qname + "_1";
+        }
+        else
+        {
+         qcnt = qcnt.intValue() + 1;
+         qCntMap.put(qname, qcnt);
+
+         qname = qname + "_" + qcnt.intValue();
+        }
+
+        AttrHdr qhdr = hdr.quals.get(qname);
+
+        if(qhdr == null)
+        {
+         hdr.quals.put(qname, qhdr = new AttrHdr());
+         qhdr.atName = q.getName();
+         qhdr.ord = qcnt.intValue();
+        }
+       }
+      }
+
      }
     }
-    
    }
   }
-  
+
   cstr.nextRow();
   cstr.addCell(titl);
-  
-  for( AttrHdr ah : hdrMap.values() )
+
+  for(AttrHdr ah : hdrMap.values())
   {
-   if( ah.ref )
-    cstr.addCell(String.valueOf(PageTabElements.RefOpen)+ah.atName+PageTabElements.RefClose);
+   if(ah.ref)
+    cstr.addCell(String.valueOf(PageTabElements.RefOpen) + ah.atName + PageTabElements.RefClose);
    else
     cstr.addCell(ah.atName);
 
-   if( ah.quals != null)
+   if(ah.quals != null)
    {
-    for( AttrHdr qh : ah.quals.values() )
-     cstr.addCell(String.valueOf(PageTabElements.ValueQOpen)+qh.atName+String.valueOf(PageTabElements.ValueQClose));
+    for(AttrHdr qh : ah.quals.values())
+     cstr.addCell(String.valueOf(PageTabElements.ValueQOpen) + qh.atName + String.valueOf(PageTabElements.ValueQClose));
    }
   }
-  
-  for( Node n : nodes )
+
+  if(nodes != null)
   {
-   cstr.nextRow();
-   cstr.addCell(kex.getKey(n));
-   
-   for( AttrHdr ah : hdrMap.values()  )
+   for(Node n : nodes)
    {
-    AbstractAttribute cattr=null;
-    
-    int aOrd = 1;
-    for( AbstractAttribute aa : n.getAttributes() )
-    {
-     if( aa.getName().equals(ah.atName) && aa.isReference() == ah.ref )
-     {
-      if( aOrd == ah.ord )
-      {
-       cattr = aa;
-       cstr.addCell(aa.getValue());
-       break;
-      }
-      else
-       aOrd++;
-     }
-    }
-    
-    if( cattr == null )
-     cstr.nextCell();
+    cstr.nextRow();
+    cstr.addCell(kex.getKey(n));
 
-    if( ah.quals != null )
+    for(AttrHdr ah : hdrMap.values())
     {
-     for( AttrHdr qh : ah.quals.values()  )
-     {
-      if( cattr == null || cattr.getValueQualifiers() == null )
-      {
-       cstr.nextCell();
-       continue;
-      }
+     AbstractAttribute cattr = null;
 
-      int qOrd = 1;
-      Qualifier cqual = null;
-      for( Qualifier q : cattr.getValueQualifiers() )
+     int aOrd = 1;
+     for(AbstractAttribute aa : n.getAttributes())
+     {
+      if(aa.getName().equals(ah.atName) && aa.isReference() == ah.ref)
       {
-       if( q.getName().equals(qh.atName) )
+       if(aOrd == ah.ord)
        {
-        if( qOrd == qh.ord )
-        {
-         cqual=q;
-         cstr.addCell(q.getValue());
-         break;
-        }
-        else
-         qOrd++;
+        cattr = aa;
+        cstr.addCell(aa.getValue());
+        break;
        }
+       else
+        aOrd++;
       }
-      
-      if( cqual == null )
-       cstr.nextCell();
+     }
+
+     if(cattr == null)
+      cstr.nextCell();
+
+     if(ah.quals != null)
+     {
+      for(AttrHdr qh : ah.quals.values())
+      {
+       if(cattr == null || cattr.getValueQualifiers() == null)
+       {
+        cstr.nextCell();
+        continue;
+       }
+
+       int qOrd = 1;
+       Qualifier cqual = null;
+       for(Qualifier q : cattr.getValueQualifiers())
+       {
+        if(q.getName().equals(qh.atName))
+        {
+         if(qOrd == qh.ord)
+         {
+          cqual = q;
+          cstr.addCell(q.getValue());
+          break;
+         }
+         else
+          qOrd++;
+        }
+       }
+
+       if(cqual == null)
+        cstr.nextCell();
+      }
+
      }
 
     }
-   
    }
-   
   }
 
   cstr.nextRow();

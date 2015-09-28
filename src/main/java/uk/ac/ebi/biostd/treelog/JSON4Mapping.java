@@ -144,15 +144,10 @@ public class JSON4Mapping
      
      out.append("\"assigned\": \"");
 
-     if( secmap.getAssignedAcc() == null )
-      out.append("\",\n");
-     else
-     {
+     if( secmap.getAssignedAcc() != null )
       StringUtils.appendEscaped(out, secmap.getAssignedAcc(), '"', '\\');
-      out.append("\",\n");
-     }
 
-     out.append("}\n");
+     out.append("\"\n}\n");
     }
    }
    

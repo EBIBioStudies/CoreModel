@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.json.JSONObject;
 
+import uk.ac.ebi.biostd.treelog.LogNode.Level;
+
 public class JSON4Report
 {
  public static SubmissionReport convert( String text ) throws ConvertException
@@ -27,11 +29,18 @@ public class JSON4Report
  
  public static void convert( SubmissionReport rep, Appendable out ) throws IOException
  {
-  out.append("{\nmapping: ");
+  out.append("{\n\"status\": \"");
+  
+  if( rep.getLog().getLevel().getPriority() < Level.ERROR.getPriority() )
+   out.append("OK");
+  else
+   out.append("FAIL");
+   
+  out.append("\",\n\"mapping\": ");
   
   JSON4Mapping.convert(rep.getMappings(), out);
   
-  out.append(",\nlog: ");
+  out.append(",\n\"log\": ");
 
   
   JSON4Log.convert(rep.getLog(), out);

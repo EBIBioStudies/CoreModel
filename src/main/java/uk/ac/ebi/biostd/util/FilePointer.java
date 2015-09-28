@@ -9,6 +9,7 @@ public class FilePointer
  private Path relativePath;
  private String archiveInternalPath;
  private boolean directory;
+ private long size;
 
  public Path getArchivePath()
  {
@@ -64,5 +65,15 @@ public class FilePointer
  public void setDirectory(boolean directory)
  {
   this.directory = directory;
+ }
+
+ public long getSize()
+ {
+  return size;
+ }
+
+ public void setSize(long size)
+ {
+  this.size = size;
  }
 }

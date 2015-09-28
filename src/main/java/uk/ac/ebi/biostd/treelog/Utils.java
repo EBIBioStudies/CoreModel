@@ -1,10 +1,9 @@
 package uk.ac.ebi.biostd.treelog;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 
 public class Utils
@@ -13,7 +12,7 @@ public class Utils
  static final Character EL = new Character('\u2514');
  static final Character TEE = new Character('\u251C');
  
- public static void printLog(LogNode topLn, PrintStream out, Level minLevel )
+ public static void printLog(LogNode topLn, Appendable out, Level minLevel ) throws IOException
  {
  
   if( topLn.getLevel().getPriority() < minLevel.getPriority() )
@@ -22,13 +21,13 @@ public class Utils
   printLog(topLn, out, minLevel, new ArrayList<Character>() );
  }
  
- private static void printLog(LogNode ln, PrintStream out, Level minLevel, List<Character> indent)
+ private static void printLog(LogNode ln, Appendable out, Level minLevel, List<Character> indent) throws IOException
  {
   for( Character ch : indent )
-   out.print(ch);
+   out.append(ch);
   
 
-  out.println(ln.getLevel().name()+": "+ln.getMessage());
+  out.append(ln.getLevel().name()+": "+ln.getMessage()).append('\n');
 
   int snSz = 0;
   

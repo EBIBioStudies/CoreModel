@@ -9,6 +9,7 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
 {
  String text;
  String columnSep="\t";
+ boolean xlWrap;
  
  int cpos=0;
  int lpos;
@@ -18,7 +19,13 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
  
  public CSVTSVSpreadsheetReader( String text, char sep )
  {
+  this(text,sep,true);
+ }
+
+ public CSVTSVSpreadsheetReader( String text, char sep, boolean xl )
+ {
   textLen = text.length();
+  xlWrap=xl;
   
   while( cpos < textLen )
   {
@@ -87,8 +94,35 @@ public class CSVTSVSpreadsheetReader implements SpreadsheetReader
 
   while( true ) // Reading cell that contains new line symbols (\n)
   {
-   if( StringUtils.splitExcelString(line, columnSep, accum) )
+   if( xlWrap )
+   {
+    if( StringUtils.splitExcelString(line, columnSep, accum) )
+     break;
+   }
+   else
+   {
+    int ptr=0;
+    
+    while( ptr < line.length() )
+    {
+     int nptr = line.indexOf(columnSep, ptr);
+     
+     if( nptr < 0 )
+     {
+      if( ptr == 0 )
+       accum.add(line);
+      else
+       accum.add( line.substring(ptr) );
+      
+      break;
+     }
+     
+     accum.add( line.substring(ptr,nptr) );
+     ptr=nptr+columnSep.length();     
+    }
+   
     break;
+   }
    
    accum.clear();
    

@@ -63,6 +63,9 @@ public class FileRef implements Node
  {
   attributes = sn;
   
+  if( sn == null )
+   return;
+  
   for(FileAttribute sa : sn )
    sa.setHost(this);
  }
@@ -91,6 +94,16 @@ public class FileRef implements Node
   hostSection = pr;
  }
  
+ public long getSize()
+ {
+  return size;
+ }
+ private long size;
+ 
+ public void setSize( long sz )
+ {
+  size = sz;
+ }
  
  @Override
  public AbstractAttribute addAttribute(String name, String value)

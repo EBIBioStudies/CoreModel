@@ -4,6 +4,8 @@ import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCESS;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.CLASS;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.RELPATH;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.SIZE;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.TYPE;
 import static uk.ac.ebi.biostd.in.pageml.PageMLElements.ATTRIBUTE;
 import static uk.ac.ebi.biostd.in.pageml.PageMLElements.ATTRIBUTES;
@@ -149,6 +151,13 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    xmlEscaped(str,out);
   }
   
+  str = subm.getRelPath();
+  if( str != null && str.length() > 0 )
+  {
+   out.append("\" ").append(RELPATH.getAttrName()).append("=\"");
+   xmlEscaped(str,out);
+  }
+  
   if( subm.getOwner() != null || ( subm.getAccessTags() != null && subm.getAccessTags().size() > 0 )  )
   {
    out.append("\" ").append(ACCESS.getAttrName()).append("=\"");
@@ -285,30 +294,30 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
  private void formatSubsections(List<Section> lst, Appendable out, String shift ) throws IOException
  {
-  String contShift = shift+shiftSym;
-  
+  String contShift = shift + shiftSym;
+
   out.append(shift);
   out.append("<").append(SUBSECTIONS.getElementName()).append(">\n");
- 
+
   int lastTblIdx = -1;
-  
-  boolean hasTable=false;
-  
-  for( Section ssec : lst )
+
+  boolean hasTable = false;
+
+  for(Section ssec : lst)
   {
-   if( ssec.getTableIndex() <= lastTblIdx && hasTable )
+   if(ssec.getTableIndex() <= lastTblIdx && hasTable)
    {
-    contShift = shift+shiftSym;
+    contShift = shift + shiftSym;
 
     out.append(contShift);
     out.append("</").append(TABLE.getElementName()).append(">\n");
-    
+
     hasTable = false;
-   }   
-   
-   if( ssec.getTableIndex() >=0 )
+   }
+
+   if(ssec.getTableIndex() >= 0)
    {
-    if( ! hasTable )
+    if(!hasTable)
     {
      out.append(contShift);
      out.append("<").append(TABLE.getElementName()).append(">\n");
@@ -318,24 +327,24 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
     }
    }
 
-   lastTblIdx=ssec.getTableIndex();
-   
+   lastTblIdx = ssec.getTableIndex();
+
    formatSection(ssec, out, contShift);
   }
-  
-  
-  if( hasTable )
+
+  if(hasTable)
   {
-   out.append(shift+shiftSym);
+   out.append(shift + shiftSym);
    out.append("</").append(TABLE.getElementName()).append(">\n");
   }
-  
+
   out.append(shift);
   out.append("</").append(SUBSECTIONS.getElementName()).append(">\n");
  }
  
  private void formatLinks(Section s, Appendable out, String shift) throws IOException
  {
+  
   out.append(shift);
   out.append("<").append(LINKS.getElementName()).append(">\n");
   
@@ -472,6 +481,8 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    out.append(contShift);
    
    out.append('<').append(FILE.getElementName());
+   
+   out.append(' ').append(SIZE.getAttrName()).append("=\"").append(String.valueOf(fr.getSize())).append('"');
    
    String str = fr.getEntityClass();
    if( str != null && str.length() > 0 )

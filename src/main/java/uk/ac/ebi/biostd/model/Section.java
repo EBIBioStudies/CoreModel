@@ -107,6 +107,9 @@ public class Section implements Node, Accessible
  {
   attributes = sn;
   
+  if( sn == null )
+   return;
+  
   for(SectionAttribute sa : sn )
    sa.setHost(this);
  }

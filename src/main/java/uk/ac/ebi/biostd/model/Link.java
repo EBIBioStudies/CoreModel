@@ -63,6 +63,9 @@ public class Link implements Node
  {
   attributes = sn;
   
+  if( sn == null )
+   return;
+  
   for(LinkAttribute sa : sn )
    sa.setHost(this);
  }
