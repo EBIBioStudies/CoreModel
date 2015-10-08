@@ -144,11 +144,17 @@ public class Submission implements Node, Accessible
  {
   return rtime;
  }
- private long rtime;
+ private long rtime=Long.MAX_VALUE;
  
  public void setRTime( long tm )
  {
   rtime = tm;
+ }
+ 
+ @Transient
+ public boolean isRTimeSet()
+ {
+  return rtime != Long.MAX_VALUE;
  }
 
  public boolean isReleased()
