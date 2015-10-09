@@ -180,6 +180,7 @@ public class PageTabSyntaxParser extends Parser
      Submission subm = new Submission();
      submInf = new SubmissionInfo( subm );
      submInf.setLogNode(ln);
+     submInf.setElementPointer( new CellPointer(lineNo, 1) );
 
      lastSubmissionContext = new SubmissionContext(submInf, pstate, ln);
      context=lastSubmissionContext;

@@ -20,6 +20,8 @@ public class SubmissionInfo
  private Submission submission;
  private Submission originalSubmission;
  
+ private ElementPointer elementPointer;
+ 
  private String accNoPrefix;
  private String accNoSuffix;
  private String accNoOriginal;
@@ -181,6 +183,16 @@ public class SubmissionInfo
  public void setRootSectionOccurance(SectionOccurrence rootSectionOccurance)
  {
   this.rootSectionOccurance = rootSectionOccurance;
+ }
+
+ public ElementPointer getElementPointer()
+ {
+  return elementPointer;
+ }
+
+ public void setElementPointer(ElementPointer elementPointer)
+ {
+  this.elementPointer = elementPointer;
  }
 
 }

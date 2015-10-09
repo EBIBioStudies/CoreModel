@@ -188,7 +188,8 @@ public class JSONReader extends Parser
   Submission sbm = new Submission();
   
   SubmissionInfo si = new SubmissionInfo(sbm);
-  
+  si.setElementPointer( new PathPointer(pathToString(path)) );
+
   ln = ln.branch("Procesing submission");
   
   si.setLogNode(ln);
