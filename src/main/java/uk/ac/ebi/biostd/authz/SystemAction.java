@@ -9,6 +9,8 @@ public enum SystemAction
  
 
  CREATESUBM("Create submission", ActionGroup.SUBMISSION ),
+ ATTACHSUBM("Attach submission", ActionGroup.SUBMISSION ),
+
  EXPORT_DATA("Export all data", ActionGroup.EXPORT ),
  
  READOBJTAGS("Read object tags", ActionGroup.OBJECT_ACCESS ),

@@ -4,6 +4,7 @@ public enum PageMLAttributes
 {
  ID( "id" ),
  ACCNO( "acc" ),
+ ACCNOGLOBAL( "accGlobal" ),
  ACCESS( "access" ),
  CLASS( "class" ),
  CTIME("ctime"),
