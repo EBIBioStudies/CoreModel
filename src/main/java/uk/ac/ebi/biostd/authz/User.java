@@ -78,6 +78,17 @@ public class User implements AuthzSubject, Serializable
   this.fullName = description;
  }
 
+ public String getSecret()
+ {
+  return secret;
+ }
+ private String secret;
+ 
+ public void setSecret(String secret)
+ {
+  this.secret = secret;
+ }
+ 
  @Lob
  public byte[] getPasswordDigest()
  {

@@ -147,7 +147,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   if( s.getTitle() != null )
    auxAttrMap.put(Submission.titleAttribute, s.getTitle() );
 
-  if( s.getRTime() > 0 )
+  if( s.isRTimeSet() )
   {
    if( dateFmt == null )
     dateFmt = new SimpleDateFormat(dateFotmat);

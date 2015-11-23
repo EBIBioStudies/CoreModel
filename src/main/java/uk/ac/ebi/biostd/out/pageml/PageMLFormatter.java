@@ -189,7 +189,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   out.append("\" ").append(PageMLAttributes.CTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getCTime()));
   out.append("\" ").append(PageMLAttributes.MTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getMTime()));
 
-  if( subm.getRTime() > 0  )
+  if( subm.isRTimeSet()  )
    out.append("\" ").append(PageMLAttributes.RTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getRTime()));
   
   out.append("\">\n");

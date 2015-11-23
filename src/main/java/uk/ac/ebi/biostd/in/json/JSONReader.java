@@ -346,19 +346,19 @@ public class JSONReader extends Parser
   {
    case JSONFormatter.attrubutesProperty:
     
-    processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processAttribute(v, o, l, p, s) );
+    processArray(val, obj, ln, path, si, this::processAttribute );
     
     break;
 
    case JSONFormatter.classTagsProperty:
     
-    processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processClassTag(v, o, l, p, s) );
+    processArray(val, obj, ln, path, si, this::processClassTag );
     
     break;
 
    case JSONFormatter.accTagsProperty:
     
-     processArray(val, obj, ln, path, si, (v, o, l, p, s) -> processAccessTag(v, o, l, p, s) );
+     processArray(val, obj, ln, path, si, this::processAccessTag );
     
     break;
 
@@ -576,19 +576,19 @@ public class JSONReader extends Parser
       
      case JSONFormatter.classTagsProperty:
       
-      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processClassTag(v, o, l, p, s) );
+      res = res && processArray(val, atr, ln, path, si, this::processClassTag );
       
       break;
       
      case JSONFormatter.nmQualProperty:
       
-      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processNameQualifier(v, o, l, p, s) );
+      res = res && processArray(val, atr, ln, path, si, this::processNameQualifier );
       
       break;
 
      case JSONFormatter.vlQualProperty:
       
-      res = res && processArray(val, atr, ln, path, si, (v, o, l, p, s) -> processValueQualifier(v, o, l, p, s) );
+      res = res && processArray(val, atr, ln, path, si, this::processValueQualifier );
       
       break;
   

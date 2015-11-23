@@ -126,7 +126,7 @@ public class CellFormatter implements DocumentFormatter
    cstr.nextRow();
   }
   
-  if( s.getRTime() > 0 )
+  if( s.isRTimeSet() )
   {
    cstr.addCell(Submission.releaseDateAttribute);
    cstr.addDateCell(s.getRTime()*1000);
