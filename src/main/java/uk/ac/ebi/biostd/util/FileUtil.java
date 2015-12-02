@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
 
 
 
@@ -20,11 +21,15 @@ public class FileUtil
   return readFile( f, Charset.defaultCharset() );
  }
 
- public static String readFile( File f, Charset chst ) throws IOException
+ public static String readStream( InputStream fis, Charset chst, long sz ) throws IOException
  {
-  FileInputStream fis = new FileInputStream(f);
+  ByteArrayOutputStream baos = null;
   
-  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
+  if( sz > 0 && sz < Integer.MAX_VALUE )
+   baos = new ByteArrayOutputStream( (int)sz );
+  else
+   baos = new ByteArrayOutputStream( );
+  
   try
   {
    byte[] buff = new byte[64*1024];
@@ -58,6 +63,21 @@ public class FileUtil
    baos.close();
   }
   
+ }
+
+ 
+ public static String readFile( File f, Charset chst ) throws IOException
+ {
+  FileInputStream fis = new FileInputStream(f);
+  
+  return readStream(fis, chst, f.length());
+ }
+ 
+ public static String readGzFile( File f, Charset chst ) throws IOException
+ {
+  InputStream fis = new GZIPInputStream( new FileInputStream(f) );
+  
+  return readStream(fis, chst, -1);
  }
  
  public static byte[] readBinFile( File f ) throws IOException

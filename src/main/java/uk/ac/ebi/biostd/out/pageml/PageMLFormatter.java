@@ -202,7 +202,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   if( subm.getTitle() != null )
    auxAttrMap.put(Submission.titleAttribute, subm.getTitle() );
 
-  if( subm.getRTime() > 0 )
+  if( subm.isRTimeSet() )
   {
    if( dateFmt == null )
     dateFmt = new SimpleDateFormat(dateFotmat);
