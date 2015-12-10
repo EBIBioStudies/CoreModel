@@ -42,7 +42,8 @@ import uk.ac.ebi.biostd.authz.User;
  @NamedQuery(name="Submission.countByAcc", query="SELECT count(s) FROM Submission s where s.accNo=:accNo AND s.version > 0"),
  @NamedQuery(name="Submission.getByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo AND s.version > 0"),
  @NamedQuery(name="Submission.getAllByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo"),
- @NamedQuery(name="Submission.getByOwner", query="SELECT s from Submission s JOIN s.owner u where u.id=:uid AND s.version > 0 order by s.MTime desc")
+ @NamedQuery(name="Submission.getByOwner", query="SELECT s from Submission s JOIN s.owner u where u.id=:uid AND s.version > 0 order by s.MTime desc"),
+ @NamedQuery(name="Submission.getAccByPat", query="SELECT s.accNo FROM Submission s where s.accNo LIKE :pattern"),
 })
 @Table(
   indexes = {
@@ -202,7 +203,7 @@ public class Submission implements Node, Accessible
   
   if( title == null )
   {
-   title = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()) );
+   title = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()*1000L) );
   }
   
   return title;

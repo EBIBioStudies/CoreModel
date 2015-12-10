@@ -115,7 +115,7 @@ public class CellFormatter implements DocumentFormatter
  {
   cstr.nextRow();
   cstr.addCell(PageTabElements.SubmissionKeyword);
-  cstr.addCell(s.getAccNo().startsWith("!")?s.getAccNo():("!"+s.getAccNo()));
+  cstr.addCell(s.getAccNo());
 
   exportNodeTags(s);
   
