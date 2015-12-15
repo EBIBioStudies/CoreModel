@@ -9,10 +9,12 @@ import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 @Entity
@@ -21,6 +23,9 @@ import javax.persistence.Transient;
  @NamedQuery(name="User.getByEMail", query="select u from User u where u.email=:email"),
  @NamedQuery(name="User.getCount", query="select count(u) from User u")
 })
+@Table(
+indexes = {@Index(name = "login_index",  columnList="login", unique = true),
+           @Index(name = "email_index", columnList="email",     unique = true)})
 public class User implements AuthzSubject, Serializable
 {
  private static final long serialVersionUID = 1L;

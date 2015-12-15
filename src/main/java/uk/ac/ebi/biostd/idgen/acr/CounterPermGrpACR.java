@@ -1,11 +1,9 @@
 package uk.ac.ebi.biostd.idgen.acr;
 
 import javax.persistence.Entity;
-import uk.ac.ebi.biostd.authz.HostedPermACR;
-import uk.ac.ebi.biostd.authz.HostedProfACR;
-import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.authz.UserGroup;
 
+import uk.ac.ebi.biostd.authz.HostedPermACR;
+import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.idgen.Counter;
 
 
@@ -13,7 +11,7 @@ import uk.ac.ebi.biostd.idgen.Counter;
 public class CounterPermGrpACR extends HostedPermACR<Counter, UserGroup>
 {
 
- CounterPermGrpACR()
+ public CounterPermGrpACR()
  {}
  
 

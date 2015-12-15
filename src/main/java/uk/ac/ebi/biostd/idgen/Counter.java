@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.idgen;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -11,8 +12,10 @@ import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AuthzObject;
+import uk.ac.ebi.biostd.authz.PermissionProfile;
 import uk.ac.ebi.biostd.authz.SystemAction;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.idgen.acr.CounterPermGrpACR;
 import uk.ac.ebi.biostd.idgen.acr.CounterPermUsrACR;
 import uk.ac.ebi.biostd.idgen.acr.CounterProfGrpACR;
@@ -67,6 +70,15 @@ public class Counter implements AuthzObject
   return ++maxCount;
  }
 
+ @Transient
+ public long incrementByNum( int num )
+ {
+  long first = maxCount+1;
+  
+  maxCount+=num;
+  
+  return first;
+ }
  
  @Override
  @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
@@ -129,7 +141,70 @@ public class Counter implements AuthzObject
   return Permit.checkPermission(act, user, this);
  }
 
+ @Override
+ public void addPermissionForUserACR(User u, SystemAction act, boolean allow)
+ {
+  CounterPermUsrACR acr = new CounterPermUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForUserACRs == null )
+   permissionForUserACRs = new ArrayList<CounterPermUsrACR>();
+  
+  permissionForUserACRs.add(acr);
+ }
 
+
+ @Override
+ public void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+ {
+  CounterPermGrpACR acr = new CounterPermGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForGroupACRs == null )
+   permissionForGroupACRs = new ArrayList<CounterPermGrpACR>();
+  
+  permissionForGroupACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForUserACR(User u, PermissionProfile pp)
+ {
+  CounterProfUsrACR acr = new CounterProfUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForUserACRs == null )
+   profileForUserACRs = new ArrayList<CounterProfUsrACR>();
+  
+  profileForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+ {
+  CounterProfGrpACR acr = new CounterProfGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForGroupACRs == null )
+   profileForGroupACRs = new ArrayList<CounterProfGrpACR>();
+  
+  profileForGroupACRs.add(acr);
+ }
 
 
 

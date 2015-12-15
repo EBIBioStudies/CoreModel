@@ -17,7 +17,11 @@ public enum SystemAction
  CTRLOBJTAGS("Controll object tags", ActionGroup.OBJECT_ACCESS ),
  
  READSUBMTAGS("Read submission tags", ActionGroup.SUBMISSION ),
- CTRLSUBMTAGS("Controll submission tags", ActionGroup.SUBMISSION );
+ CTRLSUBMTAGS("Controll submission tags", ActionGroup.SUBMISSION ),
+ 
+ CREATEIDGEN("Create new ID generator", ActionGroup.IDGEN),
+ INCREMENT("Increment ID generator", ActionGroup.IDGEN)
+ ;
 
  
  public static enum ActionGroup
@@ -25,7 +29,8 @@ public enum SystemAction
   OBJECT_ACCESS("Common object access"),
   INSTANTATION("Object instantation"),
   SUBMISSION("Submissions"), 
-  EXPORT("Data export");
+  EXPORT("Data export"), 
+  IDGEN("ID generation");
 
   String description;
   

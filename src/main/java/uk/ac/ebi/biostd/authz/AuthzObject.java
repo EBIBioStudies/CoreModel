@@ -13,4 +13,9 @@ public interface AuthzObject
  Collection<? extends ACR> getProfileForGroupACRs();
  
  Permit checkPermission(SystemAction act, User user);
+ 
+ void addPermissionForUserACR(User u, SystemAction act, boolean allow);
+ void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow);
+ void addProfileForUserACR(User u, PermissionProfile pp);
+ void addProfileForGroupACR(UserGroup ug, PermissionProfile pp);
 }

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.idgen;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -15,8 +16,10 @@ import javax.persistence.Table;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AuthzObject;
+import uk.ac.ebi.biostd.authz.PermissionProfile;
 import uk.ac.ebi.biostd.authz.SystemAction;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.idgen.acr.IdGenPermGrpACR;
 import uk.ac.ebi.biostd.idgen.acr.IdGenPermUsrACR;
 import uk.ac.ebi.biostd.idgen.acr.IdGenProfGrpACR;
@@ -137,6 +140,71 @@ public class IdGen implements AuthzObject
  public void setPermissionForGroupACRs(Collection<IdGenPermGrpACR> permissionForGroupACRs)
  {
   this.permissionForGroupACRs = permissionForGroupACRs;
+ }
+ 
+ @Override
+ public void addPermissionForUserACR(User u, SystemAction act, boolean allow)
+ {
+  IdGenPermUsrACR acr = new IdGenPermUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForUserACRs == null )
+   permissionForUserACRs = new ArrayList<IdGenPermUsrACR>();
+  
+  permissionForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+ {
+  IdGenPermGrpACR acr = new IdGenPermGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForGroupACRs == null )
+   permissionForGroupACRs = new ArrayList<IdGenPermGrpACR>();
+  
+  permissionForGroupACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForUserACR(User u, PermissionProfile pp)
+ {
+  IdGenProfUsrACR acr = new IdGenProfUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForUserACRs == null )
+   profileForUserACRs = new ArrayList<IdGenProfUsrACR>();
+  
+  profileForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+ {
+  IdGenProfGrpACR acr = new IdGenProfGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForGroupACRs == null )
+   profileForGroupACRs = new ArrayList<IdGenProfGrpACR>();
+  
+  profileForGroupACRs.add(acr);
  }
  
  @Override

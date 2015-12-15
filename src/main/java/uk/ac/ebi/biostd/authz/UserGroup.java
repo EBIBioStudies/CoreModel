@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.authz;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.Cacheable;
@@ -206,6 +207,72 @@ public class UserGroup implements AuthzSubject, AuthzObject
  {
   this.permissionForGroupACRs = permissionForGroupACRs;
  }
+ 
+ @Override
+ public void addPermissionForUserACR(User u, SystemAction act, boolean allow)
+ {
+  GroupPermUsrACR acr = new GroupPermUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForUserACRs == null )
+   permissionForUserACRs = new ArrayList<GroupPermUsrACR>();
+  
+  permissionForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+ {
+  GroupPermGrpACR acr = new GroupPermGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForGroupACRs == null )
+   permissionForGroupACRs = new ArrayList<GroupPermGrpACR>();
+  
+  permissionForGroupACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForUserACR(User u, PermissionProfile pp)
+ {
+  GroupProfUsrACR acr = new GroupProfUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForUserACRs == null )
+   profileForUserACRs = new ArrayList<GroupProfUsrACR>();
+  
+  profileForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+ {
+  GroupProfGrpACR acr = new GroupProfGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForGroupACRs == null )
+   profileForGroupACRs = new ArrayList<GroupProfGrpACR>();
+  
+  profileForGroupACRs.add(acr);
+ }
+ 
  
  @Override
  public Permit checkPermission(SystemAction act, User user)

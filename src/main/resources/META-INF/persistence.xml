@@ -32,6 +32,11 @@
 		<class>uk.ac.ebi.biostd.authz.acr.SystemPermUsrACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.SystemProfGrpACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.SystemProfUsrACR</class>
+		<class>uk.ac.ebi.biostd.authz.AuthorizationTemplate</class>
+		<class>uk.ac.ebi.biostd.authz.acr.TemplatePermGrpACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.TemplatePermUsrACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfGrpACR</class>
+		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfUsrACR</class>
 
 		<class>uk.ac.ebi.biostd.idgen.Counter</class>
 		<class>uk.ac.ebi.biostd.idgen.Domain</class>

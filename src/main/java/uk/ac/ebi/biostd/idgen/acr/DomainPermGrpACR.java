@@ -1,11 +1,9 @@
 package uk.ac.ebi.biostd.idgen.acr;
 
 import javax.persistence.Entity;
-import uk.ac.ebi.biostd.authz.HostedPermACR;
-import uk.ac.ebi.biostd.authz.HostedProfACR;
-import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.authz.UserGroup;
 
+import uk.ac.ebi.biostd.authz.HostedPermACR;
+import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.idgen.Domain;
 
 
@@ -13,7 +11,7 @@ import uk.ac.ebi.biostd.idgen.Domain;
 public class DomainPermGrpACR extends HostedPermACR<Domain, UserGroup>
 {
 
- DomainPermGrpACR()
+ public DomainPermGrpACR()
  {}
  
 

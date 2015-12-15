@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.authz;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -171,6 +172,72 @@ public class AccessTag implements AuthzObject
  }
 
  @Override
+ public void addPermissionForUserACR(User u, SystemAction act, boolean allow)
+ {
+  TagPermUsrACR acr = new TagPermUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForUserACRs == null )
+   permissionForUserACRs = new ArrayList<TagPermUsrACR>();
+  
+  permissionForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+ {
+  TagPermGrpACR acr = new TagPermGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( permissionForGroupACRs == null )
+   permissionForGroupACRs = new ArrayList<TagPermGrpACR>();
+  
+  permissionForGroupACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForUserACR(User u, PermissionProfile pp)
+ {
+  TagProfUsrACR acr = new TagProfUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForUserACRs == null )
+   profileForUserACRs = new ArrayList<TagProfUsrACR>();
+  
+  profileForUserACRs.add(acr);
+ }
+
+
+ @Override
+ public void addProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+ {
+  TagProfGrpACR acr = new TagProfGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( profileForGroupACRs == null )
+   profileForGroupACRs = new ArrayList<TagProfGrpACR>();
+  
+  profileForGroupACRs.add(acr);
+ }
+ 
+ 
+ @Override
  public Permit checkPermission(SystemAction act, User user)
  {
   return Permit.checkPermission(act, user, this);
@@ -210,6 +277,22 @@ public class AccessTag implements AuthzObject
    {
     return Permit.DENY;
    }
+
+   @Override
+   public void addPermissionForUserACR(User u, SystemAction act, boolean allow)
+   {}
+
+   @Override
+   public void addPermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+   {}
+
+   @Override
+   public void addProfileForUserACR(User u, PermissionProfile pp)
+   {}
+
+   @Override
+   public void addProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+   {}
   });
  }
 
