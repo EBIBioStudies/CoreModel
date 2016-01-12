@@ -24,8 +24,7 @@ import javax.persistence.Transient;
  @NamedQuery(name="User.getCount", query="select count(u) from User u")
 })
 @Table(
-indexes = {@Index(name = "login_index",  columnList="login", unique = true),
-           @Index(name = "email_index", columnList="email",     unique = true)})
+indexes = {@Index(name = "login_index",  columnList="login", unique = true)})
 public class User implements AuthzSubject, Serializable
 {
  private static final long serialVersionUID = 1L;
@@ -60,7 +59,6 @@ public class User implements AuthzSubject, Serializable
   this.login = login;
  }
 
- 
  public String getEmail()
  {
   return email;
@@ -70,6 +68,28 @@ public class User implements AuthzSubject, Serializable
  public void setEmail(String email)
  {
   this.email = email;
+ }
+  
+ public boolean isActive()
+ {
+  return active;
+ }
+ private boolean active;
+
+ public void setActive(boolean active)
+ {
+  this.active = active;
+ }
+
+ public String getActivationKey()
+ {
+  return activationKey;
+ }
+ private String activationKey;
+
+ public void setActivationKey(String activationKey)
+ {
+  this.activationKey = activationKey;
  }
 
  public String getFullName()
@@ -81,6 +101,18 @@ public class User implements AuthzSubject, Serializable
  public void setFullName(String description)
  {
   this.fullName = description;
+ }
+ 
+ @Lob
+ public String getAuxProfileInfo()
+ {
+  return auxProfileInfo;
+ }
+ private String auxProfileInfo;
+
+ public void setAuxProfileInfo(String auxProfileInfo)
+ {
+  this.auxProfileInfo = auxProfileInfo;
  }
 
  public String getSecret()
