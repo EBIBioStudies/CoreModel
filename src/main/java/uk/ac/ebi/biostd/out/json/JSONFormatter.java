@@ -32,6 +32,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String submissionsProperty = "submissions";
  public static final String rootSecProperty = "section";
  public static final String attrubutesProperty = "attributes";
+ public static final String idProperty = "id";
  public static final String accNoProperty = "accno";
  public static final String accTagsProperty = "accessTags";
  public static final String classTagsProperty = "classTags";
@@ -138,6 +139,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   JSONObject sbm = new JSONObject();
 
   sbm.put(typeProperty, "submission");
+  sbm.put(idProperty, s.getId());
 
   if(s.getAccNo() != null)
    sbm.put(accNoProperty, s.getAccNo());
