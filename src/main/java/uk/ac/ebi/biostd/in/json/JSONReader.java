@@ -274,6 +274,34 @@ public class JSONReader extends Parser
       
       break;
       
+     case JSONFormatter.idProperty:
+      
+      long id=0;
+      
+      if( val instanceof String )
+      {
+       try
+       {
+        id = Long.parseLong(val.toString());
+       }
+       catch(Exception e)
+       {
+        ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid '"+JSONFormatter.idProperty+"' property value: "+val);
+        continue;
+       }
+      }
+      else if( val instanceof Integer )
+       id = (Integer)val;
+      else if( val instanceof Long )
+       id = (Long)val;
+      else
+      {
+       ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: invalid '"+JSONFormatter.idProperty+"' property value: "+val);
+       continue;
+      }
+
+      sbm.setId(id);
+      
      default:
       
       if( ! processCommon(key,val,sbm,ln,path, si) )
