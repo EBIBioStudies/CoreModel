@@ -24,7 +24,8 @@ import javax.persistence.Transient;
  @NamedQuery(name="User.getCount", query="select count(u) from User u")
 })
 @Table(
-indexes = {@Index(name = "login_index",  columnList="login", unique = true)})
+indexes = {@Index(name = "login_index",  columnList="login", unique = true),
+           @Index(name = "email_index", columnList="email",     unique = true)})
 public class User implements AuthzSubject, Serializable
 {
  private static final long serialVersionUID = 1L;
