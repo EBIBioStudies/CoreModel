@@ -302,6 +302,8 @@ public class JSONReader extends Parser
 
       sbm.setId(id);
       
+      break;
+      
      default:
       
       if( ! processCommon(key,val,sbm,ln,path, si) )

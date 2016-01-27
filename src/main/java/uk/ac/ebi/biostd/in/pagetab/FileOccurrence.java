@@ -56,5 +56,41 @@ public class FileOccurrence
  {
   this.filePointer = filePointer;
  }
+ 
+ @Override
+ public boolean equals( Object o )
+ {
+  if( o== null || ! (o instanceof FileOccurrence) )
+   return false;
+  
+  FileRef fr2 = ((FileOccurrence)o).getFileRef();
+  
+  if( fileRef == null && fr2 == null )
+   return true;
+  
+  if( fileRef != null )
+  {
+   if( fr2 == null )
+    return false;
+   
+   if( fileRef.getName() == null && fr2.getName() == null )
+    return true;
+   
+   if( fileRef.getName() != null )
+    return fileRef.getName().equals( fr2.getName() ); 
+  }
+  else
+   return fr2 == null;
+  
+  return false;
+ }
 
+ @Override
+ public int hashCode()
+ {
+  if( fileRef == null || fileRef.getName() == null )
+   return 0;
+  
+  return fileRef.getName().hashCode();
+ }
 }

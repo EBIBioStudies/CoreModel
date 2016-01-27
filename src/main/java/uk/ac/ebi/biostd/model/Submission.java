@@ -174,38 +174,6 @@ public class Submission implements Node, Accessible
  @Lob
  public String getTitle()
  {
-  if( title != null )
-   return title;
-  
-  if( getAttributes() != null )
-  {
-   for(SubmissionAttribute attr : getAttributes())
-   {
-    if("Title".equalsIgnoreCase(attr.getName()))
-    {
-     title = attr.getValue();
-     break;
-    }
-   }
-  }
-  
-  if( title == null && getAttributes() != null)
-  {
-   for( SubmissionAttribute attr : getAttributes() )
-   {
-    if( "Description".equalsIgnoreCase(attr.getName()) )
-    {
-     title = attr.getValue();
-     break;
-    }
-   }
-  }
-  
-  if( title == null )
-  {
-   title = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getCTime()*1000L) );
-  }
-  
   return title;
  }
  private String title;
@@ -215,6 +183,33 @@ public class Submission implements Node, Accessible
   title = tl;
  }
 
+ 
+ public String createTitle()
+ {
+  String ttl = getTitle();
+  
+  if( ttl != null )
+   return ttl;
+  
+  if( getAttributes() != null )
+  {
+   for(SubmissionAttribute attr : getAttributes())
+   {
+    if(titleAttribute.equalsIgnoreCase(attr.getName()))
+    {
+     ttl = attr.getValue();
+     break;
+    }
+   }
+  }
+  
+
+  if( ttl == null )
+   ttl = getAccNo()+" "+SimpleDateFormat.getDateTimeInstance().format( new Date(getMTime()*1000L) );
+
+  return ttl;
+ }
+ 
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="owner_id")
  public User getOwner()
