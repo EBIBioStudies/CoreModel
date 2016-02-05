@@ -168,7 +168,9 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    if( subm.getOwner() != null )
    {
     out.append('~');
-    xmlEscaped(subm.getOwner().getLogin(),out);
+    xmlEscaped(subm.getOwner().getEmail(),out);
+    out.append(";#");
+    out.append( String.valueOf(subm.getOwner().getId()) );
     needSep = true;
    }
    

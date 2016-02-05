@@ -29,6 +29,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
@@ -47,11 +48,15 @@ import uk.ac.ebi.biostd.authz.User;
 })
 @Table(
   indexes = {
-     @Index(name = "acc_idx", columnList = "accNo,version"),
+//     @Index(name = "acc_idx", columnList = "accNo,version"),
+//     @Index(name = "version_idx", columnList = "version"),
      @Index(name = "rtime_idx", columnList = "RTime"),
-     @Index(name = "version_idx", columnList = "version"),
      @Index(name = "released_idx", columnList = "released")
-  })
+     },
+  uniqueConstraints={
+     @UniqueConstraint(columnNames = {"accNo" , "version"})
+     }
+  )
 public class Submission implements Node, Accessible
 {
  public static final String releaseDateAttribute = "ReleaseDate";
