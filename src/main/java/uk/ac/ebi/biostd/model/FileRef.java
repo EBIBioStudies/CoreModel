@@ -9,6 +9,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -26,7 +27,7 @@ public class FileRef implements Node
 { 
  
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;
@@ -103,6 +104,17 @@ public class FileRef implements Node
  public void setSize( long sz )
  {
   size = sz;
+ }
+ 
+ public boolean isDirectory()
+ {
+  return dir;
+ }
+ private boolean dir;
+ 
+ public void setDirectory(boolean dir)
+ {
+  this.dir = dir;
  }
  
  @Override

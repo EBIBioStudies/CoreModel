@@ -16,6 +16,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -66,7 +67,7 @@ public class Submission implements Node, Accessible
  public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?";
  
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;

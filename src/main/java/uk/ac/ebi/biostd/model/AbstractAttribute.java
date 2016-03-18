@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
@@ -46,7 +47,7 @@ abstract public class AbstractAttribute implements Classified
  
  
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;

@@ -492,7 +492,14 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    
    out.append('<').append(FILE.getElementName());
    
-   out.append(' ').append(SIZE.getAttrName()).append("=\"").append(String.valueOf(fr.getSize())).append('"');
+   out.append(' ').append(SIZE.getAttrName()).append("=\"").append(String.valueOf(fr.getSize())).append("\" type=\"");
+   
+   if( fr.isDirectory() )
+    out.append("directory");
+   else
+    out.append("file");
+   
+   out.append("\"");
    
    String str = fr.getEntityClass();
    if( str != null && str.length() > 0 )

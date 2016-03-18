@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
@@ -63,7 +64,7 @@ public class Permission implements PermissionUnit
  }
 
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;

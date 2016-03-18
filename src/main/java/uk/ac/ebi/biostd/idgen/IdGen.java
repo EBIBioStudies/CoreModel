@@ -6,6 +6,7 @@ import java.util.Collection;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToOne;
@@ -35,7 +36,7 @@ import uk.ac.ebi.biostd.idgen.acr.IdGenProfUsrACR;
 public class IdGen implements AuthzObject
 {
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;

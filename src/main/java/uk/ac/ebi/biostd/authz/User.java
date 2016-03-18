@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Lob;
@@ -30,6 +31,9 @@ public class User implements AuthzSubject, Serializable
 {
  private static final long serialVersionUID = 1L;
 
+ public User()
+ {}
+ 
  @Override
  public boolean isUserCompatible(User u)
  {
@@ -37,7 +41,7 @@ public class User implements AuthzSubject, Serializable
  }
 
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;

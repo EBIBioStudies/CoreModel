@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.authz;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -11,7 +12,7 @@ import javax.persistence.Transient;
 public class GenProfACR<SubjT extends AuthzSubject> implements ACR, PermissionUnit
 {
  @Id
- @GeneratedValue
+ @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
  {
   return id;
