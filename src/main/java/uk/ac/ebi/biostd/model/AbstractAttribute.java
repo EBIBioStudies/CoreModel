@@ -16,7 +16,7 @@ import javax.persistence.Transient;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @MappedSuperclass
-abstract public class AbstractAttribute implements Classified
+abstract public class AbstractAttribute implements NameValuePair, Classified
 {
  private final static String QUALIFIERS_SEPARATOR = ";";
  private final static String QUALIFIER_VALUE_SEPARATOR = "=";
@@ -69,6 +69,7 @@ abstract public class AbstractAttribute implements Classified
   isReference = rf;
  }
  
+ @Override
  @Lob
  public String getName()
  {
@@ -148,6 +149,7 @@ abstract public class AbstractAttribute implements Classified
    valueQualifiers.add( q );
  }
 
+ @Override
  @Lob
  public String getValue()
  {

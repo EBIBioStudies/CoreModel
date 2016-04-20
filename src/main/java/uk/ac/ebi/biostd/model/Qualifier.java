@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.model;
 
-public class Qualifier
+public class Qualifier implements NameValuePair
 {
  private String name;
 
@@ -16,6 +16,7 @@ public class Qualifier
   this.value = value;
  }
 
+ @Override
  public String getName()
  {
   return name;
@@ -26,6 +27,7 @@ public class Qualifier
   this.name = name;
  }
 
+ @Override
  public String getValue()
  {
   return value;

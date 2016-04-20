@@ -96,6 +96,18 @@ public class User implements AuthzSubject, Serializable
  {
   this.activationKey = activationKey;
  }
+ 
+
+ public long getKeyTime()
+ {
+  return keyTime;
+ }
+ private long keyTime;
+
+ public void setKeyTime(long keyTime)
+ {
+  this.keyTime = keyTime;
+ }
 
  public String getFullName()
  {

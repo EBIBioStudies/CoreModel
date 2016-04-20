@@ -11,6 +11,7 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
  @NamedQuery(name="UserData.get", query="select ud from UserData ud where ud.dataKey=:key AND ud.userId = :uid"),
+ @NamedQuery(name="UserData.getAll", query="select ud from UserData ud where ud.userId = :uid"),
 })
 public class UserData
 {
