@@ -164,6 +164,12 @@ public class Link implements Node
  public void setTagRefs(Collection<LinkTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( LinkTagRef str: tags )
+    str.setLink(this);
+  }
  }
  
  @Override
@@ -184,6 +190,8 @@ public class Link implements Node
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setLink(this);
+  
   tagRefs.add(tr);
  }
 

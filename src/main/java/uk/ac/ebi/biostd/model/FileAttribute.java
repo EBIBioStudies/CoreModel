@@ -49,6 +49,12 @@ public class FileAttribute extends AbstractAttribute
  public void setTagRefs(Collection<FileAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( FileAttributeTagRef str: tags )
+    str.setAttribute(this);
+  }
  }
  
  
@@ -70,6 +76,8 @@ public class FileAttribute extends AbstractAttribute
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setAttribute(this);
+  
   tagRefs.add(tr);
  }
 }

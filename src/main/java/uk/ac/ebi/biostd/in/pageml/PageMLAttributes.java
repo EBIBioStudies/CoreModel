@@ -6,7 +6,7 @@ public enum PageMLAttributes
  ACCNO( "acc" ),
  ACCNOGLOBAL( "accGlobal" ),
  ACCESS( "access" ),
- CLASS( "class" ),
+ CLASS( "tags" ),
  CTIME("ctime"),
  MTIME("mtime"),
  RTIME("rtime"),

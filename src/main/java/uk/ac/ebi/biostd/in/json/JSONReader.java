@@ -227,7 +227,7 @@ public class JSONReader extends Parser
        continue;
       }
       
-      if( ! "submission".equals( val) )
+      if( ! "submission".equalsIgnoreCase( val.toString() ) )
       {
        ln.log(Level.ERROR, "Path '"+pathToString(path)+"' error: type '"+val+"' isn't expected here. Must be 'submission'");
        continue;

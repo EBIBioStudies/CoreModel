@@ -163,6 +163,12 @@ public class FileRef implements Node
  public void setTagRefs(Collection<FileTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( FileTagRef str: tags )
+    str.setFileRef(this);
+  }
  }
  
  @Override
@@ -183,6 +189,8 @@ public class FileRef implements Node
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setFileRef(this);
+  
   tagRefs.add(tr);
  }
 

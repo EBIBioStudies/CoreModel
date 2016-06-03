@@ -49,6 +49,12 @@ public class LinkAttribute extends AbstractAttribute
  public void setTagRefs(Collection<LinkAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( LinkAttributeTagRef str: tags )
+    str.setAttribute(this);
+  }
  }
  
  @Override
@@ -69,6 +75,8 @@ public class LinkAttribute extends AbstractAttribute
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setAttribute(this);
+  
   tagRefs.add(tr);
  }
 }

@@ -48,6 +48,12 @@ public class SubmissionAttribute extends AbstractAttribute
  public void setTagRefs(Collection<SubmissionAttributeTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( SubmissionAttributeTagRef str: tags )
+    str.setAttribute(this);
+  }
  }
  
  @Override
@@ -68,6 +74,8 @@ public class SubmissionAttribute extends AbstractAttribute
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setAttribute(this);
+  
   tagRefs.add(tr);
  }
 }

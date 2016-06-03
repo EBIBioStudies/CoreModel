@@ -327,6 +327,12 @@ public class Section implements Node, Accessible
  public void setTagRefs(Collection<SectionTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( SectionTagRef str: tags )
+    str.setSection(this);
+  }
  }
  
  @Override
@@ -347,6 +353,8 @@ public class Section implements Node, Accessible
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setSection(this);
+  
   tagRefs.add(tr);
  }
 

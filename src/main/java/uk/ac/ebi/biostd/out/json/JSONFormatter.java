@@ -35,7 +35,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String idProperty = "id";
  public static final String accNoProperty = "accno";
  public static final String accTagsProperty = "accessTags";
- public static final String classTagsProperty = "classTags";
+ public static final String classTagsProperty = "tags";
  public static final String tagProperty = "tag";
  public static final String classifierProperty = "classifier";
  public static final String nameProperty = "name";

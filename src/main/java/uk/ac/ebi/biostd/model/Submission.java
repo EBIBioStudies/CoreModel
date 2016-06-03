@@ -334,6 +334,12 @@ public class Submission implements Node, Accessible
  public void setTagRefs(Collection<SubmissionTagRef> tags)
  {
   this.tagRefs = tags;
+  
+  if( tags != null )
+  {
+   for( SubmissionTagRef str: tags )
+    str.setSubmission(this);
+  }
  }
  
  @Override
@@ -354,6 +360,8 @@ public class Submission implements Node, Accessible
   if( tagRefs == null )
    tagRefs = new ArrayList<>();
    
+  tr.setSubmission(this);
+
   tagRefs.add(tr);
  }
 
