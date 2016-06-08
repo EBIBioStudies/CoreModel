@@ -12,12 +12,18 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
  @NamedQuery(name="UserData.get", query="select ud from UserData ud where ud.dataKey=:key AND ud.userId = :uid"),
  @NamedQuery(name="UserData.getAll", query="select ud from UserData ud where ud.userId = :uid"),
+ @NamedQuery(name="UserData.getByTopic", query="select ud from UserData ud where ud.userId = :uid AND ( (:topic is null AND ud.topic is null) OR  ud.topic = :topic)"),
 })
 public class UserData
 {
  private long userId;
  private String dataKey;
+ private String topic;
+ private String contentType;
  
+
+
+
  private String     data;
 
  @Lob
@@ -51,6 +57,27 @@ public class UserData
  public void setDataKey(String dataKey)
  {
   this.dataKey = dataKey;
+ }
+ 
+ public String getTopic()
+ {
+  return topic;
+ }
+
+ public void setTopic(String topic)
+ {
+  this.topic = topic;
+ }
+ 
+
+ public String getContentType()
+ {
+  return contentType;
+ }
+
+ public void setContentType(String contentType)
+ {
+  this.contentType = contentType;
  }
 
 }
