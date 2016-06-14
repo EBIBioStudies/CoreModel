@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -18,9 +20,13 @@ import javax.persistence.Transient;
   indexes = {
      @Index(name = "name_idx", columnList = "name", unique=true)
   })
-
+@NamedQueries({
+ @NamedQuery(name=Classifier.GetByNameQuery, query="SELECT c FROM Classifier c where c.name=:"+Classifier.NameQueryParameter)
+})
 public class Classifier
 {
+ public static final String GetByNameQuery = "Classifier.getByName";
+ public static final String NameQueryParameter = "name";
  
  public Classifier()
  {}

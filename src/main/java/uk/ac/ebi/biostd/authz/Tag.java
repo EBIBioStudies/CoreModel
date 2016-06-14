@@ -19,7 +19,8 @@ import javax.persistence.Table;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="Tag.getByName", query="SELECT t FROM Tag t LEFT JOIN t.classifier c where t.name=:tname AND c.name=:cname ")
+ @NamedQuery(name=Tag.GetByNameQuery, query="SELECT t FROM Tag t LEFT JOIN t.classifier c where t.name=:"+Tag.TagNameQueryParameter+" AND c.name=:"+Tag.ClassifierNameQueryParameter),
+ @NamedQuery(name=Tag.GetAllQuery, query="SELECT t FROM Tag t ")
 })
 @Table(
   indexes = {
@@ -27,6 +28,11 @@ import javax.persistence.Table;
   })
 public class Tag
 {
+ public static final String GetByNameQuery = "Tag.getByName";
+ public static final String GetAllQuery = "Tag.getAll";
+ public static final String TagNameQueryParameter = "tname";
+ public static final String ClassifierNameQueryParameter = "cname";
+ 
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()

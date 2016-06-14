@@ -20,7 +20,10 @@ public enum SystemAction
  CTRLSUBMTAGS("Controll submission tags", ActionGroup.SUBMISSION ),
  
  CREATEIDGEN("Create new ID generator", ActionGroup.IDGEN),
- INCREMENT("Increment ID generator", ActionGroup.IDGEN)
+ INCREMENT("Increment ID generator", ActionGroup.IDGEN),
+ 
+ 
+ MANAGETAGS("Create/rename/delete tags and classifiers",ActionGroup.TAGS);
  ;
 
  
@@ -30,7 +33,8 @@ public enum SystemAction
   INSTANTATION("Object instantation"),
   SUBMISSION("Submissions"), 
   EXPORT("Data export"), 
-  IDGEN("ID generation");
+  IDGEN("ID generation"),
+  TAGS("Tags and classifiers");
 
   String description;
   
