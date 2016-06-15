@@ -21,11 +21,13 @@ import javax.persistence.Transient;
      @Index(name = "name_idx", columnList = "name", unique=true)
   })
 @NamedQueries({
- @NamedQuery(name=Classifier.GetByNameQuery, query="SELECT c FROM Classifier c where c.name=:"+Classifier.NameQueryParameter)
+ @NamedQuery(name=Classifier.GetByNameQuery, query="SELECT c FROM Classifier c where c.name=:"+Classifier.NameQueryParameter),
+ @NamedQuery(name=Classifier.GetAllQuery, query="SELECT c FROM Classifier c ")
 })
 public class Classifier
 {
  public static final String GetByNameQuery = "Classifier.getByName";
+ public static final String GetAllQuery = "Classifier.getAll";
  public static final String NameQueryParameter = "name";
  
  public Classifier()
