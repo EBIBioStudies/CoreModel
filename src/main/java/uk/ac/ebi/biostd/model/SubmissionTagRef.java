@@ -7,6 +7,7 @@ import javax.persistence.ManyToOne;
 
 import uk.ac.ebi.biostd.authz.TagRef;
 
+
 @Entity
 public class SubmissionTagRef extends TagRef
 {

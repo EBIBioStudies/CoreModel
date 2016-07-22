@@ -24,6 +24,7 @@ import uk.ac.ebi.biostd.model.SecurityObject;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.out.DocumentFormatter;
 import uk.ac.ebi.biostd.util.StringUtils;
+import uk.ac.ebi.mg.spreadsheet.CellStream;
 
 public class CellFormatter implements DocumentFormatter
 {

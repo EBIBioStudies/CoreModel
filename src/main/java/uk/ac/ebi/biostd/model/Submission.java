@@ -41,11 +41,12 @@ import uk.ac.ebi.biostd.authz.User;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="Submission.countByAcc", query="SELECT count(s) FROM Submission s where s.accNo=:accNo AND s.version > 0"),
- @NamedQuery(name="Submission.getByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo AND s.version > 0"),
- @NamedQuery(name="Submission.getAllByAcc", query="SELECT s FROM Submission s where s.accNo=:accNo"),
- @NamedQuery(name="Submission.getByOwner", query="SELECT s from Submission s JOIN s.owner u where u.id=:uid AND s.version > 0 order by s.MTime desc"),
- @NamedQuery(name="Submission.getAccByPat", query="SELECT s.accNo FROM Submission s where s.accNo LIKE :pattern"),
+ @NamedQuery(name=Submission.GetCountByAccQuery, query="SELECT count(s) FROM Submission s where s.accNo=:accNo AND s.version > 0"),
+ @NamedQuery(name=Submission.GetByAccQuery, query="SELECT s FROM Submission s where s.accNo=:accNo AND s.version > 0"),
+ @NamedQuery(name=Submission.GetAllByAccQuery, query="SELECT s FROM Submission s where s.accNo=:accNo"),
+ @NamedQuery(name=Submission.GetByOwnerQuery, query="SELECT s from Submission s JOIN s.owner u where u.id=:uid AND s.version > 0 order by s.MTime desc"),
+ @NamedQuery(name=Submission.GetAccByPatQuery, query="SELECT s.accNo FROM Submission s where s.accNo LIKE :pattern"),
+ @NamedQuery(name=Submission.GetByIdQuery, query="SELECT s FROM Submission s where s.id=:id"),
 })
 @Table(
   indexes = {
@@ -60,6 +61,14 @@ import uk.ac.ebi.biostd.authz.User;
   )
 public class Submission implements Node, Accessible
 {
+ public static final String GetCountByAccQuery = "Submission.countByAcc";
+ public static final String GetByAccQuery = "Submission.getByAcc";
+ public static final String GetByIdQuery = "Submission.getById";
+ public static final String GetAllByAccQuery = "Submission.getAllByAcc";
+ public static final String GetByOwnerQuery = "Submission.getByOwner";
+ public static final String GetAccByPatQuery = "Submission.getAccByPat";
+ 
+ 
  public static final String releaseDateAttribute = "ReleaseDate";
  public static final String titleAttribute = "Title";
  public static final String rootPathAttribute = "RootPath";

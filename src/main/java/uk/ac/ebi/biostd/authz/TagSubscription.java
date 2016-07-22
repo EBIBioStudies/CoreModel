@@ -12,7 +12,8 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name=TagSubscription.GetUsersByTagIdsQuery, query="SELECT DISTINCT u FROM TagSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.tag tg where tg.id in (:"+TagSubscription.TagIdQueryParameter+")"),
+ @NamedQuery(name=TagSubscription.GetUsersByTagIdsQuery, query="SELECT DISTINCT u FROM TagSubscription ts LEFT JOIN ts.user u where ts.tag.id in (:"+TagSubscription.TagIdQueryParameter+")"), //LEFT JOIN ts.tag tg
+ @NamedQuery(name=TagSubscription.GetSubsByTagIdsQuery, query="SELECT ts.user.id, ts.tag.id FROM TagSubscription ts where ts.tag.id in (:"+TagSubscription.TagIdQueryParameter+") order by ts.user.id"),
  @NamedQuery(name=TagSubscription.GetByTagAndUserQuery, query="SELECT ts FROM TagSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.tag tg LEFT JOIN tg.classifier cl "
    + "where cl.name=:"+TagSubscription.ClassifierNameQueryParameter+" AND tg.name=:"+TagSubscription.TagNameQueryParameter+" AND u.id=:"+TagSubscription.UserIdQueryParameter),
  @NamedQuery(name=TagSubscription.GetByTagIdAndUserQuery, query="SELECT ts FROM TagSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.tag tg  "
@@ -23,6 +24,7 @@ import javax.persistence.NamedQuery;
 public class TagSubscription
 {
  public static final String GetUsersByTagIdsQuery = "TagSubscription.getUsersByTagIds";
+ public static final String GetSubsByTagIdsQuery = "TagSubscription.getSubsByTagIds";
  public static final String GetByTagAndUserQuery = "TagSubscription.getByTagAndUser";
  public static final String GetAllByUserQuery = "TagSubscription.getAllByUserQuery";
  public static final String GetByTagIdAndUserQuery = "TagSubscription.getByTagIdAndUser";
