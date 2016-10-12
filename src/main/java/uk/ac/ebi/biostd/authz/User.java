@@ -20,15 +20,21 @@ import javax.persistence.Transient;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="User.getByLogin", query="select u from User u where u.login=:login"),
- @NamedQuery(name="User.getByEMail", query="select u from User u where u.email=:email"),
- @NamedQuery(name="User.getCount", query="select count(u) from User u")
+ @NamedQuery(name=User.GetByLoginQuery, query="select u from User u where u.login=:login"),
+ @NamedQuery(name=User.GetByEMailQuery, query="select u from User u where u.email=:email"),
+ @NamedQuery(name=User.GetCountQuery, query="select count(u) from User u"),
+ @NamedQuery(name=User.DelByIDsQuery, query="delete from User u where u.id in :ids")
 })
 @Table(
 indexes = {@Index(name = "login_index",  columnList="login", unique = true),
            @Index(name = "email_index", columnList="email",     unique = true)})
 public class User implements AuthzSubject, Serializable
 {
+ public static final String GetByLoginQuery = "User.getByLogin";
+ public static final String GetByEMailQuery = "User.getByEMail";
+ public static final String GetCountQuery   = "User.getCount";
+ public static final String DelByIDsQuery   = "User.delByIDs";
+ 
  private static final long serialVersionUID = 1L;
 
  public User()
@@ -235,4 +241,25 @@ public class User implements AuthzSubject, Serializable
   this.superuser = superuser;
  }
 
+ public static User makeCopy( User u )
+ {
+  User du = new User();
+  
+  du.setActivationKey(u.getActivationKey());
+  du.setActive(u.isActive());
+  du.setAuxProfileInfo(u.getAuxProfileInfo());
+  du.setEmail(u.getEmail());
+  du.setFullName( u.getFullName() );
+  du.setId( u.getId() );
+  du.setKeyTime(u.getKeyTime());
+  du.setLogin( u.getLogin() );
+  du.setPasswordDigest(u.getPasswordDigest());
+  du.setSecret(u.getSecret());
+  du.setSuperuser( u.isSuperuser() );
+
+  du.setGroups( u.getGroups() );
+  
+  return du;
+ }
+ 
 } 
