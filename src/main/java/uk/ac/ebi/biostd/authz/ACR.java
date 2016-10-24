@@ -37,9 +37,9 @@ public interface ACR
     }
    }
 
-   if(acl.getProfileForUserACRs() != null)
+   if(acl.getPermissionForUserACRs() != null)
    {
-    for(ACR b : acl.getProfileForUserACRs())
+    for(ACR b : acl.getPermissionForUserACRs())
     {
      Permit p = b.checkPermission(act, user);
      if(p == Permit.DENY)

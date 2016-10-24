@@ -57,13 +57,15 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
  private Appendable outStream;
  
  private DateFormat dateFmt;
+ private boolean cutTech=false;
  
  public PageMLFormatter()
  {}
  
- public PageMLFormatter( Appendable o )
+ public PageMLFormatter( Appendable o, boolean cut )
  {
   outStream = o;
+  cutTech = cut;
  }
 
  
@@ -143,7 +145,8 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ACCNO.getAttrName()).append("=\"");
   xmlEscaped(subm.getAccNo(), out);
   
-  out.append("\" ").append(ID.getAttrName()).append("=\"").append( String.valueOf(subm.getId()) );
+  if( ! cutTech )
+   out.append("\" ").append(ID.getAttrName()).append("=\"").append( String.valueOf(subm.getId()) );
   
   String str = subm.getEntityClass();
   if( str != null && str.length() > 0 )
@@ -153,7 +156,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   }
   
   str = subm.getRelPath();
-  if( str != null && str.length() > 0 )
+  if( str != null && str.length() > 0 && ! cutTech )
   {
    out.append("\" ").append(RELPATH.getAttrName()).append("=\"");
    xmlEscaped(str,out);
@@ -165,7 +168,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    
    boolean needSep = false;
    
-   if( subm.getOwner() != null )
+   if( ! cutTech && subm.getOwner() != null )
    {
     out.append('~');
     xmlEscaped(subm.getOwner().getEmail(),out);
@@ -188,11 +191,14 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    }
   }
   
-  out.append("\" ").append(PageMLAttributes.CTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getCTime()));
-  out.append("\" ").append(PageMLAttributes.MTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getMTime()));
+  if( ! cutTech )
+  {
+   out.append("\" ").append(PageMLAttributes.CTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getCTime()));
+   out.append("\" ").append(PageMLAttributes.MTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getMTime()));
 
-  if( subm.isRTimeSet()  )
-   out.append("\" ").append(PageMLAttributes.RTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getRTime()));
+   if(subm.isRTimeSet())
+    out.append("\" ").append(PageMLAttributes.RTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getRTime()));
+  }
   
   out.append("\">\n");
   
@@ -212,7 +218,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    auxAttrMap.put(Submission.releaseDateAttribute, dateFmt.format( new Date( subm.getRTime()*1000 ) ) );
   }
   
-  if( subm.getRootPath() != null )
+  if( subm.getRootPath() != null && ! cutTech )
    auxAttrMap.put(Submission.rootPathAttribute, subm.getRootPath());
   
   formatAttributes(subm, auxAttrMap, out, contShift);
@@ -232,9 +238,12 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
  {
   
   out.append(shift);
-  out.append('<').append(SECTION.getElementName())
-  .append(' ').append(ID.getAttrName()).append("=\"").append( String.valueOf(sec.getId()) )
-  .append("\" ").append(TYPE.getAttrName()).append("=\"");
+  out.append('<').append(SECTION.getElementName());
+  
+  if( ! cutTech )
+   out.append(' ').append(ID.getAttrName()).append("=\"").append( String.valueOf(sec.getId()) ).append("\"");
+  
+  out.append(" ").append(TYPE.getAttrName()).append("=\"");
   xmlEscaped(sec.getType(), out);
   
   if( sec.getAccNo() != null )
@@ -302,7 +311,7 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
  }
 
- private void formatSubsections(List<Section> lst, Appendable out, String shift ) throws IOException
+ private void formatSubsections(List<Section> lst, Appendable out, String shift) throws IOException
  {
   String contShift = shift + shiftSym;
 
