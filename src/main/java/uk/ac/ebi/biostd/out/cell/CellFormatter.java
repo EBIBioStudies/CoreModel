@@ -122,21 +122,21 @@ public class CellFormatter implements DocumentFormatter
   
   if( s.getTitle() != null )
   {
-   cstr.addCell(Submission.titleAttribute);
+   cstr.addCell(Submission.canonicTitleAttribute);
    cstr.addCell(s.getTitle());
    cstr.nextRow();
   }
   
   if( s.isRTimeSet() )
   {
-   cstr.addCell(Submission.releaseDateAttribute);
+   cstr.addCell(Submission.canonicReleaseDateAttribute);
    cstr.addDateCell(s.getRTime()*1000);
    cstr.nextRow();
   }
   
   if( s.getRootPath() != null )
   {
-   cstr.addCell(Submission.rootPathAttribute);
+   cstr.addCell(Submission.canonicRootPathAttribute);
    cstr.addCell(s.getRootPath());
    cstr.nextRow();
   }

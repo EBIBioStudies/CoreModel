@@ -73,12 +73,17 @@ public class Submission implements Node, Accessible
  public static final String GetAccByPatQuery = "Submission.getAccByPat";
  public static final String GetMinVer = "Submission.getMinVer";
  
+ public static final String canonicReleaseDateAttribute = "ReleaseDate";
+ public static final String canonicTitleAttribute = "Title";
+ public static final String canonicRootPathAttribute = "RootPath";
+ public static final String canonicAttachToAttribute = "AttachTo";
  
- public static final String releaseDateAttribute = "ReleaseDate";
- public static final String titleAttribute = "Title";
- public static final String rootPathAttribute = "RootPath";
- public static final String attachToAttribute = "AttachTo";
- public static final String releaseDateFormat = "(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?";
+ private static final Pattern releaseDateAttribute = Pattern.compile("Release\\s*Date",Pattern.CASE_INSENSITIVE);
+ private static final Pattern titleAttribute = Pattern.compile("Title",Pattern.CASE_INSENSITIVE);
+ private static final Pattern rootPathAttribute = Pattern.compile("Root\\s*Path",Pattern.CASE_INSENSITIVE);
+ private static final Pattern attachToAttribute = Pattern.compile("Attach\\s*To",Pattern.CASE_INSENSITIVE);
+ 
+ private static final Pattern releaseDateFormat =  Pattern.compile("(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?");
  
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -213,9 +218,13 @@ public class Submission implements Node, Accessible
   
   if( getAttributes() != null )
   {
+   Matcher mtch = titleAttribute.matcher("");
+   
    for(SubmissionAttribute attr : getAttributes())
    {
-    if(titleAttribute.equalsIgnoreCase(attr.getName()))
+    mtch.reset(attr.getName());
+    
+    if(mtch.matches())
     {
      ttl = attr.getValue();
      break;
@@ -229,6 +238,45 @@ public class Submission implements Node, Accessible
 
   return ttl;
  }
+ 
+ private static String getAttribute( Node nd, Pattern atpat )
+ {
+  if( nd.getAttributes() != null )
+  {
+   Matcher mtch = atpat.matcher("");
+   
+   for(AbstractAttribute attr : nd.getAttributes())
+   {
+    mtch.reset(attr.getName());
+    
+    if(mtch.matches())
+     return attr.getValue();
+   }
+  }
+  
+  return null;
+ }
+ 
+ public static String getNodeTitle( Node nd )
+ {
+  return getAttribute(nd,titleAttribute);
+ }
+ 
+ public static String getNodeReleaseDate( Node nd )
+ {
+  return getAttribute(nd,releaseDateAttribute);
+ }
+ 
+ public static String getNodeAttachTo( Node nd )
+ {
+  return getAttribute(nd,attachToAttribute);
+ }
+
+ public static String getNodeRootPath( Node nd )
+ {
+  return getAttribute(nd,rootPathAttribute);
+ }
+
  
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="owner_id")
@@ -404,7 +452,12 @@ public class Submission implements Node, Accessible
  public void normalizeAttributes() throws SubmissionAttributeException
  {
   if( getAttributes() == null || getAttributes().size() == 0 )
+  {
+   if( getRootSection() != null )
+    setTitle(getNodeTitle(getRootSection()));
+
    return;
+  }
   
   Iterator<SubmissionAttribute> saitr = getAttributes().iterator();
   
@@ -413,16 +466,22 @@ public class Submission implements Node, Accessible
   
   String rootPathAttr = null; 
   
+  Matcher rdMtMatcher = releaseDateAttribute.matcher("");
+  Matcher rootPMatcher = rootPathAttribute.matcher("");
+  Matcher titleMatcher = titleAttribute.matcher("");
+  
   while(saitr.hasNext() )
   {
    SubmissionAttribute sa = saitr.next(); 
    
-   if(Submission.releaseDateAttribute.equals(sa.getName()))
+   rdMtMatcher.reset(sa.getName());
+      
+   if(rdMtMatcher.matches())
    {
     saitr.remove();
     
     if(rTimeFound)
-     throw new SubmissionAttributeException("Multiple '" + Submission.releaseDateAttribute + "' attributes are not allowed");
+     throw new SubmissionAttributeException("Multiple '"+sa.getName()+"' attributes are not allowed");
 
     rTimeFound = true;
 
@@ -430,57 +489,28 @@ public class Submission implements Node, Accessible
 
     if(val != null)
     {
-     val = val.trim();
-
-     if(val.length() > 0)
-     {
-      Matcher mtch =  Pattern.compile(Submission.releaseDateFormat).matcher(val);
-
-      if(!mtch.matches())
-       throw new SubmissionAttributeException("Invalid '" + Submission.releaseDateAttribute + "' attribute value. Expected date in format: YYYY-MM-DD[Thh:mm[:ss[.mmm]]]");
-      else
-      {
-       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-       cal.set(Calendar.YEAR, Integer.parseInt(mtch.group("year")));
-       cal.set(Calendar.MONTH, Integer.parseInt(mtch.group("month")) - 1);
-       cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(mtch.group("day")));
-
-       String str = mtch.group("hour");
-
-       if(str != null)
-        cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(str));
-
-       str = mtch.group("min");
-
-       if(str != null)
-        cal.set(Calendar.MINUTE, Integer.parseInt(str));
-
-       str = mtch.group("sec");
-
-       if(str != null)
-        cal.set(Calendar.SECOND, Integer.parseInt(str));
-
-       setRTime( cal.getTimeInMillis() / 1000 );
-       
-      }
-     }
+     long relDate = readReleaseDate(val);
+     
+     if( relDate < 0 )
+      throw new SubmissionAttributeException("Invalid '"+sa.getName()+"' attribute value. Expected date in format: YYYY-MM-DD[Thh:mm[:ss[.mmm]]]");
+     
+     setRTime(relDate/1000);
     }
 
    }
-   else if( Submission.rootPathAttribute.equals(sa.getName()) )
+   else if( rootPMatcher.reset(sa.getName()) != null && rootPMatcher.matches() )
    {
     saitr.remove();
 
     if(rootPathFound)
-     new SubmissionAttributeException("Multiple '" + Submission.rootPathAttribute + "' attributes are not allowed");
+     new SubmissionAttributeException("Multiple '" + sa.getName() + "' attributes are not allowed");
 
     rootPathFound = true;
     
     rootPathAttr = sa.getValue();
     setRootPath(rootPathAttr);
    }
-   else if( Submission.titleAttribute.equals(sa.getName()) )
+   else if( titleMatcher.reset(sa.getName()) != null && titleMatcher.matches() )
    {
     saitr.remove();
 
@@ -489,21 +519,47 @@ public class Submission implements Node, Accessible
 
   }
   
-  if( getTitle() == null )
-  {
-   if( getRootSection() != null && getRootSection().getAttributes() != null )
-   {
-    for( SectionAttribute at : getRootSection().getAttributes())
-    {
-     if( Submission.titleAttribute.equals(at.getName()) )
-     {
-      setTitle(at.getValue());
-      break;
-     }
-    }
-   }
-  }
+  if( getTitle() == null && getRootSection() != null )
+   setTitle(getNodeTitle(getRootSection()));
 
  }
  
+ public static long readReleaseDate( String val )
+ {
+  val = val.trim();
+
+  if(val.length() > 0)
+  {
+   Matcher rdValMatcher = releaseDateFormat.matcher(val);
+
+   if(rdValMatcher.matches())
+   {
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+    cal.set(Calendar.YEAR, Integer.parseInt(rdValMatcher.group("year")));
+    cal.set(Calendar.MONTH, Integer.parseInt(rdValMatcher.group("month")) - 1);
+    cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(rdValMatcher.group("day")));
+
+    String str = rdValMatcher.group("hour");
+
+    if(str != null)
+     cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(str));
+
+    str = rdValMatcher.group("min");
+
+    if(str != null)
+     cal.set(Calendar.MINUTE, Integer.parseInt(str));
+
+    str = rdValMatcher.group("sec");
+
+    if(str != null)
+     cal.set(Calendar.SECOND, Integer.parseInt(str));
+
+    return cal.getTimeInMillis();
+    
+   }
+  }
+  
+  return -1;
+ }
 }

@@ -208,18 +208,18 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
   Map<String, String> auxAttrMap = new HashMap<String, String>();
   
   if( subm.getTitle() != null )
-   auxAttrMap.put(Submission.titleAttribute, subm.getTitle() );
+   auxAttrMap.put(Submission.canonicTitleAttribute, subm.getTitle() );
 
   if( subm.isRTimeSet() )
   {
    if( dateFmt == null )
     dateFmt = new SimpleDateFormat(dateFotmat);
   
-   auxAttrMap.put(Submission.releaseDateAttribute, dateFmt.format( new Date( subm.getRTime()*1000 ) ) );
+   auxAttrMap.put(Submission.canonicReleaseDateAttribute, dateFmt.format( new Date( subm.getRTime()*1000 ) ) );
   }
   
   if( subm.getRootPath() != null && ! cutTech )
-   auxAttrMap.put(Submission.rootPathAttribute, subm.getRootPath());
+   auxAttrMap.put(Submission.canonicRootPathAttribute, subm.getRootPath());
   
   formatAttributes(subm, auxAttrMap, out, contShift);
 

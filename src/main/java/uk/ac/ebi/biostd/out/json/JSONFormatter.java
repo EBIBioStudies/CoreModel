@@ -147,18 +147,18 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   Map<String, String> auxAttrMap = new HashMap<String, String>();
   
   if( s.getTitle() != null )
-   auxAttrMap.put(Submission.titleAttribute, s.getTitle() );
+   auxAttrMap.put(Submission.canonicTitleAttribute, s.getTitle() );
 
   if( s.isRTimeSet() )
   {
    if( dateFmt == null )
     dateFmt = new SimpleDateFormat(dateFotmat);
   
-   auxAttrMap.put(Submission.releaseDateAttribute, dateFmt.format( new Date( s.getRTime()*1000 ) ) );
+   auxAttrMap.put(Submission.canonicReleaseDateAttribute, dateFmt.format( new Date( s.getRTime()*1000 ) ) );
   }
   
   if( s.getRootPath() != null )
-   auxAttrMap.put(Submission.rootPathAttribute, s.getRootPath());
+   auxAttrMap.put(Submission.canonicRootPathAttribute, s.getRootPath());
   
   appendAttributes(sbm, auxAttrMap, s);
 
