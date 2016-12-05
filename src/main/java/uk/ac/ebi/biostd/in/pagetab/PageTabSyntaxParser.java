@@ -47,6 +47,7 @@ import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.model.SubmissionAttribute;
 import uk.ac.ebi.biostd.model.trfactory.TagReferenceFactory;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
@@ -466,6 +467,9 @@ public class PageTabSyntaxParser extends Parser
   {
    for( ReferenceOccurrence r : si.getReferenceOccurrences() )
    {
+    if( r.getRef() instanceof SubmissionAttribute ) // Submission refs should point to other submissions
+     continue;
+    
     SectionOccurrence soc = si.getSectionOccurance(r.getRef().getValue());
     if( soc == null )
      r.getLogNode().log(Level.ERROR, r.getElementPointer()+" Invalid reference. Target doesn't exist: '"+r.getRef()+"'");

@@ -73,7 +73,7 @@ public abstract class TableBlockContext extends BlockContext
    
    if( nameQualifierMatcher.matches() )
    {
-    log.log(Level.ERROR, "(R" + lineNo + ",C"+emptyIdx+") Attribute name qualifier is not allowed in table blocks");
+    log.log(Level.ERROR, "(R" + lineNo + ",C"+(i+1)+") Attribute name qualifier is not allowed in table blocks");
     atRefs.add(new AttrRef() );
     continue;
    }

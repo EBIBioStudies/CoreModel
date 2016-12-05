@@ -83,6 +83,18 @@ public class UserGroup implements AuthzSubject, AuthzObject
   this.owner = owner;
  }
  
+
+ public String getSecret()
+ {
+  return secret;
+ }
+ private String secret;
+ 
+ public void setSecret(String secret)
+ {
+  this.secret = secret;
+ }
+ 
  @ManyToMany
  public Collection<UserGroup> getGroups()
  {
