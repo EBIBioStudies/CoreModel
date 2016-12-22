@@ -8,6 +8,7 @@ public class ParserConfig
  private  LogNode.Level missedAccessTagLL=Level.WARN;
  private  LogNode.Level missedTagLL=Level.WARN;
  private  boolean multipleSubmissions = true;
+ private  boolean preserveId = false;
  
  public LogNode.Level missedAccessTagLL()
  {
@@ -37,6 +38,16 @@ public class ParserConfig
  public void setMultipleSubmissions(boolean multipleSubmissions)
  {
   this.multipleSubmissions = multipleSubmissions;
+ }
+
+ public boolean isPreserveId()
+ {
+  return preserveId;
+ }
+
+ public void setPreserveId(boolean preserveId)
+ {
+  this.preserveId = preserveId;
  }
 
 }

@@ -276,6 +276,9 @@ public class JSONReader extends Parser
       
      case JSONFormatter.idProperty:
       
+      if( ! conf.isPreserveId() )
+       break;
+      
       long id=0;
       
       if( val instanceof String )

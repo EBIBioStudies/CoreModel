@@ -23,9 +23,9 @@ public enum SystemAction
  INCREMENT("Increment ID generator", ActionGroup.IDGEN),
  
  
- MANAGETAGS("Create/rename/delete tags and classifiers",ActionGroup.TAGS);
- ;
-
+ MANAGETAGS("Create/rename/delete tags and classifiers",ActionGroup.TAGS),
+ 
+ CREATEGROUP("Create group",ActionGroup.GROUPS);
  
  public static enum ActionGroup
  {
@@ -34,7 +34,8 @@ public enum SystemAction
   SUBMISSION("Submissions"), 
   EXPORT("Data export"), 
   IDGEN("ID generation"),
-  TAGS("Tags and classifiers");
+  TAGS("Tags and classifiers"),
+  GROUPS("Group management");
 
   String description;
   

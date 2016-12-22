@@ -9,10 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.acr.GroupPermGrpACR;
@@ -22,6 +24,7 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 
 @Entity
 @Cacheable(true)
+@Table( indexes = {@Index(name = "name_index",  columnList="name", unique = true)})
 public class UserGroup implements AuthzSubject, AuthzObject
 {
  @Id
