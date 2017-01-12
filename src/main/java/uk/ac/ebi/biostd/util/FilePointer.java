@@ -8,17 +8,21 @@ public class FilePointer
  private Path fullPath;
  private Path relativePath;
  private String archiveInternalPath;
+// private String destinationRelativePath;
+
+
  private boolean directory;
  private long size;
+ private long groupID=0;
 
- public Path getArchivePath()
+ public long getGroupID()
  {
-  return archivePath;
+  return groupID;
  }
 
- public void setArchivePath(Path archivePath)
+ public void setGroupID(long groupID)
  {
-  this.archivePath = archivePath;
+  this.groupID = groupID;
  }
 
  public Path getFullPath()
@@ -30,6 +34,18 @@ public class FilePointer
  {
   this.fullPath = fullPath;
  }
+ 
+ 
+ public Path getArchivePath()
+ {
+  return archivePath;
+ }
+
+ public void setArchivePath(Path archivePath)
+ {
+  this.archivePath = archivePath;
+ }
+
 
  public String getArchiveInternalPath()
  {
@@ -76,4 +92,14 @@ public class FilePointer
  {
   this.size = size;
  }
+ 
+// public String getDestinationRelativePath()
+// {
+//  return destinationRelativePath;
+// }
+//
+// public void setDestinationRelativePath(String realRelativePath)
+// {
+//  this.destinationRelativePath = realRelativePath;
+// }
 }

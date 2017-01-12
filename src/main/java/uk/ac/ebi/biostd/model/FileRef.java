@@ -82,6 +82,18 @@ public class FileRef implements Node
   this.name = name;
  }
  
+ public String getPath()
+ {
+  return path;
+ }
+ private String path;
+
+ public void setPath(String path)
+ {
+  this.path = path;
+ }
+
+ 
  @ManyToOne(fetch=FetchType.LAZY,cascade=CascadeType.ALL)
  @JoinColumn(name="sectionId")
  public Section getHostSection()
