@@ -74,6 +74,16 @@
         	<url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
         </repository>
 		
+		<repository>
+            <id>mvnrepository</id>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+             <enabled>false</enabled>
+            </snapshots>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+         </repository>
 
 	</repositories>
 
