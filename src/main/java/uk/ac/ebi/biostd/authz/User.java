@@ -18,6 +18,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.pri.util.StringUtils;
+
 @Entity
 @NamedQueries({
  @NamedQuery(name=User.GetByLoginQuery, query="select u from User u where u.login=:login"),
@@ -207,6 +209,14 @@ public class User implements AuthzSubject, Serializable
   }
   
   return Arrays.equals(sha1.digest(uPass.getBytes()), passwordDigest);
+ }
+ 
+ public boolean checkPasswordHash(String uHash)
+ {
+  if( passwordDigest == null )
+   return false;
+
+  return uHash.equalsIgnoreCase( StringUtils.toHexStr(passwordDigest) );
  }
  
  @Transient

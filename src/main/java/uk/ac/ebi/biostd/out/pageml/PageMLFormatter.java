@@ -540,7 +540,12 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
    out.append(">\n");
 
    out.append(contShift+shiftSym).append('<').append(PageMLElements.PATH.getElementName()).append(">");
-   xmlEscaped(fr.getName(),out);
+   
+   if( fr.getPath() != null )
+    xmlEscaped(fr.getPath(),out);
+   else
+    xmlEscaped(fr.getName(),out);
+   
    out.append("</").append(PageMLElements.PATH.getElementName()).append(">\n");
    
     
