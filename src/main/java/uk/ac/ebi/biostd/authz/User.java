@@ -211,13 +211,6 @@ public class User implements AuthzSubject, Serializable
   return Arrays.equals(sha1.digest(uPass.getBytes()), passwordDigest);
  }
  
- public boolean checkPasswordHash(String uHash)
- {
-  if( passwordDigest == null )
-   return false;
-
-  return uHash.equalsIgnoreCase( StringUtils.toHexStr(passwordDigest) );
- }
  
  @Transient
  public void setPassword( String pass )
