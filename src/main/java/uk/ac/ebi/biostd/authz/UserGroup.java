@@ -2,6 +2,8 @@ package uk.ac.ebi.biostd.authz;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -13,6 +15,8 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -23,10 +27,15 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfGrpACR;
 import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 
 @Entity
+@NamedQueries({
+ @NamedQuery(name=UserGroup.GetByIdQuery, query="select g from UserGroup g where g.id=:id")
+})
 @Cacheable(true)
 @Table( indexes = {@Index(name = "name_index",  columnList="name", unique = true)})
 public class UserGroup implements AuthzSubject, AuthzObject
 {
+ public static final String GetByIdQuery    = "UserGroup.getById";
+
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
@@ -158,15 +167,31 @@ public class UserGroup implements AuthzSubject, AuthzObject
 
 
  @ManyToMany
- public Collection<User> getUsers()
+ public Set<User> getUsers()
  {
   return users;
  }
- private Collection<User> users;
+ private Set<User> users;
 
- public void setUsers(Collection<User> users)
+ public void setUsers(Set<User> users)
  {
   this.users = users;
+ }
+ 
+ public boolean addUser( User usr )
+ {
+  if( users == null )
+   users = new HashSet<User>();
+  
+  return users.add(usr);
+ }
+ 
+ public boolean removeUser( User usr )
+ {
+  if( users == null )
+   return false;
+  
+  return users.remove(usr);
  }
 
  @Override
@@ -294,5 +319,20 @@ public class UserGroup implements AuthzSubject, AuthzObject
  public Permit checkPermission(SystemAction act, User user)
  {
   return Permit.checkPermission(act, user, this);
+ }
+ 
+ @Override
+ public boolean equals(Object obj)
+ {
+  if( obj == null || ! ( obj instanceof UserGroup ) )
+   return false;
+  
+  return id == ((UserGroup)obj).getId();
+ }
+ 
+ @Override
+ public int hashCode()
+ {
+  return (int)(id ^ (id >>> 32));
  }
 }

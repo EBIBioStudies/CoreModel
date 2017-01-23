@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,12 +19,11 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.pri.util.StringUtils;
-
 @Entity
 @NamedQueries({
  @NamedQuery(name=User.GetByLoginQuery, query="select u from User u where u.login=:login"),
  @NamedQuery(name=User.GetByEMailQuery, query="select u from User u where u.email=:email"),
+ @NamedQuery(name=User.GetByIdQuery, query="select u from User u where u.id=:id"),
  @NamedQuery(name=User.GetCountQuery, query="select count(u) from User u"),
  @NamedQuery(name=User.DelByIDsQuery, query="delete from User u where u.id in :ids")
 })
@@ -34,6 +34,7 @@ public class User implements AuthzSubject, Serializable
 {
  public static final String GetByLoginQuery = "User.getByLogin";
  public static final String GetByEMailQuery = "User.getByEMail";
+ public static final String GetByIdQuery    = "User.getById";
  public static final String GetCountQuery   = "User.getCount";
  public static final String DelByIDsQuery   = "User.delByIDs";
  
@@ -164,15 +165,31 @@ public class User implements AuthzSubject, Serializable
  }
 
  @ManyToMany(mappedBy = "users")
- public Collection<UserGroup> getGroups()
+ public Set<UserGroup> getGroups()
  {
   return groups;
  }
- private transient Collection<UserGroup> groups;
+ private transient Set<UserGroup> groups;
 
- public void setGroups(Collection<UserGroup> groups)
+ public void setGroups(Set<UserGroup> groups)
  {
   this.groups = groups;
+ }
+ 
+ public boolean addGroup( UserGroup ug )
+ {
+  if( groups == null )
+   groups = new HashSet<UserGroup>();
+  
+  return groups.add(ug);
+ }
+ 
+ public boolean removeGroup( UserGroup ug )
+ {
+  if( groups == null )
+   return false;
+  
+  return groups.remove(ug);
  }
  
  @Override
