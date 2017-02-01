@@ -19,6 +19,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.acr.GroupPermGrpACR;
@@ -35,6 +36,8 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 public class UserGroup implements AuthzSubject, AuthzObject
 {
  public static final String GetByIdQuery    = "UserGroup.getById";
+ 
+ public static final String builtInPrefix = "@";
 
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +61,12 @@ public class UserGroup implements AuthzSubject, AuthzObject
  public void setName(String name)
  {
   this.name = name;
+ }
+ 
+ @Transient
+ public boolean isBuiltIn()
+ {
+  return name!=null && name.startsWith(builtInPrefix);
  }
  
  public boolean isProject()
@@ -193,6 +202,24 @@ public class UserGroup implements AuthzSubject, AuthzObject
   
   return users.remove(usr);
  }
+ 
+ 
+ public boolean addGroup( UserGroup grp )
+ {
+  if( groups == null )
+   groups = new HashSet<UserGroup>();
+  
+  return groups.add(grp);
+ }
+ 
+ public boolean removeGroup( UserGroup grp )
+ {
+  if( groups == null )
+   return false;
+  
+  return groups.remove(grp);
+ }
+ 
 
  @Override
  @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
@@ -335,4 +362,6 @@ public class UserGroup implements AuthzSubject, AuthzObject
  {
   return (int)(id ^ (id >>> 32));
  }
+
+
 }

@@ -3,8 +3,9 @@ package uk.ac.ebi.biostd.authz;
 
 public enum BuiltInGroups
 {
- AuthenticatedGroup("@Authenticated","All authenticated users"),
- EveryoneGroup("@Everyone","All users including anonymous");
+ 
+ AuthenticatedGroup( UserGroup.builtInPrefix+"Authenticated","All authenticated users"),
+ EveryoneGroup     ( UserGroup.builtInPrefix+"Everyone"     ,"All users including anonymous");
  
  private String name;
  private String description;
