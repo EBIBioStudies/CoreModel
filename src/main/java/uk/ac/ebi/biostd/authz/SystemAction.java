@@ -12,6 +12,8 @@ public enum SystemAction
  ATTACHSUBM("Attach submission", ActionGroup.SUBMISSION ),
 
  EXPORT_DATA("Export all data", ActionGroup.EXPORT ),
+ CONTROLEXPORT("Start/stop export task", ActionGroup.EXPORT ),
+ LOCKEXPORT("Lock export task", ActionGroup.EXPORT ),
  
  READOBJTAGS("Read object tags", ActionGroup.OBJECT_ACCESS ),
  CTRLOBJTAGS("Controll object tags", ActionGroup.OBJECT_ACCESS ),

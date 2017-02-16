@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.out.json;
 
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,7 +34,11 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String rootSecProperty = "section";
  public static final String attrubutesProperty = "attributes";
  public static final String idProperty = "id";
+ public static final String ctimeProperty = "ctime";
+ public static final String mtimeProperty = "mtime";
+ public static final String rtimeProperty = "rtime";
  public static final String accNoProperty = "accno";
+ public static final String relPathProperty = "relPath";
  public static final String accTagsProperty = "accessTags";
  public static final String classTagsProperty = "tags";
  public static final String tagProperty = "tag";
@@ -57,12 +62,15 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  
  private DateFormat dateFmt;
  
+ private boolean cutTech=false;
+
  public JSONFormatter()
  {}
  
- public JSONFormatter( Appendable o )
+ public JSONFormatter( Appendable o, boolean cut )
  {
   outStream = o;
+  cutTech = cut;
  }
  
  
@@ -139,16 +147,31 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   JSONObject sbm = new JSONObject();
 
   sbm.put(typeProperty, "submission");
-  sbm.put(idProperty, s.getId());
+  
+  if( ! cutTech )
+   sbm.put(idProperty, s.getId());
 
   if(s.getAccNo() != null)
    sbm.put(accNoProperty, s.getAccNo());
+  
+  String str = s.getRelPath();
+  if( str != null && str.length() > 0 && ! cutTech )
+   sbm.put(relPathProperty,str);
 
   Map<String, String> auxAttrMap = new HashMap<String, String>();
   
   if( s.getTitle() != null )
    auxAttrMap.put(Submission.canonicTitleAttribute, s.getTitle() );
 
+  if( ! cutTech )
+  {
+   sbm.put(ctimeProperty, String.valueOf(s.getCTime()));
+   sbm.put(mtimeProperty, String.valueOf(s.getMTime()));
+
+   if(s.isRTimeSet())
+    sbm.put(rtimeProperty, String.valueOf(s.getRTime()));
+  }
+  
   if( s.isRTimeSet() )
   {
    if( dateFmt == null )
@@ -163,6 +186,26 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   appendAttributes(sbm, auxAttrMap, s);
 
   appendAccessTags(sbm, s);
+  
+  if( s.getOwner() != null &&  ! cutTech )
+  {
+   JSONArray arr = sbm.optJSONArray(accTagsProperty);
+   
+   if( arr == null )
+   {
+    arr = new JSONArray();
+    sbm.put(accTagsProperty, arr);
+   }
+   
+   String txtId = s.getOwner().getEmail();
+   
+   if( txtId == null )
+    txtId = s.getOwner().getLogin();
+   
+   arr.put("~"+txtId);
+   arr.put("#"+String.valueOf(s.getOwner().getId()));
+  }
+  
 
   appendTags(sbm, s);
 

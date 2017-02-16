@@ -267,9 +267,34 @@ public class Submission implements Node, Accessible
   return getAttribute(nd,releaseDateAttribute);
  }
  
- public static String getNodeAttachTo( Node nd )
+ public static List<String> getNodeAttachTo( Node nd )
  {
-  return getAttribute(nd,attachToAttribute);
+  if( nd.getAttributes() != null )
+  {
+   List<String> res = null;
+   
+   Matcher mtch = attachToAttribute.matcher("");
+   
+   for(AbstractAttribute attr : nd.getAttributes())
+   {
+    mtch.reset(attr.getName());
+    
+    if(mtch.matches())
+    {
+     if( res == null )
+      res = new ArrayList<String>();
+     
+     String val = attr.getValue();
+     
+     if( val != null && (val=val.trim()).length() > 0 )
+      res.add(val);
+    }
+   }
+   
+   return res;
+  }
+  
+  return null;
  }
 
  public static String getNodeRootPath( Node nd )
