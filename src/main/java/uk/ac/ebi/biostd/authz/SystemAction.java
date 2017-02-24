@@ -10,6 +10,7 @@ public enum SystemAction
 
  CREATESUBM("Create submission", ActionGroup.SUBMISSION ),
  ATTACHSUBM("Attach submission", ActionGroup.SUBMISSION ),
+ LISTALLSUBM("List all submissiona", ActionGroup.SUBMISSION ),
 
  EXPORT_DATA("Export all data", ActionGroup.EXPORT ),
  CONTROLEXPORT("Start/stop export task", ActionGroup.EXPORT ),
