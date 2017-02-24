@@ -10,6 +10,7 @@ public enum PageMLAttributes
  CTIME("ctime"),
  MTIME("mtime"),
  RTIME("rtime"),
+ SECKEY("seckey"),
  TYPE( "type" ),
  URL( "url" ),
  NAME( "name" ),

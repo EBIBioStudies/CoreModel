@@ -474,6 +474,17 @@ public class Submission implements Node, Accessible
   accessTags.add(t);
  }
 
+ public String getSecretKey()
+ {
+  return secretKey;
+ }
+ private String secretKey;
+
+ public void setSecretKey(String secretKey)
+ {
+  this.secretKey = secretKey;
+ }
+ 
  public void normalizeAttributes() throws SubmissionAttributeException
  {
   if( getAttributes() == null || getAttributes().size() == 0 )
@@ -549,6 +560,7 @@ public class Submission implements Node, Accessible
 
  }
  
+ 
  public static long readReleaseDate( String val )
  {
   val = val.trim();
@@ -587,4 +599,6 @@ public class Submission implements Node, Accessible
   
   return -1;
  }
+
+
 }

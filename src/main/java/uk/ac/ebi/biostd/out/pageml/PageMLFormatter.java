@@ -206,6 +206,12 @@ public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
 
    if(subm.isRTimeSet())
     out.append("\" ").append(PageMLAttributes.RTIME.getAttrName()).append("=\"").append(String.valueOf(subm.getRTime()));
+   
+   if( subm.getSecretKey() != null )
+   {
+    out.append("\" ").append(PageMLAttributes.SECKEY.getAttrName()).append("=\"");
+    xmlEscaped(subm.getSecretKey(), out);
+   }
   }
   
   out.append("\">\n");

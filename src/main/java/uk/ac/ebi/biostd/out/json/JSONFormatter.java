@@ -54,6 +54,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String linksProperty = "links";
  public static final String urlProperty = "url";
  public static final String pathProperty = "path";
+ public static final String seckeyProperty = "seckey";
 
  public final static String dateFotmat = "yyyy-MM-dd";
 
@@ -170,6 +171,9 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
 
    if(s.isRTimeSet())
     sbm.put(rtimeProperty, String.valueOf(s.getRTime()));
+
+   if( s.getSecretKey() != null )
+    sbm.put(seckeyProperty, s.getSecretKey());
   }
   
   if( s.isRTimeSet() )
