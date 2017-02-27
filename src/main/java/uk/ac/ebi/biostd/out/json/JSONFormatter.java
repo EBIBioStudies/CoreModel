@@ -49,6 +49,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
  public static final String vlQualProperty = "valqual";
  public static final String isRefProperty = "isReference";
  public static final String typeProperty = "type";
+ public static final String sizeProperty = "size";
  public static final String subsectionsProperty = "subsections";
  public static final String filesProperty = "files";
  public static final String linksProperty = "links";
@@ -287,6 +288,14 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
    JSONObject jsfl = new JSONObject();
    
    jsfl.put(pathProperty, fr.getName());
+
+   if( ! cutTech )
+   {
+    jsfl.put(sizeProperty, fr.getSize());
+    jsfl.put(typeProperty, fr.isDirectory()?"directory":"file");
+   }
+
+
    
    appendAttributes(jsfl, fr);
    appendAccessTags(jsfl, fr);
