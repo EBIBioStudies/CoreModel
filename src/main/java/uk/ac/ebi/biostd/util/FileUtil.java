@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
@@ -21,6 +22,20 @@ public class FileUtil
   return readFile( f, Charset.defaultCharset() );
  }
 
+ public static String readStream( Reader fis ) throws IOException
+ {
+  StringBuilder sb = new StringBuilder();
+  
+  char[] buff = new char[64*1024];
+  
+  int n;
+  while( (n =  fis.read(buff) ) > 0 )
+   sb.append(buff,0,n);
+  
+  return sb.toString();
+ }
+ 
+ 
  public static String readStream( InputStream fis, Charset chst, long sz ) throws IOException
  {
   ByteArrayOutputStream baos = null;
