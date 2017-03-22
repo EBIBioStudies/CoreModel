@@ -289,7 +289,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
    
    jsfl.put(pathProperty, fr.getName());
 
-   if( ! cutTech )
+   if( fr.getSize() != 0   )
    {
     jsfl.put(sizeProperty, fr.getSize());
     jsfl.put(typeProperty, fr.isDirectory()?"directory":"file");
