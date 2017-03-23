@@ -1,232 +1,274 @@
 package uk.ac.ebi.biostd.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
+import sun.misc.IOUtils;
+
+import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 
 
+public class FileUtil {
 
-
-public class FileUtil
-{
-
- public static String readFile( File f ) throws IOException
- {
-  return readFile( f, Charset.defaultCharset() );
- }
-
- public static String readStream( Reader fis ) throws IOException
- {
-  StringBuilder sb = new StringBuilder();
-  
-  char[] buff = new char[64*1024];
-  
-  int n;
-  while( (n =  fis.read(buff) ) > 0 )
-   sb.append(buff,0,n);
-  
-  return sb.toString();
- }
- 
- 
- public static String readStream( InputStream fis, Charset chst, long sz ) throws IOException
- {
-  ByteArrayOutputStream baos = null;
-  
-  if( sz > 0 && sz < Integer.MAX_VALUE )
-   baos = new ByteArrayOutputStream( (int)sz );
-  else
-   baos = new ByteArrayOutputStream( );
-  
-  try
-  {
-   byte[] buff = new byte[64*1024];
-   int n;
-   
-   while( (n=fis.read(buff)) != -1 )
-    baos.write(buff, 0, n);
-   
-   buff = baos.toByteArray();
-   
-   
-   int offs = 0;
-   if( ( buff[0] == (byte)0xEF && buff[1] == (byte)0xBB && buff[2] == (byte)0xBF ) && chst.displayName().equalsIgnoreCase("UTF-8") )
-    offs=3;
-    
-   return new String(buff,offs,buff.length-offs,chst);
-  }
-  finally
-  {
-   if( fis != null )
-   {
-    try
-    {
-     fis.close();
+    public static String readFile(File f) throws IOException {
+        return readFile(f, Charset.defaultCharset());
     }
-    catch(Exception e)
-    {
-    }
-   }
-   
-   baos.close();
-  }
-  
- }
 
- 
- public static String readFile( File f, Charset chst ) throws IOException
- {
-  FileInputStream fis = new FileInputStream(f);
-  
-  return readStream(fis, chst, f.length());
- }
- 
- public static String readGzFile( File f, Charset chst ) throws IOException
- {
-  InputStream fis = new GZIPInputStream( new FileInputStream(f) );
-  
-  return readStream(fis, chst, -1);
- }
- 
- public static byte[] readBinFile( File f ) throws IOException
- {
-  FileInputStream fis = new FileInputStream(f);
-  
-  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
-  try
-  {
-   byte[] buff = new byte[64*1024];
-   int n;
-   
-   while( (n=fis.read(buff)) != -1 )
-    baos.write(buff, 0, n);
-   
-   return baos.toByteArray();
-  }
-  finally
-  {
-   if( fis != null )
-   {
-    try
-    {
-     fis.close();
-    }
-    catch(Exception e)
-    {
-    }
-   }
-   
-   baos.close();
-  }
-  
- }
- 
- public static void copyFile( File inf, File outf ) throws IOException
- {
-  byte[] buf = new byte[64*1024];
-  
-  try (
-   InputStream fis = new FileInputStream(inf);
-   OutputStream fos = new FileOutputStream(outf);
-  )
-  {
-  int nread;
-  while( (nread=fis.read(buf) ) > 0 )
-   fos.write(buf, 0, nread);
-  }
-  
-  
- }
- 
- public static String readUnicodeFile( File f ) throws IOException
- {
-  FileInputStream fis = new FileInputStream(f);
-  
-  ByteArrayOutputStream baos = new ByteArrayOutputStream( (int)f.length() );
-  try
-  {
-   byte[] buff = new byte[4096];
-   int n;
-   int read = 0;
-   
-   do
-   {
-    n=fis.read(buff,read,buff.length-read);
-    
-    if( n == -1 )
-    {
-     if( read == 0 )
-      return "";
-     
-     return new String(buff,0,1);
-    }
-    
-    read+=n;
-   }
-   while( read < 3 );
-   
-   Charset cs = null;
-   
-   int offs = 0;
-   
-   if( ( buff[0] == (byte)0xFF && buff[1] == (byte)0xFE ) || ( buff[0] == (byte)0xFE && buff[1] == (byte)0xFF ) )
-    cs = Charset.forName("UTF-16");
-   else if( buff[0] == (byte)0xEF && buff[1] == (byte)0xBB && buff[2] == (byte)0xBF )
-   {
-    cs = Charset.forName("UTF-8");
-    offs = 3;
-   }
-   else
-    cs = Charset.forName("UTF-8");
+    public static String readStream(Reader fis) throws IOException {
+        StringBuilder sb = new StringBuilder();
 
-   baos.write(buff, offs, read-offs);
-   
-   while( (n=fis.read(buff)) != -1 )
-    baos.write(buff, 0, n);
-   
-   return new String(baos.toByteArray(),cs);
-  }
-  finally
-  {
-   if( fis != null )
-   {
-    try
-    {
-     fis.close();
-    }
-    catch(Exception e)
-    {
-    }
-   }
-   
-   baos.close();
-  }
- }
+        char[] buff = new char[64 * 1024];
 
- public static void copyDirectory(File inDir, File outDir) throws IOException
- {
-  if( ! inDir.isDirectory() )
-   return;
-  
-  for( File f : inDir.listFiles() )
-  {
-   File outFile =  new File(outDir, f.getName() );
+        int n;
+        while ((n = fis.read(buff)) > 0)
+            sb.append(buff, 0, n);
 
-   if( f.isDirectory() )
-   {
-    outFile.mkdirs();
-    copyDirectory(f, outFile);
-   }
-   else
-    copyFile(f, outFile );
-  }
-  
- } 
+        return sb.toString();
+    }
+
+
+    public static String readStream(InputStream fis, Charset chst, long sz) throws IOException {
+        ByteArrayOutputStream baos = null;
+
+        if (sz > 0 && sz < Integer.MAX_VALUE)
+            baos = new ByteArrayOutputStream((int) sz);
+        else
+            baos = new ByteArrayOutputStream();
+
+        try {
+            byte[] buff = new byte[64 * 1024];
+            int n;
+
+            while ((n = fis.read(buff)) != -1)
+                baos.write(buff, 0, n);
+
+            buff = baos.toByteArray();
+
+
+            int offs = 0;
+            if ((buff[0] == (byte) 0xEF && buff[1] == (byte) 0xBB && buff[2] == (byte) 0xBF) && chst.displayName().equalsIgnoreCase("UTF-8"))
+                offs = 3;
+
+            return new String(buff, offs, buff.length - offs, chst);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                }
+            }
+
+            baos.close();
+        }
+
+    }
+
+
+    public static String readFile(File f, Charset chst) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+
+        return readStream(fis, chst, f.length());
+    }
+
+    public static String readGzFile(File f, Charset chst) throws IOException {
+        InputStream fis = new GZIPInputStream(new FileInputStream(f));
+
+        return readStream(fis, chst, -1);
+    }
+
+    public static byte[] readBinFile(File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream((int) f.length());
+        try {
+            byte[] buff = new byte[64 * 1024];
+            int n;
+
+            while ((n = fis.read(buff)) != -1)
+                baos.write(buff, 0, n);
+
+            return baos.toByteArray();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                }
+            }
+
+            baos.close();
+        }
+
+    }
+
+    public static void copyFile(File inf, File outf) throws IOException {
+        byte[] buf = new byte[64 * 1024];
+
+        try (
+                InputStream fis = new FileInputStream(inf);
+                OutputStream fos = new FileOutputStream(outf);
+        ) {
+            int nread;
+            while ((nread = fis.read(buf)) > 0)
+                fos.write(buf, 0, nread);
+        }
+
+
+    }
+
+    public static String readUnicodeFile(File f) throws IOException {
+        FileInputStream fis = new FileInputStream(f);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream((int) f.length());
+        try {
+            byte[] buff = new byte[4096];
+            int n;
+            int read = 0;
+
+            do {
+                n = fis.read(buff, read, buff.length - read);
+
+                if (n == -1) {
+                    if (read == 0)
+                        return "";
+
+                    return new String(buff, 0, 1);
+                }
+
+                read += n;
+            }
+            while (read < 3);
+
+            Charset cs = null;
+
+            int offs = 0;
+
+            if ((buff[0] == (byte) 0xFF && buff[1] == (byte) 0xFE) || (buff[0] == (byte) 0xFE && buff[1] == (byte) 0xFF))
+                cs = Charset.forName("UTF-16");
+            else if (buff[0] == (byte) 0xEF && buff[1] == (byte) 0xBB && buff[2] == (byte) 0xBF) {
+                cs = Charset.forName("UTF-8");
+                offs = 3;
+            } else
+                cs = Charset.forName("UTF-8");
+
+            baos.write(buff, offs, read - offs);
+
+            while ((n = fis.read(buff)) != -1)
+                baos.write(buff, 0, n);
+
+            return new String(baos.toByteArray(), cs);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                }
+            }
+
+            baos.close();
+        }
+    }
+
+    public static void copyDirectory(File inDir, File outDir) throws IOException {
+        if (!inDir.isDirectory())
+            return;
+
+        for (File f : inDir.listFiles()) {
+            File outFile = new File(outDir, f.getName());
+
+            if (f.isDirectory()) {
+                outFile.mkdirs();
+                copyDirectory(f, outFile);
+            } else
+                copyFile(f, outFile);
+        }
+
+    }
+
+    public static FileInputStream openInputStream(File file) throws IOException {
+        if(file.exists()) {
+            if(file.isDirectory()) {
+                throw new IOException("File \'" + file + "\' exists but is a directory");
+            } else if(!file.canRead()) {
+                throw new IOException("File \'" + file + "\' cannot be read");
+            } else {
+                return new FileInputStream(file);
+            }
+        } else {
+            throw new FileNotFoundException("File \'" + file + "\' does not exist");
+        }
+    }
+
+    public static FileOutputStream openOutputStream(File file) throws IOException {
+        if(file.exists()) {
+            if(file.isDirectory()) {
+                throw new IOException("File \'" + file + "\' exists but is a directory");
+            }
+
+            if(!file.canWrite()) {
+                throw new IOException("File \'" + file + "\' cannot be written to");
+            }
+        } else {
+            File parent = file.getParentFile();
+            if(parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new IOException("File \'" + file + "\' could not be created");
+            }
+        }
+
+        return new FileOutputStream(file);
+    }
+
+    public static void writeStringToFile(File file, String data, String encoding) throws IOException {
+        FileOutputStream out = null;
+
+        try {
+            out = openOutputStream(file);
+            IOUtils.write(data, out, encoding);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+
+    }
+
+    public static void writeStringToFile(File file, String data) throws IOException {
+        writeStringToFile(file, data, (String) null);
+    }
+
+    public static void writeByteArrayToFile(File file, byte[] data) throws IOException {
+        FileOutputStream out = null;
+
+        try {
+            out = openOutputStream(file);
+            out.write(data);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+
+    }
+
+    public static void writeLines(File file, String encoding, Collection lines) throws IOException {
+        writeLines(file, encoding, lines, (String) null);
+    }
+
+    public static void writeLines(File file, Collection lines) throws IOException {
+        writeLines(file, (String) null, lines, (String) null);
+    }
+
+    public static void writeLines(File file, String encoding, Collection lines, String lineEnding) throws IOException {
+        FileOutputStream out = null;
+
+        try {
+            out = openOutputStream(file);
+            IOUtils.writeLines(lines, lineEnding, out, encoding);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+
+    }
+
+    public static void writeLines(File file, Collection lines, String lineEnding) throws IOException {
+        writeLines(file, (String) null, lines, lineEnding);
+    }
+
+
 }
