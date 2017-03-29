@@ -77,11 +77,13 @@ public class Submission implements Node, Accessible
  public static final String canonicTitleAttribute = "Title";
  public static final String canonicRootPathAttribute = "RootPath";
  public static final String canonicAttachToAttribute = "AttachTo";
+ public static final String canonicAccNoPattern = "AccNoPattern";
  
  private static final Pattern releaseDateAttribute = Pattern.compile("Release\\s*Date",Pattern.CASE_INSENSITIVE);
  private static final Pattern titleAttribute = Pattern.compile("Title",Pattern.CASE_INSENSITIVE);
  private static final Pattern rootPathAttribute = Pattern.compile("Root\\s*Path",Pattern.CASE_INSENSITIVE);
  private static final Pattern attachToAttribute = Pattern.compile("Attach\\s*To",Pattern.CASE_INSENSITIVE);
+ private static final Pattern accNoPatternAttribute = Pattern.compile("Acc\\s*No\\s*Pattern",Pattern.CASE_INSENSITIVE);
  
  private static final Pattern releaseDateFormat =  Pattern.compile("(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?");
  
@@ -265,6 +267,11 @@ public class Submission implements Node, Accessible
  public static String getNodeReleaseDate( Node nd )
  {
   return getAttribute(nd,releaseDateAttribute);
+ }
+ 
+ public static String getNodeAccNoPattern( Node nd )
+ {
+  return getAttribute(nd,accNoPatternAttribute);
  }
  
  public static List<String> getNodeAttachTo( Node nd )

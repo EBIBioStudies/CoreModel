@@ -120,7 +120,9 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
    }
   }
   
-  out.append("\"").append(submissionsProperty).append("\" : [\n"); }
+  out.append("\"").append(submissionsProperty).append("\" : [\n");
+  
+ }
 
 
  @Override
