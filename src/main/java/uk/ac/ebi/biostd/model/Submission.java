@@ -1,3 +1,23 @@
+/**
+
+Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute 
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+@author Mikhail Gostev <gostev@gmail.com>
+
+**/
+
 package uk.ac.ebi.biostd.model;
 
 import java.text.SimpleDateFormat;
@@ -77,11 +97,15 @@ public class Submission implements Node, Accessible
  public static final String canonicTitleAttribute = "Title";
  public static final String canonicRootPathAttribute = "RootPath";
  public static final String canonicAttachToAttribute = "AttachTo";
+ public static final String canonicAccNoPattern = "AccNoPattern";
+ public static final String canonicAccNoTemplate = "AccNoTemplate";
  
  private static final Pattern releaseDateAttribute = Pattern.compile("Release\\s*Date",Pattern.CASE_INSENSITIVE);
  private static final Pattern titleAttribute = Pattern.compile("Title",Pattern.CASE_INSENSITIVE);
  private static final Pattern rootPathAttribute = Pattern.compile("Root\\s*Path",Pattern.CASE_INSENSITIVE);
  private static final Pattern attachToAttribute = Pattern.compile("Attach\\s*To",Pattern.CASE_INSENSITIVE);
+ private static final Pattern accNoPatternAttribute = Pattern.compile("Acc\\s*No\\s*Pattern",Pattern.CASE_INSENSITIVE);
+ private static final Pattern accNoTemplateAttribute = Pattern.compile("Acc\\s*No\\s*Template",Pattern.CASE_INSENSITIVE);
  
  private static final Pattern releaseDateFormat =  Pattern.compile("(?<year>\\d{2,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})(T(?<hour>\\d{1,2}):(?<min>\\d{1,2})(:(?<sec>\\d{1,2})(\\.(?<msec>\\d{1,3})Z?)?)?)?");
  
@@ -267,6 +291,16 @@ public class Submission implements Node, Accessible
   return getAttribute(nd,releaseDateAttribute);
  }
  
+ public static String getNodeAccNoPattern( Node nd )
+ {
+  return getAttribute(nd,accNoPatternAttribute);
+ }
+ 
+ public static String getNodeAccNoTemplate( Node nd )
+ {
+  return getAttribute(nd,accNoTemplateAttribute);
+ }
+
  public static List<String> getNodeAttachTo( Node nd )
  {
   if( nd.getAttributes() != null )
