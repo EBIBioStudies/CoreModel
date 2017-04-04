@@ -39,6 +39,9 @@
 		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfGrpACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfUsrACR</class>
 
+		<class>uk.ac.ebi.biostd.authz.TextSubscription</class>
+		<class>uk.ac.ebi.biostd.authz.SubscriptionMatchEvent</class>
+
 		<class>uk.ac.ebi.biostd.idgen.Counter</class>
 		<class>uk.ac.ebi.biostd.idgen.Domain</class>
 		<class>uk.ac.ebi.biostd.idgen.IdGen</class>

@@ -1,14 +1,6 @@
 package uk.ac.ebi.biostd.authz;
 
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 /**
  * Created by andrew on 23/03/2017.
@@ -16,77 +8,63 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = TextSubscription.GetUsersByAttributeIdsQuery,
-                query = "SELECT DISTINCT u FROM TextSubscription ts LEFT JOIN ts.user u where ts.attribute.id in (:" +
-                        TextSubscription.AttributeIdQueryParameter + ")"),
-
-        @NamedQuery(name = TextSubscription.GetUsersByAttributeNamesQuery,
-                query = "SELECT DISTINCT u FROM TextSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.attribute att where att.name in (:" +
-                        TextSubscription.AttributeNameQueryParameter + ")"),
+        @NamedQuery(name = TextSubscription.GetAllByAttributeQuery,
+                query = "SELECT ts FROM TextSubscription ts LEFT JOIN ts.user u "
+                + "where ts.attribute in (:" + TextSubscription.AttributeQueryParameter + ")"),
 
 
-        @NamedQuery(name = TextSubscription.GetByAttributeIdsAndUserIdQuery,
-                query = "SELECT ts FROM TextSubscription ts where ts.attribute.id in (:" +
-                        TextSubscription.AttributeIdQueryParameter + ") order by ts.user.id"),
+        @NamedQuery(name = TextSubscription.GetUsersByAttributeQuery,
+                query = "SELECT DISTINCT u FROM TextSubscription ts LEFT JOIN ts.user u where ts.attribute in (:" +
+                        TextSubscription.AttributeQueryParameter + ")"),
 
-        @NamedQuery(name = TextSubscription.GetByAttributeNamesAndUserIdQuery,
-                query = "SELECT ts FROM TextSubscription ts where ts.attribute.name in (:" +
-                        TextSubscription.AttributeNameQueryParameter + ") order by ts.user.id"),
-
-
-        @NamedQuery(name = TextSubscription.GetAllByAttributeIdsQuery,
-                query = "SELECT ts FROM TextSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.attribute att "
-                + "where att.id in (:" + TextSubscription.AttributeIdQueryParameter + ")"),
-
+        @NamedQuery(name = TextSubscription.GetByAttributeAndUserIdQuery,
+                query = "SELECT ts FROM TextSubscription ts where ts.attribute in (:" +
+                        TextSubscription.AttributeQueryParameter + ") order by ts.user.id"),
 
         @NamedQuery(name = TextSubscription.GetAllByUserIdQuery,
-                query = "SELECT ts FROM TextSubscription ts LEFT JOIN ts.user u LEFT JOIN ts.attribute att "
+                query = "SELECT ts FROM TextSubscription ts LEFT JOIN ts.user u "
                 + "where  u.id=:" + TextSubscription.UserIdQueryParameter)
 
 })
+@Table(
+indexes = {@Index(name = "attribute_index",  columnList="attribute", unique = false)})
 public class TextSubscription {
 
-    public static final String GetUsersByAttributeIdsQuery = "TextSubscription.getUsersByAttributeIds";
-    public static final String GetUsersByAttributeNamesQuery = "TextSubscription.getUsersByAttributeNames";
+    public static final String GetAllByAttributeQuery = "TextSubscription.getAllByAttributeQuery";
 
-    public static final String GetByAttributeIdsAndUserIdQuery = "TextSubscription.getByAttributeIdAndUser";
-    public static final String GetByAttributeNamesAndUserIdQuery = "TextSubscription.getByAttributeNameAndUser";
-
+    public static final String GetUsersByAttributeQuery = "TextSubscription.getUsersByAttribute";
+    public static final String GetByAttributeAndUserIdQuery = "TextSubscription.getByAttributeIdAndUser";
     public static final String GetAllByUserIdQuery = "TextSubscription.getAllByUserIdQuery";
-    public static final String GetAllByAttributeIdsQuery = "TextSubscription.getAllByAttributeIdsQuery";
-
 
     public static final String UserIdQueryParameter = "userId";
-    public static final String AttributeIdQueryParameter = "attributeId";
-    public static final String AttributeNameQueryParameter = "attributeName";
+    public static final String AttributeQueryParameter = "attribute";
 
 
     private long id;
     private User user;
-    private Attribute attribute;
+    private String attribute;
     private String pattern;
 
     public TextSubscription() {
     }
 
-    @ManyToOne
-    @JoinColumn(name = "attribute_id", foreignKey = @ForeignKey(name = "attribute_fk"))
-    public Attribute getAttribute() { return attribute; }
-    public void setAttribute(Attribute attribute) {
+    public String getAttribute() { return attribute; }
+    public void setAttribute(String attribute) {
         this.attribute = attribute;
     }
 
+    public String getPattern() { return pattern; }
+    public void setPattern(String pattern) { this.pattern = pattern; }
+
     @ManyToOne
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_fk"))
+    //@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "user_fk"))
+    @JoinColumn(name = "user_id")
     public User getUser() {
         return user;
     }
     public void setUser(User user) {
         this.user = user;
     }
-
-    public String getPattern() { return pattern; }
-    public void setPattern(String pattern) { this.pattern = pattern; }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,5 +74,4 @@ public class TextSubscription {
     public void setId(long id) {
         this.id = id;
     }
-
 }
