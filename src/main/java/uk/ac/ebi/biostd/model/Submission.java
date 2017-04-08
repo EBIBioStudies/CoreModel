@@ -54,6 +54,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
+import uk.ac.ebi.biostd.authz.OwnedObject;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 import uk.ac.ebi.biostd.authz.User;
@@ -82,7 +83,7 @@ import uk.ac.ebi.biostd.authz.User;
      @UniqueConstraint(columnNames = {"accNo" , "version"})
      }
   )
-public class Submission implements Node, Accessible
+public class Submission implements Node, Accessible, OwnedObject
 {
  public static final String GetCountByAccQuery = "Submission.countByAcc";
  public static final String GetCountAllByAccQuery = "Submission.counAlltByAcc";
@@ -337,6 +338,7 @@ public class Submission implements Node, Accessible
  }
 
  
+ @Override
  @ManyToOne(fetch=FetchType.LAZY)
  @JoinColumn(name="owner_id")
  public User getOwner()

@@ -53,7 +53,7 @@ import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
 })
 @Cacheable(true)
 @Table( indexes = {@Index(name = "name_index",  columnList="name", unique = true)})
-public class UserGroup implements AuthzSubject, AuthzObject
+public class UserGroup implements AuthzSubject, AuthzObject, OwnedObject
 {
  public static final String GetByIdQuery    = "UserGroup.getById";
  
@@ -111,6 +111,7 @@ public class UserGroup implements AuthzSubject, AuthzObject
   this.description = description;
  }
 
+ @Override
  @ManyToOne
  @JoinColumn(name="owner_id")
  public User getOwner()

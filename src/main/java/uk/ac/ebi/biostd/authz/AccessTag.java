@@ -55,7 +55,7 @@ import uk.ac.ebi.biostd.authz.acr.TagProfUsrACR;
   indexes = {
      @Index(name = "name_idx", columnList = "name", unique=true)
   })
-public class AccessTag implements AuthzObject
+public class AccessTag implements AuthzObject, OwnedObject
 {
 
  @Id
@@ -96,6 +96,7 @@ public class AccessTag implements AuthzObject
   this.description = description;
  }
  
+ @Override
  @ManyToOne
  @JoinColumn(name="owner_id")
  public User getOwner()

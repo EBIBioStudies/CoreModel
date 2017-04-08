@@ -48,7 +48,9 @@ public enum SystemAction
  
  MANAGETAGS("Create/rename/delete tags and classifiers",ActionGroup.TAGS),
  
- CREATEGROUP("Create group",ActionGroup.GROUPS);
+ CREATEGROUP("Create group",ActionGroup.GROUPS),
+ 
+ CHANGEACCESS("Change access", ActionGroup.ACCESS);
  
  public static enum ActionGroup
  {
@@ -58,7 +60,8 @@ public enum SystemAction
   EXPORT("Data export"), 
   IDGEN("ID generation"),
   TAGS("Tags and classifiers"),
-  GROUPS("Group management");
+  GROUPS("Group management"),
+  ACCESS("Modify access rules");
 
   String description;
   
