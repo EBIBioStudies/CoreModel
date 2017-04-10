@@ -25,13 +25,18 @@ import javax.persistence.NamedQuery;
         @NamedQuery(name = SubscriptionMatchEvent.GetEventsByUserIdQuery,
                 query = "SELECT se FROM SubscriptionMatchEvent se LEFT JOIN se.user u " +
                         "LEFT JOIN se.subscription ts LEFT JOIN se.submission subm " +
-                        "where u.id=:" + SubscriptionMatchEvent.UserIdQueryParameter)
+                        "where u.id=:" + SubscriptionMatchEvent.UserIdQueryParameter),
 
+        @NamedQuery(name = SubscriptionMatchEvent.DeleteEventsByUserIdQuery,
+                query="delete from SubscriptionMatchEvent se " +
+                        "where se.user.id=:" + SubscriptionMatchEvent.UserIdQueryParameter)
 })
 public class SubscriptionMatchEvent {
 
     public static final String GetAllUsersWithEventsQuery = "SubscriptionMatchEvent.getAllUsersWithEventsQuery";
     public static final String GetEventsByUserIdQuery = "SubscriptionMatchEvent.getEventsByUserIdQuery";
+    public static final String DeleteEventsByUserIdQuery = "SubscriptionMatchEvent.deleteEventsByUserIdQuery";
+
     public static final String UserIdQueryParameter = "userId";
 
 
