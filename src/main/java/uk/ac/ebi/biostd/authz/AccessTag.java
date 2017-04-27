@@ -49,7 +49,7 @@ import uk.ac.ebi.biostd.authz.acr.TagProfUsrACR;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="AccessTag.getByName", query="SELECT t FROM AccessTag t where t.name=:name")
+ @NamedQuery(name=AccessTag.GetByNameQuery, query="SELECT t FROM AccessTag t where t.name=:name")
 })
 @Table(
   indexes = {
@@ -57,7 +57,9 @@ import uk.ac.ebi.biostd.authz.acr.TagProfUsrACR;
   })
 public class AccessTag implements AuthzObject, OwnedObject
 {
+ public static final String GetByNameQuery = "AccessTag.getByName";
 
+ 
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
@@ -258,6 +260,69 @@ public class AccessTag implements AuthzObject, OwnedObject
   profileForGroupACRs.add(acr);
  }
  
+
+ public void addDelegatePermissionForUserACR(User u, SystemAction act, boolean allow)
+ {
+  DelegatePermUsrACR acr = new DelegatePermUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( dlgPermissionForUserACRs == null )
+   dlgPermissionForUserACRs = new ArrayList<DelegatePermUsrACR>();
+  
+  dlgPermissionForUserACRs.add(acr);
+ }
+
+
+ public void addDelegatePermissionForGroupACR(UserGroup ug, SystemAction act, boolean allow)
+ {
+  DelegatePermGrpACR acr = new DelegatePermGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setAction(act);
+  acr.setAllow(allow);
+  
+  if( dlgPermissionForGroupACRs == null )
+   dlgPermissionForGroupACRs = new ArrayList<DelegatePermGrpACR>();
+  
+  dlgPermissionForGroupACRs.add(acr);
+ }
+
+
+ public void addDelegateProfileForUserACR(User u, PermissionProfile pp)
+ {
+  DelegateProfUsrACR acr = new DelegateProfUsrACR();
+  
+  acr.setSubject(u);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( dlgProfileForUserACRs == null )
+   dlgProfileForUserACRs = new ArrayList<DelegateProfUsrACR>();
+  
+  dlgProfileForUserACRs.add(acr);
+ }
+
+
+ public void addDelegateProfileForGroupACR(UserGroup ug, PermissionProfile pp)
+ {
+  DelegateProfGrpACR acr = new DelegateProfGrpACR();
+  
+  acr.setSubject(ug);
+  acr.setHost(this);
+  acr.setProfile(pp);
+  
+  if( dlgProfileForGroupACRs == null )
+   dlgProfileForGroupACRs = new ArrayList<DelegateProfGrpACR>();
+  
+  dlgProfileForGroupACRs.add(acr);
+ }
+
+ 
  
  @Override
  public Permit checkPermission(SystemAction act, User user)
@@ -271,25 +336,25 @@ public class AccessTag implements AuthzObject, OwnedObject
   {
    
    @Override
-   public Collection< ? extends ACR> getProfileForUserACRs()
+   public Collection< ? extends ProfileUserACR> getProfileForUserACRs()
    {
     return AccessTag.this.getDelegateProfileForUserACRs();
    }
    
    @Override
-   public Collection< ? extends ACR> getProfileForGroupACRs()
+   public Collection< ? extends ProfileGroupACR> getProfileForGroupACRs()
    {
     return AccessTag.this.getDelegateProfileForGroupACRs();
    }
    
    @Override
-   public Collection< ? extends ACR> getPermissionForUserACRs()
+   public Collection< ? extends PermUserACR> getPermissionForUserACRs()
    {
     return AccessTag.this.getDelegatePermissionForUserACRs();
    }
    
    @Override
-   public Collection< ? extends ACR> getPermissionForGroupACRs()
+   public Collection< ? extends PermGroupACR> getPermissionForGroupACRs()
    {
     return AccessTag.this.getDelegatePermissionForGroupACRs();
    }

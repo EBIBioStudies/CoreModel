@@ -26,11 +26,11 @@ import uk.ac.ebi.biostd.authz.ACR.Permit;
 
 public interface AuthzObject
 {
- Collection<? extends ACR> getPermissionForUserACRs();
- Collection<? extends ACR> getPermissionForGroupACRs();
+ Collection<? extends PermUserACR> getPermissionForUserACRs();
+ Collection<? extends PermGroupACR> getPermissionForGroupACRs();
 
- Collection<? extends ACR> getProfileForUserACRs();
- Collection<? extends ACR> getProfileForGroupACRs();
+ Collection<? extends ProfileUserACR> getProfileForUserACRs();
+ Collection<? extends ProfileGroupACR> getProfileForGroupACRs();
  
  Permit checkPermission(SystemAction act, User user);
  

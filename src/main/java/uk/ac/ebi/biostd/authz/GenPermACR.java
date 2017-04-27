@@ -31,8 +31,9 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUnit
+public class GenPermACR<SubjT extends AuthzSubject> extends Permission implements PermissionACR
 {
+ @Override
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()
@@ -41,6 +42,7 @@ public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
  }
  private long id;
 
+ @Override
  public void setId(long id)
  {
   this.id = id;
@@ -78,6 +80,7 @@ public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
   subject=gb;
  }
 
+ @Override
  @Enumerated(EnumType.STRING)
  public SystemAction getAction()
  {
@@ -86,12 +89,14 @@ public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
  private SystemAction action;
 
 
+ @Override
  public void setAction(SystemAction action)
  {
   this.action = action;
  }
 
 
+ @Override
  public boolean isAllow()
  {
   return allow;
@@ -99,6 +104,7 @@ public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
  private boolean allow;
 
 
+ @Override
  public void setAllow(boolean allow)
  {
   this.allow = allow;
@@ -107,7 +113,7 @@ public class GenPermACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
  
  @Override
  @Transient
- public PermissionUnit getPermissionUnit()
+ public Permission getPermissionUnit()
  {
   return this;
  }

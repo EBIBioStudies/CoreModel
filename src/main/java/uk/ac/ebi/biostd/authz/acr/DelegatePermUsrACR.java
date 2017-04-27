@@ -24,11 +24,12 @@ import javax.persistence.Entity;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.HostedPermACR;
+import uk.ac.ebi.biostd.authz.PermUserACR;
 import uk.ac.ebi.biostd.authz.User;
 
 
 @Entity
-public class DelegatePermUsrACR extends HostedPermACR<AccessTag, User>
+public class DelegatePermUsrACR extends HostedPermACR<AccessTag, User> implements PermUserACR
 {
 
  public DelegatePermUsrACR()
