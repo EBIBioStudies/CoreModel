@@ -43,7 +43,7 @@ import uk.ac.ebi.biostd.authz.acr.TemplateProfUsrACR;
 
 @Entity
 @NamedQueries({
- @NamedQuery(name="AuthorizationTemplate.getByClassName", query="select u from AuthorizationTemplate u where u.className=:className")
+ @NamedQuery(name=AuthorizationTemplate.GetByClassNameQuery, query="select u from AuthorizationTemplate u where u.className=:className")
 })
 @Table(
 indexes = {@Index(name = "classname_index",  columnList="className", unique = true)}
@@ -52,6 +52,8 @@ public class AuthorizationTemplate implements AuthzObject, Serializable
 {
  private static final long serialVersionUID = 1L;
 
+ public static final String GetByClassNameQuery = "AuthorizationTemplate.getByClassName";
+ 
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  public long getId()

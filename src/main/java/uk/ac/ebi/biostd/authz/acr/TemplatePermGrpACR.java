@@ -24,11 +24,12 @@ import javax.persistence.Entity;
 
 import uk.ac.ebi.biostd.authz.AuthorizationTemplate;
 import uk.ac.ebi.biostd.authz.HostedPermACR;
+import uk.ac.ebi.biostd.authz.PermGroupACR;
 import uk.ac.ebi.biostd.authz.UserGroup;
 
 
 @Entity
-public class TemplatePermGrpACR extends HostedPermACR<AuthorizationTemplate, UserGroup>
+public class TemplatePermGrpACR extends HostedPermACR<AuthorizationTemplate, UserGroup> implements PermGroupACR
 {
 
  public TemplatePermGrpACR()

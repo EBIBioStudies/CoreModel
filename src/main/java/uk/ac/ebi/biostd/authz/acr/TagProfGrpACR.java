@@ -24,11 +24,12 @@ import javax.persistence.Entity;
 
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.HostedProfACR;
+import uk.ac.ebi.biostd.authz.ProfileGroupACR;
 import uk.ac.ebi.biostd.authz.UserGroup;
 
 
 @Entity
-public class TagProfGrpACR extends HostedProfACR<AccessTag, UserGroup>
+public class TagProfGrpACR extends HostedProfACR<AccessTag, UserGroup> implements ProfileGroupACR
 {
 
  public TagProfGrpACR()

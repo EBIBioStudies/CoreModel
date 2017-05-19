@@ -29,7 +29,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public class GenProfACR<SubjT extends AuthzSubject> implements ACR, PermissionUnit
+public class GenProfACR<SubjT extends AuthzSubject> implements ProfileACR, PermissionUnit
 {
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -87,7 +87,7 @@ public class GenProfACR<SubjT extends AuthzSubject> implements ACR, PermissionUn
 
  @Override
  @Transient
- public PermissionUnit getPermissionUnit()
+ public PermissionProfile getPermissionUnit()
  {
   return profile;
  }
