@@ -13,6 +13,7 @@
 		<class>uk.ac.ebi.biostd.authz.PermissionProfile</class>
 		<class>uk.ac.ebi.biostd.authz.Tag</class>
 		<class>uk.ac.ebi.biostd.authz.TagSubscription</class>
+		<class>uk.ac.ebi.biostd.authz.TagSubscriptionMatchEvent</class>
 		<class>uk.ac.ebi.biostd.authz.TagRef</class>
 		<class>uk.ac.ebi.biostd.authz.User</class>
 		<class>uk.ac.ebi.biostd.authz.UserGroup</class>
@@ -39,8 +40,8 @@
 		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfGrpACR</class>
 		<class>uk.ac.ebi.biostd.authz.acr.TemplateProfUsrACR</class>
 
-		<class>uk.ac.ebi.biostd.authz.TextSubscription</class>
-		<class>uk.ac.ebi.biostd.authz.SubscriptionMatchEvent</class>
+		<class>uk.ac.ebi.biostd.authz.AttributeSubscription</class>
+		<class>uk.ac.ebi.biostd.authz.AttributeSubscriptionMatchEvent</class>
 
 		<class>uk.ac.ebi.biostd.idgen.Counter</class>
 		<class>uk.ac.ebi.biostd.idgen.Domain</class>

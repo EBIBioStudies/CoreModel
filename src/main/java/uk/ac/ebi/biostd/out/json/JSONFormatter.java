@@ -311,14 +311,12 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
    
    jsfl.put(pathProperty, fr.getName());
 
-   if( fr.getSize() != 0   )
+   if( fr.getSize() != 0 )
    {
     jsfl.put(sizeProperty, fr.getSize());
     jsfl.put(typeProperty, fr.isDirectory()?"directory":"file");
    }
 
-
-   
    appendAttributes(jsfl, fr);
    appendAccessTags(jsfl, fr);
    appendTags(jsfl, fr);

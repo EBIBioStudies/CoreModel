@@ -808,7 +808,13 @@ public class JSONReader extends Parser
       fr.setName( (String) val );
       
       break;
-     
+
+     case JSONFormatter.sizeProperty:
+      break;
+
+     case JSONFormatter.typeProperty:
+      break;
+
      default:
 
       if(!processCommon(key, val, fr, ln, path, si))
