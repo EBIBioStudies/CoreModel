@@ -44,6 +44,7 @@ import javax.persistence.Transient;
  @NamedQuery(name=User.GetByLoginQuery, query="select u from User u where u.login=:login"),
  @NamedQuery(name=User.GetByEMailQuery, query="select u from User u where u.email=:email"),
  @NamedQuery(name=User.GetByIdQuery, query="select u from User u where u.id=:id"),
+ @NamedQuery(name=User.GetBySubjectQuery, query="select u from User u where u.ssoSubject=:ssoSubject"),
  @NamedQuery(name=User.GetCountQuery, query="select count(u) from User u"),
  @NamedQuery(name=User.DelByIDsQuery, query="delete from User u where u.id in :ids")
 })
@@ -52,12 +53,18 @@ indexes = {@Index(name = "login_index",  columnList="login", unique = true),
            @Index(name = "email_index", columnList="email",     unique = true)})
 public class User implements AuthzSubject, Serializable
 {
+ //
  public static final String GetByLoginQuery = "User.getByLogin";
  public static final String GetByEMailQuery = "User.getByEMail";
  public static final String GetByIdQuery    = "User.getById";
  public static final String GetCountQuery   = "User.getCount";
  public static final String DelByIDsQuery   = "User.delByIDs";
- 
+ public static final String GetBySubjectQuery = "User.getBySubject";
+
+ public static final String SubjectQueryParameter = "ssoSubject";
+ public static final String EmailQueryParameter = "email";
+ public static final String LoginQueryParameter = "login";
+
  private static final long serialVersionUID = 1L;
 
  public User()
@@ -93,10 +100,7 @@ public class User implements AuthzSubject, Serializable
   this.login = login;
  }
 
- public String getEmail()
- {
-  return email;
- }
+ public String getEmail() { return email;}
  private String email;
 
  public void setEmail(String email)
@@ -126,7 +130,6 @@ public class User implements AuthzSubject, Serializable
   this.activationKey = activationKey;
  }
  
-
  public long getKeyTime()
  {
   return keyTime;
@@ -281,6 +284,12 @@ public class User implements AuthzSubject, Serializable
   this.superuser = superuser;
  }
 
+
+ public String getSsoSubject() {return ssoSubject; }
+ private String ssoSubject;
+
+ public void setSsoSubject(String ssoSubject) { this.ssoSubject = ssoSubject; }
+
  public static User makeCopy( User u )
  {
   User du = new User();
@@ -298,7 +307,8 @@ public class User implements AuthzSubject, Serializable
   du.setSuperuser( u.isSuperuser() );
 
   du.setGroups( u.getGroups() );
-  
+  du.setSsoSubject( u.getSsoSubject() );
+
   return du;
  }
  

@@ -38,11 +38,11 @@ public class SessionAuthenticated implements Session
  
  private String sessionKey;
  private User user;
+ private String ssoToken = null;
  private long lastAccessTime;
  private volatile int checkedIn=0;
- 
+
  private File sessionDir;
- 
  private int tmpFileCounter = 0;
  
  private EntityManager defaultEM;
@@ -77,6 +77,23 @@ public class SessionAuthenticated implements Session
  public void setUser(User user)
  {
   this.user = user;
+ }
+
+ /* (non-Javadoc)
+  * @see uk.ac.ebi.biostd.authz.SessionIF#getSSOToken()
+  */
+ @Override
+ public String getSSOToken()
+ {
+  return ssoToken;
+ }
+
+ /* (non-Javadoc)
+  * @see uk.ac.ebi.biostd.authz.SessionIF#setSSOToken(String)
+  */
+ @Override
+ public void setSSOToken(String ssoToken) {
+  this.ssoToken = ssoToken;
  }
 
  /* (non-Javadoc)

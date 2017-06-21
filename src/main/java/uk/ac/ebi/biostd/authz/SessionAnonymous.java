@@ -43,6 +43,8 @@ public class SessionAnonymous implements Session
  
  private EntityManagerFactory emf;
 
+ private String ssoToken = null;
+
  public SessionAnonymous( File sessDir, EntityManagerFactory fct )
  {
   if( log == null )
@@ -73,6 +75,15 @@ public class SessionAnonymous implements Session
  @Override
  public void setLastAccessTime(long lastAccessTime)
  {
+ }
+
+ @Override
+ public String getSSOToken() {
+  return ssoToken;
+ }
+
+ @Override
+ public void setSSOToken(String ssoToken) { this.ssoToken = ssoToken;
  }
 
  @Override

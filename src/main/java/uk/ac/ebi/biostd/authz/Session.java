@@ -31,6 +31,10 @@ public interface Session
 
  void setUser(User user);
 
+ String getSSOToken();
+
+ void setSSOToken(String ssoToken);
+
  long getLastAccessTime();
 
  void setLastAccessTime(long lastAccessTime);
