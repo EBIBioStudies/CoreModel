@@ -45,10 +45,11 @@ import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.SecurityObject;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.out.AbstractFormatter;
 import uk.ac.ebi.biostd.out.DocumentFormatter;
 import uk.ac.ebi.biostd.out.TextStreamFormatter;
 
-public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
+public class JSONFormatter implements AbstractFormatter
 {
  public static final String submissionsProperty = "submissions";
  public static final String rootSecProperty = "section";
@@ -309,7 +310,7 @@ public class JSONFormatter implements TextStreamFormatter, DocumentFormatter
   {
    JSONObject jsfl = new JSONObject();
    
-   jsfl.put(pathProperty, fr.getName());
+   jsfl.put(pathProperty, fr.getPath() != null ? fr.getPath() : fr.getName());
 
    if( fr.getSize() != 0 )
    {
