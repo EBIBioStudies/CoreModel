@@ -63,10 +63,11 @@ import uk.ac.ebi.biostd.model.Link;
 import uk.ac.ebi.biostd.model.Qualifier;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.out.AbstractFormatter;
 import uk.ac.ebi.biostd.out.DocumentFormatter;
 import uk.ac.ebi.biostd.out.TextStreamFormatter;
 
-public class PageMLFormatter implements TextStreamFormatter, DocumentFormatter
+public class PageMLFormatter implements AbstractFormatter
 {
  protected static final String shiftSym = " "; 
 
