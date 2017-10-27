@@ -1,22 +1,17 @@
 /**
-
-Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute 
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-@author Mikhail Gostev <gostev@gmail.com>
-
-**/
+ * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * @author Mikhail Gostev <gostev@gmail.com>
+ **/
 
 package uk.ac.ebi.biostd.in.pagetab;
 
@@ -25,58 +20,49 @@ import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.treelog.LogNode;
 
-public class ReferenceOccurrence
-{
+public class ReferenceOccurrence {
 
 
- private ElementPointer elementPointer;
- 
- private AbstractAttribute ref;
- private LogNode logNode;
- private Section section;
+    private ElementPointer elementPointer;
 
- public ReferenceOccurrence()
- {}
- 
- public LogNode getLogNode()
- {
-  return logNode;
- }
+    private AbstractAttribute ref;
+    private LogNode logNode;
+    private Section section;
 
- public void setLogNode(LogNode logNode)
- {
-  this.logNode = logNode;
- }
+    public ReferenceOccurrence() {
+    }
 
- public ElementPointer getElementPointer()
- {
-  return elementPointer;
- }
+    public LogNode getLogNode() {
+        return logNode;
+    }
 
- public void setElementPointer(ElementPointer elementPointer)
- {
-  this.elementPointer = elementPointer;
- }
+    public void setLogNode(LogNode logNode) {
+        this.logNode = logNode;
+    }
 
- public AbstractAttribute getRef()
- {
-  return ref;
- }
+    public ElementPointer getElementPointer() {
+        return elementPointer;
+    }
 
- public void setRef(AbstractAttribute ref)
- {
-  this.ref = ref;
- }
+    public void setElementPointer(ElementPointer elementPointer) {
+        this.elementPointer = elementPointer;
+    }
 
- public Section getSection()
- {
-  return section;
- }
+    public AbstractAttribute getRef() {
+        return ref;
+    }
 
- public void setSection(Section section)
- {
-  this.section = section;
- }
- 
- 
+    public void setRef(AbstractAttribute ref) {
+        this.ref = ref;
+    }
+
+    public Section getSection() {
+        return section;
+    }
+
+    public void setSection(Section section) {
+        this.section = section;
+    }
+
+
 }

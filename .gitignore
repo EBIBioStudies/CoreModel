@@ -4,3 +4,5 @@
 /.classpath
 /war
 /.project
+/.idea/
+/BioStdCoreModel.iml
