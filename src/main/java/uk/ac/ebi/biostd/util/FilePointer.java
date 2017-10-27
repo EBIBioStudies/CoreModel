@@ -23,9 +23,6 @@ public class FilePointer {
     private Path fullPath;
     private Path relativePath;
     private String archiveInternalPath;
-// private String destinationRelativePath;
-
-
     private boolean directory;
     private long size;
     private long groupID = 0;
@@ -92,14 +89,4 @@ public class FilePointer {
     public void setSize(long size) {
         this.size = size;
     }
-
-// public String getDestinationRelativePath()
-// {
-//  return destinationRelativePath;
-// }
-//
-// public void setDestinationRelativePath(String realRelativePath)
-// {
-//  this.destinationRelativePath = realRelativePath;
-// }
 }

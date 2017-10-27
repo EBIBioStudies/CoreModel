@@ -121,23 +121,6 @@ public class CellFormatter implements DocumentFormatter {
 
     }
 
- /*
- private void footer() throws IOException
- {
- }
-
- private void separator() throws IOException
- {
-  cstr.nextRow();
- }
-
- private void comment(String comment) throws IOException
- {
-  cstr.nextRow();
-  cstr.addCell(PageTabElements.CommentPrefix+comment);
- }
- */
-
     private void exportAccessTags(SecurityObject so) throws IOException {
         if (so.getAccessTags() == null || so.getAccessTags().size() == 0) {
             cstr.nextCell();

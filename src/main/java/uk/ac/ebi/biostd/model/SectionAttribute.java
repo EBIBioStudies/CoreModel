@@ -31,7 +31,6 @@ public class SectionAttribute extends AbstractAttribute {
     private Section host;
     private Collection<SectionAttributeTagRef> tagRefs;
 
-
     public SectionAttribute() {
     }
 

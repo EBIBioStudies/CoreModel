@@ -27,7 +27,6 @@ public class JSON4Log {
         JSONObject jo = new JSONObject(text);
 
         return convertJO(jo);
-
     }
 
     public static LogNode convertJO(JSONObject jo) throws ConvertException {
@@ -65,7 +64,6 @@ public class JSON4Log {
         }
 
         return sln;
-
     }
 
     public static void convert(LogNode nd, Appendable out) throws IOException {
@@ -110,6 +108,4 @@ public class JSON4Log {
 
         sb.append("}");
     }
-
-
 }
