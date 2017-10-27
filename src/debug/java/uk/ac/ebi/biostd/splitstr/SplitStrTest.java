@@ -1,86 +1,78 @@
 /**
-
-Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute 
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-@author Mikhail Gostev <gostev@gmail.com>
-
-**/
+ * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * @author Mikhail Gostev <gostev@gmail.com>
+ **/
 
 package uk.ac.ebi.biostd.splitstr;
 
 import java.util.List;
-
 import uk.ac.ebi.biostd.util.StringUtils;
 
-public class SplitStrTest
-{
+public class SplitStrTest {
 
- public static void main(String[] args)
- {
-  
-  String s="a=b";
-  show(s,0);
+    public static void main(String[] args) {
 
-  s="a=b=c";
-  show(s,0);
+        String s = "a=b";
+        show(s, 0);
 
-  s="a=b=c=";
-  show(s,0);
+        s = "a=b=c";
+        show(s, 0);
 
-  s="=a=b=c=";
-  show(s,0);
+        s = "a=b=c=";
+        show(s, 0);
 
-  s="=a==b=c=";
-  show(s,0);
-  
-  s="=a=\\=b=c=";
-  show(s,0);
+        s = "=a=b=c=";
+        show(s, 0);
 
-  s="=a=\\=b\\\\=c=";
-  show(s,0);
- 
-  s="=a=\\=b\\\\\\=c=";
-  show(s,0);
-  
-  s="=a=\\=b\\\\\\=c=";
-  show(s,2);
+        s = "=a==b=c=";
+        show(s, 0);
 
-  s="a=b";
-  show(s,2);
- 
-  s="a=b=c";
-  show(s,2);
+        s = "=a=\\=b=c=";
+        show(s, 0);
 
-  s="a\\=b=c";
-  show(s,2);
+        s = "=a=\\=b\\\\=c=";
+        show(s, 0);
 
-  s="a=b";
-  show(s,1);
+        s = "=a=\\=b\\\\\\=c=";
+        show(s, 0);
 
- }
- 
- static void show( String s, int n )
- {
-  List<String> spl = StringUtils.splitEscapedString(s, '=', '\\', n);
-  
-  System.out.print("String: '"+s+"' split: "+spl+" cleaned: ");
-  
-  for( int i=0; i < spl.size(); i++ )
-   spl.set(i, StringUtils.removeEscapes(spl.get(i), '\\') );
-  
-  System.out.println(spl);
- }
+        s = "=a=\\=b\\\\\\=c=";
+        show(s, 2);
+
+        s = "a=b";
+        show(s, 2);
+
+        s = "a=b=c";
+        show(s, 2);
+
+        s = "a\\=b=c";
+        show(s, 2);
+
+        s = "a=b";
+        show(s, 1);
+
+    }
+
+    static void show(String s, int n) {
+        List<String> spl = StringUtils.splitEscapedString(s, '=', '\\', n);
+
+        System.out.print("String: '" + s + "' split: " + spl + " cleaned: ");
+
+        for (int i = 0; i < spl.size(); i++) {
+            spl.set(i, StringUtils.removeEscapes(spl.get(i), '\\'));
+        }
+
+        System.out.println(spl);
+    }
 
 }
