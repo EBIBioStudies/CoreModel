@@ -69,10 +69,8 @@ import uk.ac.ebi.biostd.authz.User;
         @NamedQuery(name = Submission.GetMinVer, query = "SELECT MIN(s.version) FROM Submission s where s.accNo=:accNo")
 
 })
-@Table(indexes = {
-//     @Index(name = "acc_idx", columnList = "accNo,version"),
-//     @Index(name = "version_idx", columnList = "version"),
-        @Index(name = "rtime_idx", columnList = "RTime"), @Index(name = "released_idx", columnList = "released")},
+@Table(indexes = {@Index(name = "rtime_idx", columnList = "RTime"),
+        @Index(name = "released_idx", columnList = "released")},
         uniqueConstraints = {@UniqueConstraint(columnNames = {"accNo", "version"})})
 public class Submission implements Node, Accessible, OwnedObject {
 

@@ -46,12 +46,6 @@ public class StringUtils {
 
     static final ReplacePair[] htmlPairs = {new ReplacePair('"', "&quot;"), new ReplacePair('\'', "&#39;"),
             new ReplacePair('<', "&lt;"), new ReplacePair('>', "&gt;"), new ReplacePair('&', "&amp;"),};
-
-// static final char[] htmlEscChars = new char[]{  '"',     '\'',   '<',   '>',   '&'};
-// static final String[] htmlEntity = new String[]{"&quot;","&#39;","&lt;","&gt;","&amp;"};
-// static final char[] escChars = {'\'','"','\\','\0'};
-
-// static final char[][] escPairsO = {{'\'','\''},{'"','"'},{'\\','\\'},{'\0','0'},{'\n','n'},{'\r','r'}};
     static final ReplacePair[] cStrPairs = {new ReplacePair('\'', "\\'"), new ReplacePair('"', "\\\""),
             new ReplacePair('\\', "\\\\"), new ReplacePair('\0', "\\0"), new ReplacePair('\n', "\\n"),
             new ReplacePair('\r', "\\r")};
@@ -144,20 +138,19 @@ public class StringUtils {
         return l1 - l2;
     }
 
-// Gives the following order (number of digits takes precedence of tail )
-// A000
-// A000B01
-// A00B01
-// A0000001A02
-// A001B01
-// A01A02
-// A01B01
-// A01B02
-// A02B01
-// A2B01
-// A11B01
-// AB02B01
-
+    // Gives the following order (number of digits takes precedence of tail )
+    // A000
+    // A000B01
+    // A00B01
+    // A0000001A02
+    // A001B01
+    // A01A02
+    // A01B01
+    // A01B02
+    // A02B01
+    // A2B01
+    // A11B01
+    // AB02B01
     public static int naturalCompare2(String str1, String str2) // Wrong algorithms gives Equals: A01B01 and A001B01
     {
         int l1 = str1.length();
@@ -222,20 +215,19 @@ public class StringUtils {
         }
     }
 
-//Gives the following order (tail takes precedence of number of digits )
-// A000
-// A00B01
-// A000B01
-// A01A02
-// A0000001A02
-// A01B01
-// A001B01
-// A01B02
-// A2B01
-// A02B01
-// A11B01
-// AB02B01
-
+    //Gives the following order (tail takes precedence of number of digits )
+    // A000
+    // A00B01
+    // A000B01
+    // A01A02
+    // A0000001A02
+    // A01B01
+    // A001B01
+    // A01B02
+    // A2B01
+    // A02B01
+    // A11B01
+    // AB02B01
     public static String replace(String str, ReplacePair[] pairs) {
         StringBuffer sb = null;
         int cPos, ePos, mPos;

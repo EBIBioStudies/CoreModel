@@ -39,17 +39,6 @@ public class StreamPump {
     private InputStream is;
     private OutputStream os;
 
-    /**
-     * @param is
-     * @param os
-     */
-/* public StreamPump(InputStream is, OutputStream os)
- {
-  this.is = is;
-  this.os = os;
- }
-*/
-
     public static int doPump(InputStream pis, OutputStream pos) throws IOException {
         return doPump(pis, pos, true, -1);
     }
@@ -135,11 +124,6 @@ public class StreamPump {
 
         return n;
     }
-
-    /**
-     * @throws IOException
-     *
-     */
 
     public int doPump() throws IOException {
         return doPump(is, os);

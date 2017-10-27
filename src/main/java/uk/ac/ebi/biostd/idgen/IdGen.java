@@ -62,9 +62,6 @@ public class IdGen implements AuthzObject {
         return id;
     }
 
-// private int  counterPadding;
-// private Domain domain;
-
     public void setId(long id) {
         this.id = id;
     }

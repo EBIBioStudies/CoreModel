@@ -20,7 +20,6 @@ public enum DataFormat {
     json("application/json"), ods("application/vnd.oasis.opendocument.spreadsheet"), csv("text/csv"), tsv("text/tsv"),
     csvtsv("text/csvtsv"), xml("text/xml");
 
-
     private final String contentType;
 
     DataFormat(String ctype) {
