@@ -6,3 +6,5 @@
 /.project
 /.idea/
 /BioStdCoreModel.iml
+/build/
+/.gradle/
